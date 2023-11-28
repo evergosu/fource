@@ -2,7 +2,8 @@
   "name": "ludomancer",
   "packageManager": "yarn@4.0.2",
   "scripts": {
-    "build": "yarn --immutable"
+    "build": "yarn --immutable",
+    "dev": "yarn workspaces foreach --all --interlaced --parallel --topological --verbose run dev"
   },
   "workspaces": [
     "src/*"
