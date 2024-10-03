@@ -1,3 +1,3 @@
-# ludomancer
+# fource
 
-Dota 2 API exploration with latest tech stack.
+Fullstack app showcase latest tools.

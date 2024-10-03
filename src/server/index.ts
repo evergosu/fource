@@ -1,3 +1,3 @@
-import { stdin, stdout } from 'node:process';
+import { stdout, stdin } from 'node:process';
 
 stdin.pipe(stdout);

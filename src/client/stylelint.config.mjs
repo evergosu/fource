@@ -1,5 +1,4 @@
-module.exports = {
-  extends: ['stylelint-config-standard', 'stylelint-prettier/recommended'],
+export default {
   rules: {
     'at-rule-no-unknown': [
       true,
@@ -8,4 +7,5 @@ module.exports = {
       },
     ],
   },
+  extends: ['stylelint-config-standard', 'stylelint-prettier/recommended'],
 };
