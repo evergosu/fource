@@ -1,20 +1,21 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": ["../../tsconfig.json"],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowJs": true,
     "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
-    "target": "es2022",
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "allowJs": true
+    "target": "es2022",
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "./vitest.setup.ts"],
   "exclude": ["node_modules"]
 }
