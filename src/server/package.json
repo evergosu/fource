@@ -5,13 +5,18 @@
   "files": [],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint --fix && echo '✔ No ESLint warnings or errors'",
+    "lint": "eslint --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
     "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
     "prod": "yarn preprod && node dist/index.js",
     "start": "tsx watch --clear-screen=false index.ts",
-    "test": "vitest --passWithNoTests"
+    "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest --passWithNoTests"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --fix --cache",
+    "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
   },
   "devDependencies": {
+    "@amiceli/vitest-cucumber": "^4.3.0",
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.11.1",
@@ -32,7 +37,9 @@
     "eslint-plugin-sonarjs": "^2.0.3",
     "eslint-plugin-unicorn": "^55.0.0",
     "eslint-plugin-vitest": "^0.5.4",
+    "gherkin-lint": "^4.2.4",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "msw": "^2.4.9",
     "prettier": "^3.3.3",

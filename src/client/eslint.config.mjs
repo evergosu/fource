@@ -111,6 +111,7 @@ export default config(
         },
       ],
       'import-x/newline-after-import': 'error',
+      'sonarjs/no-empty-test-file': 'off',
       'import-x/no-duplicates': 'error',
       'import-x/first': 'error',
       // Already checked by typescript.
