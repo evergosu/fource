@@ -1,20 +1,22 @@
 {
   "name": "fource",
-  "packageManager": "yarn@4.5.0",
+  "packageManager": "yarn@4.6.0+sha512.5383cc12567a95f1d668fbe762dfe0075c595b4bfff433be478dbbe24e05251a8e8c3eb992a986667c1d53b6c3a9c85b8398c35a960587fbd9fa3a0915406728",
   "scripts": {
-    "build": "yarn --immutable && yarn workspaces foreach --all --interlaced --parallel --topological --verbose run build",
-    "lint": "yarn workspaces foreach --all --interlaced --parallel --verbose run lint",
-    "prod": "yarn workspaces foreach --all --interlaced --parallel --verbose run prod",
-    "start": "yarn workspaces foreach --all --interlaced --parallel --topological --verbose run start",
-    "test": "yarn workspaces foreach --all --interlaced --parallel --verbose run test",
-    "update": "yarn upgrade-interactive && yarn dlx @yarnpkg/sdks base -v"
+    "build": "FORCE_COLOR=1 yarn --immutable && yarn workspaces foreach --all --interlaced --parallel --topological --verbose run build",
+    "lint": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run lint",
+    "prod": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run prod",
+    "start": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --topological --verbose run start",
+    "test": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run test",
+    "update": "FORCE_COLOR=1 yarn upgrade-interactive && yarn dlx @yarnpkg/sdks base -v"
   },
   "workspaces": [
     "src/*"
   ],
   "devDependencies": {
+    "@amiceli/vitest-cucumber": "^4.3.0",
     "@typescript-eslint/parser": "^8.8.0",
     "eslint": "^8.57.0",
+    "gherkin-lint": "^4.2.4",
     "jsdom": "^25.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
