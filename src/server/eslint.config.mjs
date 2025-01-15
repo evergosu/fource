@@ -54,6 +54,7 @@ export default config(
             'mocks/server.ts',
             '*.config.{mjs,ts}',
             'vitest.setup.ts',
+            '**/*.spec.*',
             '**/*.test.*',
           ],
           peerDependencies: true,
