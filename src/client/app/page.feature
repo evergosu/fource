@@ -1,6 +1,6 @@
-Feature: Basic configuration for tests
+Feature: Suggested story
 
-Scenario: Should have test link at home page
-  Given User at home page
-  When  Page loads
-  Then  User can see test link
+Scenario: user should see a suggested story at home page
+  Given user at home page
+  When page loads
+  Then user can see a suggested story
