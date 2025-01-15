@@ -51,7 +51,6 @@ export default config(
         'error',
         {
           devDependencies: [
-            'mocks/server.ts',
             '*.config.{mjs,ts}',
             'vitest.setup.ts',
             '**/*.spec.*',
