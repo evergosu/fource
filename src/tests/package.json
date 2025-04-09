@@ -1,25 +1,24 @@
 {
-  "name": "client",
+  "name": "tests",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
-    "lint": "eslint --fix && stylelint '**/*.css' --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
+    "lint": "eslint --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
     "postinstall": "husky",
     "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
     "prod": "yarn preprod && next start",
-    "start": "next dev",
     "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest"
   },
   "lint-staged": {
-    "*.css": "stylelint '**/*.css' --fix --cache",
     "*.{ts,tsx}": "eslint --fix --cache",
     "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
   },
   "dependencies": {
+    "client": "*",
     "next": "15.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "server": "*",
     "swr": "^2.3.0"
   },
   "devDependencies": {

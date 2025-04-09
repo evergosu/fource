@@ -2,31 +2,42 @@
   "name": "server",
   "private": true,
   "type": "module",
-  "files": [],
+  "engines": {
+    "node": ">=22.8.0"
+  },
   "scripts": {
     "build": "tsc",
     "lint": "eslint --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
     "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
-    "prod": "yarn preprod && node dist/index.js",
-    "start": "tsx watch --clear-screen=false index.ts",
+    "prod": "yarn preprod && node dist/src/index.js",
+    "start": "tsx watch --clear-screen=false src/index.ts",
     "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest --passWithNoTests"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix --cache",
     "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
   },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0"
+  },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^4.3.0",
-    "@eslint/compat": "^1.1.1",
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.11.1",
+    "@eslint/compat": "^1.2.5",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@types/cors": "^2",
     "@types/eslint": "^9.6.1",
     "@types/eslint__js": "^8.42.3",
+    "@types/express": "^4",
     "@types/jest": "^29.5.14",
+    "@types/morgan": "^1",
     "@types/node": "^22.7.4",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import-x": "^4.3.1",
@@ -44,9 +55,9 @@
     "jsdom": "^25.0.1",
     "prettier": "^3.3.3",
     "supertest": "^7.0.0",
-    "tsx": "^4.19.1",
-    "typescript": "^5.6.2",
-    "typescript-eslint": "^8.7.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0",
     "vitest": "^2.1.1"
   }
 }

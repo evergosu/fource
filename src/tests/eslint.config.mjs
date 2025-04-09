@@ -46,7 +46,7 @@ export default config(
       extends: ['plugin:@next/next/recommended'],
     }),
   ),
-  react.configs.flat['recommended'],
+  react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
   ...compat.config({
     extends: ['plugin:react-hooks/recommended'],
@@ -121,6 +121,16 @@ export default config(
       'import-x/named': 'off',
     },
     settings: {
+      'import-x/resolver': {
+        options: {
+          tsconfigRootDir: __dirname,
+          alwaysTryTypes: true,
+        },
+        name: 'typescript',
+        resolver: resolver,
+        typescript: true,
+        node: true,
+      },
       'import-x/parsers': {
         '@typescript-eslint/parser': [
           '.ts',
@@ -132,15 +142,6 @@ export default config(
           '.cjs',
           '.mjs',
         ],
-      },
-      'import-x/resolver': {
-        options: {
-          tsconfigRootDir: __dirname,
-          alwaysTryTypes: true,
-        },
-        name: 'typescript',
-        resolver: resolver,
-        node: true,
       },
       perfectionist: {
         partitionByComment: true,

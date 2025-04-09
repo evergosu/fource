@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+// It is virtual import, created by nextjs, that is why plugin can't see it.
+// eslint-disable-next-line import-x/no-unresolved
 import { Inter } from 'next/font/google';
 
 import './globals.css';
