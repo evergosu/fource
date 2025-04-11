@@ -19,7 +19,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@amiceli/vitest-cucumber@npm:^4.3.0":
+"@amiceli/vitest-cucumber@npm:^4.7.0":
   version: 4.7.0
   resolution: "@amiceli/vitest-cucumber@npm:4.7.0"
   dependencies:
@@ -4771,7 +4771,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "client@workspace:src/client"
   dependencies:
-    "@amiceli/vitest-cucumber": "npm:^4.3.0"
+    "@amiceli/vitest-cucumber": "npm:^4.7.0"
     "@eslint/compat": "npm:^1.2.5"
     "@eslint/eslintrc": "npm:^3.2.0"
     "@eslint/js": "npm:^9.18.0"
@@ -4826,9 +4826,9 @@ __metadata:
     tailwindcss: "npm:^3.4.13"
     typescript: "npm:^5.7.3"
     typescript-eslint: "npm:^8.21.0"
-    vite: "npm:^5.4.8"
-    vite-tsconfig-paths: "npm:^5.0.1"
-    vitest: "npm:^2.1.1"
+    vite: "npm:^5.4.18"
+    vite-tsconfig-paths: "npm:^5.1.4"
+    vitest: "npm:^2.1.9"
   languageName: unknown
   linkType: soft
 
@@ -7199,7 +7199,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "fource@workspace:."
   dependencies:
-    "@amiceli/vitest-cucumber": "npm:^4.3.0"
+    "@amiceli/vitest-cucumber": "npm:^4.7.0"
     "@typescript-eslint/parser": "npm:^8.8.0"
     eslint: "npm:^8.57.1"
     gherkin-lint: "npm:^4.2.4"
@@ -7207,9 +7207,9 @@ __metadata:
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
     typescript: "npm:^5.7.3"
-    vite: "npm:^5.4.8"
-    vite-tsconfig-paths: "npm:^5.0.1"
-    vitest: "npm:^2.1.1"
+    vite: "npm:^5.4.18"
+    vite-tsconfig-paths: "npm:^5.1.4"
+    vitest: "npm:^2.1.9"
   languageName: unknown
   linkType: soft
 
@@ -11073,7 +11073,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "server@workspace:src/server"
   dependencies:
-    "@amiceli/vitest-cucumber": "npm:^4.3.0"
+    "@amiceli/vitest-cucumber": "npm:^4.7.0"
     "@eslint/compat": "npm:^1.2.5"
     "@eslint/eslintrc": "npm:^3.2.0"
     "@eslint/js": "npm:^9.18.0"
@@ -11111,7 +11111,7 @@ __metadata:
     tsx: "npm:^4.19.2"
     typescript: "npm:^5.7.3"
     typescript-eslint: "npm:^8.21.0"
-    vitest: "npm:^2.1.1"
+    vitest: "npm:^2.1.9"
   languageName: unknown
   linkType: soft
 
@@ -12056,7 +12056,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tests@workspace:src/tests"
   dependencies:
-    "@amiceli/vitest-cucumber": "npm:^4.3.0"
+    "@amiceli/vitest-cucumber": "npm:^4.7.0"
     "@eslint/compat": "npm:^1.2.5"
     "@eslint/eslintrc": "npm:^3.2.0"
     "@eslint/js": "npm:^9.18.0"
@@ -12113,9 +12113,9 @@ __metadata:
     tailwindcss: "npm:^3.4.13"
     typescript: "npm:^5.7.3"
     typescript-eslint: "npm:^8.21.0"
-    vite: "npm:^5.4.8"
-    vite-tsconfig-paths: "npm:^5.0.1"
-    vitest: "npm:^2.1.1"
+    vite: "npm:^5.4.18"
+    vite-tsconfig-paths: "npm:^5.1.4"
+    vitest: "npm:^2.1.9"
   languageName: unknown
   linkType: soft
 
@@ -12811,7 +12811,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-tsconfig-paths@npm:^5.0.1":
+"vite-tsconfig-paths@npm:^5.1.4":
   version: 5.1.4
   resolution: "vite-tsconfig-paths@npm:5.1.4"
   dependencies:
@@ -12824,6 +12824,49 @@ __metadata:
     vite:
       optional: true
   checksum: 10c0/6228f23155ea25d92b1e1702284cf8dc52ad3c683c5ca691edd5a4c82d2913e7326d00708cef1cbfde9bb226261df0e0a12e03ef1d43b6a92d8f02b483ef37e3
+  languageName: node
+  linkType: hard
+
+"vite@npm:^5.0.0":
+  version: 5.4.17
+  resolution: "vite@npm:5.4.17"
+  dependencies:
+    esbuild: "npm:^0.21.3"
+    fsevents: "npm:~2.3.3"
+    postcss: "npm:^8.4.43"
+    rollup: "npm:^4.20.0"
+  peerDependencies:
+    "@types/node": ^18.0.0 || >=20.0.0
+    less: "*"
+    lightningcss: ^1.21.0
+    sass: "*"
+    sass-embedded: "*"
+    stylus: "*"
+    sugarss: "*"
+    terser: ^5.4.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    "@types/node":
+      optional: true
+    less:
+      optional: true
+    lightningcss:
+      optional: true
+    sass:
+      optional: true
+    sass-embedded:
+      optional: true
+    stylus:
+      optional: true
+    sugarss:
+      optional: true
+    terser:
+      optional: true
+  bin:
+    vite: bin/vite.js
+  checksum: 10c0/3322bd6d8da30cbc87b1b24cd14fdbca75abb36de81217d1062c8b4c574a1a0d28d11dfe23a3eed08b3d179d2bdc1510e0d7b9f3e1b722a45bd7631c7cec72eb
   languageName: node
   linkType: hard
 
@@ -12879,9 +12922,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.0.0, vite@npm:^5.4.8":
-  version: 5.4.17
-  resolution: "vite@npm:5.4.17"
+"vite@npm:^5.4.18":
+  version: 5.4.18
+  resolution: "vite@npm:5.4.18"
   dependencies:
     esbuild: "npm:^0.21.3"
     fsevents: "npm:~2.3.3"
@@ -12918,7 +12961,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/3322bd6d8da30cbc87b1b24cd14fdbca75abb36de81217d1062c8b4c574a1a0d28d11dfe23a3eed08b3d179d2bdc1510e0d7b9f3e1b722a45bd7631c7cec72eb
+  checksum: 10c0/a8cbbec6bdf399e62c386d70b8485e4f2f1b427beb19bc7c5d52b402a0c3750b7ff469fc20a8333755ea13bc1b0af5df3f22c8fd37d1739ee51d709b7a4740b6
   languageName: node
   linkType: hard
 
@@ -12975,7 +13018,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^2.1.1, vitest@npm:^2.1.8":
+"vitest@npm:^2.1.8, vitest@npm:^2.1.9":
   version: 2.1.9
   resolution: "vitest@npm:2.1.9"
   dependencies:

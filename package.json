@@ -6,7 +6,7 @@
     "lint": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run lint",
     "prod": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run prod",
     "start": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --topological --verbose run start",
-    "test": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run test",
+    "test": "gherkin-lint -c .gherkin-lintrc && vitest --passWithNoTests",
     "update": "FORCE_COLOR=1 yarn upgrade-interactive && yarn dlx @yarnpkg/sdks base -v"
   },
   "workspaces": [
@@ -15,7 +15,7 @@
     "src/tests"
   ],
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^4.3.0",
+    "@amiceli/vitest-cucumber": "^4.7.0",
     "@typescript-eslint/parser": "^8.8.0",
     "eslint": "^8.57.1",
     "gherkin-lint": "^4.2.4",
@@ -23,9 +23,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "^5.7.3",
-    "vite": "^5.4.8",
-    "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.1.1"
+    "vite": "^5.4.18",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.1.9"
   },
   "resolutions": {
     "emitter": "https://github.com/component/emitter/archive/1.0.1.tar.gz"
