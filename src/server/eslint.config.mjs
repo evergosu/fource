@@ -82,7 +82,16 @@ export default config(
       'unicorn/prevent-abbreviations': [
         'error',
         {
+          allowList: {
+            ProcessEnv: true,
+          },
           ignore: [String.raw`(.|-)env`, /^ignore/i],
+        },
+      ],
+      '@typescript-eslint/no-namespace': [
+        'error',
+        {
+          allowDeclarations: true,
         },
       ],
       'import-x/newline-after-import': 'error',

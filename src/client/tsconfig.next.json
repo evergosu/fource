@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "target": "esnext",
+    "types": ["node"],
+    "composite": true,
+    "outDir": "..",
+    "tsBuildInfoFile": "../../dist/cache/tsbuildinfo.next.json",
+    "allowJs": true
+  },
+  "include": [ "config" ],
+  "exclude": ["node_modules", "dist"]
+}

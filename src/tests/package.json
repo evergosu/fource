@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "pre-commit": "lint-staged",
     "lint": "eslint --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
-    "postinstall": "husky",
     "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
     "prod": "yarn preprod && next start",
     "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest"
@@ -63,8 +63,8 @@
     "eslint-plugin-vitest": "^0.5.4",
     "gherkin-lint": "^4.2.4",
     "globals": "^15.9.0",
-    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
+    "lint-staged": "^15.5.1",
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "stylelint": "^16.9.0",

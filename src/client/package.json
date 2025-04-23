@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "pre-commit": "lint-staged",
+    "build": "yarn build-next-config && next build",
     "lint": "eslint --fix && stylelint '**/*.css' --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
-    "postinstall": "husky",
     "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
     "prod": "yarn preprod && next start",
-    "start": "next dev",
+    "build-next-config": "tsc -p tsconfig.next.json && esbuild config/next.config.ts --bundle --platform=node --format=esm --packages=external --allow-overwrite --outfile=next.config.js",
+    "start": "yarn build-next-config && next dev",
     "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest"
   },
   "lint-staged": {
@@ -17,6 +18,9 @@
     "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
   },
   "dependencies": {
+    "@next/env": "^15.3.0",
+    "dotenv": "^16.5.0",
+    "env-var": "^7.5.0",
     "next": "15.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -44,6 +48,7 @@
     "@vitejs/plugin-react": "^4.3.2",
     "@vitest/expect": "^2.1.1",
     "autoprefixer": "^10.4.20",
+    "esbuild": "^0.25.2",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
     "eslint-config-prettier": "^9.1.0",
@@ -64,8 +69,8 @@
     "eslint-plugin-vitest": "^0.5.4",
     "gherkin-lint": "^4.2.4",
     "globals": "^15.9.0",
-    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
+    "lint-staged": "^15.5.1",
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "stylelint": "^16.9.0",

@@ -5,6 +5,7 @@ import {
 } from 'vite';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import nextConfig from 'client/next.config';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -28,6 +29,7 @@ const vitestConfig = defineVitestConfig({
       `${searchForWorkspaceRoot(process.cwd())}/src/tests/vitest.setup.ts`,
     ],
     environment: 'jsdom',
+    env: nextConfig.env,
     globals: true,
   },
 });
