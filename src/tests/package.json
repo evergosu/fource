@@ -14,6 +14,7 @@
     "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
   },
   "dependencies": {
+    "@testing-library/react": "^16.2.0",
     "client": "*",
     "next": "15.1.5",
     "react": "^19.0.0",
@@ -29,7 +30,6 @@
     "@next/eslint-plugin-next": "^14.2.23",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
     "@types/eslint": "^9.6.1",
     "@types/eslint-plugin-jsx-a11y": "^6.9.0",
     "@types/eslint__eslintrc": "^2.1.2",
