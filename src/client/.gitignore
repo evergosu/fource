@@ -18,6 +18,7 @@
 
 # misc
 .DS_Store
+vitest.config.ts.timestamp-*
 
 # debug
 npm-debug.log*

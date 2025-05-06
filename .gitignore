@@ -64,3 +64,4 @@ dist/
 
 # misc
 .DS_Store
+vitest.config.ts.timestamp-*
