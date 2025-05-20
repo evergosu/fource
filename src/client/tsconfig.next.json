@@ -18,7 +18,7 @@
     "types": ["node"],
     "composite": true,
     "outDir": "..",
-    "tsBuildInfoFile": "../../dist/cache/tsbuildinfo.next.json",
+    "tsBuildInfoFile": "./.next/cache/tsbuildinfo.config.json",
     "allowJs": true
   },
   "include": [ "config" ],

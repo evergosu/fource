@@ -1,39 +1,49 @@
 {
   "name": "fource",
-  "packageManager": "yarn@4.6.0+sha512.5383cc12567a95f1d668fbe762dfe0075c595b4bfff433be478dbbe24e05251a8e8c3eb992a986667c1d53b6c3a9c85b8398c35a960587fbd9fa3a0915406728",
-  "scripts": {
-    "postinstall": "husky",
-    "pre-commit": "FORCE_COLOR=1 yarn workspaces foreach --all run pre-commit",
-    "build": "FORCE_COLOR=1 yarn --immutable && yarn workspaces foreach --all --interlaced --parallel --topological --verbose run build",
-    "lint": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run lint",
-    "prod": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run prod",
-    "start": "FORCE_COLOR=1 NODE_ENV=development yarn workspaces foreach --all --interlaced --parallel --topological --verbose run start",
-    "test": "gherkin-lint -c .gherkin-lintrc && NODE_ENV=development vitest --passWithNoTests",
-    "update": "FORCE_COLOR=1 yarn upgrade-interactive && yarn dlx @yarnpkg/sdks base -v"
+  "type": "module",
+  "engines": {
+    "pnpm": ">=10.10.0"
   },
-  "workspaces": [
-    "src/client",
-    "src/server",
-    "src/tests"
-  ],
+  "scripts": {
+    "build": "pnpm install --frozen-lockfile && pnpm --recursive --parallel --stream --aggregate-output build:production",
+    "deps": "pnpm update -i",
+    "docker": "pnpm --filter server database:start 2>&1 | sed '/./ s/^/\\x1b[32mdocker\\/database:\\x1b[0m /'",
+    "launch": "(pnpm docker & pnpm --recursive --parallel --stream --aggregate-output launch; wait)",
+    "lint": "pnpm --recursive --parallel --stream --aggregate-output lint",
+    "postinstall": "husky",
+    "pre-commit": "pnpm --recursive --parallel --stream pre-commit",
+    "push": "pnpm --filter server database:push",
+    "start": "(pnpm docker & pnpm --recursive --parallel --stream --aggregate-output start; wait)",
+    "start:production": "(pnpm docker & pnpm --recursive --parallel --stream --aggregate-output start:production; wait)",
+    "studio": "pnpm --filter server database:studio",
+    "test": "gherkin-lint -c .gherkin-lintrc && NODE_ENV=test vitest --passWithNoTests",
+    "test:bdd": "pnpm --filter=tests test",
+    "test:once": "pnpm --recursive --parallel --stream --aggregate-output test:once",
+    "test:unit": "FORCE_COLOR=1 pnpm --recursive --parallel --stream --aggregate-output --filter=!tests test"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.43.1",
+    "pg": "^8.16.0",
+    "uuid": "^11.1.0"
+  },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^4.7.0",
-    "@typescript-eslint/parser": "^8.8.0",
+    "@electric-sql/pglite": "^0.3.1",
+    "@types/pg": "^8.15.2",
+    "@typescript-eslint/parser": "^8.32.1",
+    "@typescript-eslint/utils": "^8.32.1",
     "eslint": "^8.57.1",
     "gherkin-lint": "^4.2.4",
     "husky": "^9.1.7",
     "jsdom": "^25.0.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "^5.7.3",
-    "vite": "^5.4.18",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.9"
   },
   "resolutions": {
-    "emitter": "https://github.com/component/emitter/archive/1.0.1.tar.gz",
-    "client": "workspace:src/client",
-    "server": "workspace:src/server",
-    "tests": "workspace:src/tests"
+    "emitter": "https://github.com/component/emitter/archive/1.0.1.tar.gz"
   }
 }

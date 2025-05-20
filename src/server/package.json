@@ -6,25 +6,50 @@
     "node": ">=22.8.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noEmit && esbuild ./src/index.ts --bundle --platform=node --format=esm --target=node22.8 --allow-overwrite --outdir=./dist --sourcemap --tsconfig=./tsconfig.json --packages=external && pnpm succeed:build",
+    "build:production": "NODE_ENV=production pnpm lint && pnpm build && pnpm test:once",
+    "database:generate": "NODE_ENV=development drizzle-kit generate",
+    "database:migrate": "NODE_ENV=development drizzle-kit migrate",
+    "database:push": "NODE_ENV=development drizzle-kit push",
+    "database:seed": "NODE_ENV=development tsx -e \"import('./src/database/clients/postgresql').then(m => m.seed())\" && pnpm succeed:seed",
+    "database:start": "docker compose up",
+    "database:studio": "NODE_ENV=development drizzle-kit studio",
+    "database:update": "pnpm database:generate && pnpm database:migrate && pnpm succeed:migration",
+    "launch": "pnpm build:production && pnpm start:production",
+    "launch:with:db": "pnpm database:start & pnpm build:production && pnpm start:production",
+    "lint": "pnpm lint:code && pnpm lint:gherkin && pnpm succeed:lint",
+    "lint:code": "eslint --fix",
+    "lint:gherkin": "gherkin-lint -c ../../.gherkin-lintrc",
     "pre-commit": "lint-staged",
-    "lint": "eslint --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
-    "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
-    "prod": "yarn preprod && node ../../dist/src/index.js",
-    "start": "tsx watch --clear-screen=false src/index.ts",
-    "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest --passWithNoTests"
+    "start": "NODE_ENV=development tsx watch --clear-screen=false src/index.ts",
+    "start:production": "NODE_ENV=production node ./dist/index.js",
+    "succeed:build": ": '\u001b[1;32m✔ build succeed\u001b[0m'",
+    "succeed:lint": ": '\u001b[1;32m✔ lint succeed\u001b[0m'",
+    "succeed:migration": ": '\u001b[1;32m✔ migration succeed\u001b[0m'",
+    "succeed:seed": ": '\u001b[1;32m✔ seed succeed\u001b[0m'",
+    "succeed:test": ": '\u001b[1;32m✔ test succeed\u001b[0m'",
+    "test": "NODE_ENV=test pnpm lint:gherkin && vitest watch",
+    "test:once": "NODE_ENV=test pnpm lint:gherkin && vitest run && pnpm succeed:test"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix --cache",
-    "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
+    "*.{ts,tsx}": "pnpm lint:code",
+    "*.feature": "pnpm lint:gherkin"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.1",
+    "@faker-js/faker": "^9.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "drizzle-kit": "^0.31.0",
+    "drizzle-orm": "^0.43.1",
+    "drizzle-zod": "^0.7.1",
     "env-var": "^7.5.0",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pg": "^8.15.6",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^4.7.0",
@@ -38,11 +63,14 @@
     "@types/jest": "^29.5.14",
     "@types/morgan": "^1",
     "@types/node": "^22.7.4",
+    "@types/pg": "^8.12.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
+    "esbuild": "^0.25.4",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-drizzle": "^0.2.3",
     "eslint-plugin-import-x": "^4.3.1",
     "eslint-plugin-n": "^17.10.3",
     "eslint-plugin-perfectionist": "^3.7.0",
@@ -61,6 +89,7 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.21.0",
+    "vite": "^6.3.5",
     "vitest": "^2.1.9"
   }
 }

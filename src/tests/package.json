@@ -3,27 +3,36 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:production": "NODE_ENV=production pnpm lint && pnpm test:once && pnpm succeed:acceptance",
+    "launch": "pnpm build:production",
+    "lint": "pnpm lint:code && pnpm lint:gherkin && pnpm succeed:lint",
+    "lint:code": "eslint --fix",
+    "lint:gherkin": "gherkin-lint -c ../../.gherkin-lintrc",
     "pre-commit": "lint-staged",
-    "lint": "eslint --fix && gherkin-lint -c ../../.gherkin-lintrc && echo '✔ No ESLint warnings or errors'",
-    "preprod": "yarn lint && yarn test --run && echo '✔ All tests passed' && yarn build",
-    "prod": "yarn preprod && next start",
-    "test": "gherkin-lint -c ../../.gherkin-lintrc && vitest"
+    "succeed:acceptance": ": '\u001b[1;32m✔ acceptance criteria succeed\u001b[0m'",
+    "succeed:lint": ": '\u001b[1;32m✔ lint succeed\u001b[0m'",
+    "succeed:test": ": '\u001b[1;32m✔ test succeed\u001b[0m'",
+    "test": "NODE_ENV=test pnpm lint:gherkin && vitest watch",
+    "test:once": "NODE_ENV=test pnpm lint:gherkin && vitest run && pnpm succeed:test"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix --cache",
-    "*.feature": "gherkin-lint -c ../../.gherkin-lintrc"
+    "*.{ts,tsx}": "pnpm lint:code",
+    "*.feature": "pnpm lint:gherkin"
   },
   "dependencies": {
     "@testing-library/react": "^16.2.0",
-    "client": "*",
+    "client": "workspace:*",
+    "dotenv": "^16.5.0",
+    "env-var": "^7.5.0",
     "next": "15.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "server": "*",
+    "server": "workspace:*",
     "swr": "^2.3.0"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "^4.7.0",
+    "@electric-sql/pglite": "^0.3.1",
     "@eslint/compat": "^1.2.5",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
@@ -43,6 +52,8 @@
     "@vitejs/plugin-react": "^4.3.2",
     "@vitest/expect": "^2.1.1",
     "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.31.1",
+    "drizzle-orm": "^0.43.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.13",
     "eslint-config-prettier": "^9.1.0",
