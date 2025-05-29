@@ -7,8 +7,20 @@
     "moduleDetection": "force",
     "moduleResolution": "Bundler",
     "baseUrl": ".",
+    "paths": {
+      "server/*": [ "./src/*" ]
+    },
     "outDir": "dist",
     "target": "es2022",
+    "types": [
+      "node",
+      "vitest/globals"
+    ],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/lib/types"
+    ],
   },
   "ts-node": {
     "esm": true,
@@ -16,7 +28,9 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "./ecosystem.config.cjs",
+    "./src/lib/types/environment.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

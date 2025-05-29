@@ -6,6 +6,7 @@ import { fixupConfigRules } from '@eslint/compat';
 import * as regexp from 'eslint-plugin-regexp';
 import _import from 'eslint-plugin-import-x';
 import promise from 'eslint-plugin-promise';
+import drizzle from 'eslint-plugin-drizzle';
 import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import vitest from 'eslint-plugin-vitest';
@@ -33,6 +34,14 @@ export default config(
   promise.configs['flat/recommended'],
   prettier,
   {
+    rules: {
+      ...drizzle.configs.recommended.rules,
+    },
+    plugins: {
+      drizzle,
+    },
+  },
+  {
     extends: [configs.disableTypeChecked],
     files: ['**/*.{js,jsx,cjs,mjs}'],
   },
@@ -47,6 +56,23 @@ export default config(
   },
   {
     rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              message:
+                'Do not import directly from src — use client/*, server/*, tests/*, etc.',
+              group: ['src/*'],
+            },
+            {
+              message:
+                'Avoid deep relative imports into src. Use proper aliases instead.',
+              group: ['../*/src/*', '../../*/src/*'],
+            },
+          ],
+        },
+      ],
       'import-x/no-extraneous-dependencies': [
         'error',
         {
@@ -92,6 +118,12 @@ export default config(
         'error',
         {
           allowDeclarations: true,
+        },
+      ],
+      'sonarjs/new-cap': [
+        'error',
+        {
+          capIsNewExceptions: ['Router'],
         },
       ],
       'import-x/newline-after-import': 'error',

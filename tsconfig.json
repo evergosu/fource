@@ -28,6 +28,12 @@
     "strict": true,
     "target": "ESNext",
     "verbatimModuleSyntax": true,
+    "typeRoots": [
+      "./node_modules/@types",
+    ],
   },
-  "include": ["src/**/*", "vite.config.ts"]
+  "include": [
+    "src/**/*",
+    "./ecosystem.config.cjs",
+  ]
 }

@@ -1,28 +1,10 @@
 import type { NextConfig } from 'next';
 
-import { getEnvironment } from './environment.js';
-
-declare global {
-  namespace NodeJS {
-    // eslint-disable-next-line unicorn/prevent-abbreviations
-    interface ProcessEnv {
-      NEXT_PUBLIC_ORIGIN: string;
-    }
-  }
-}
+import { getEnvironment } from '../src/lib/environment.js';
 
 const environment = getEnvironment();
 
 export default {
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async rewrites() {
-    return [
-      {
-        destination: `${environment.server.url.origin}/api/:path*`,
-        source: '/api/:path*',
-      },
-    ];
-  },
   eslint: {
     // Enabled in root scripts.
     ignoreDuringBuilds: true,
@@ -30,6 +12,8 @@ export default {
   env: {
     NEXT_PUBLIC_ORIGIN: environment.client.url.origin,
   },
+  // Prevents errors in pnp, caused by attempts to work with virtual file system.
+  serverExternalPackages: ['@electric-sql/pglite'],
   experimental: {
     typedRoutes: true,
   },

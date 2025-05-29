@@ -11,25 +11,41 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
-    "noEmit": true,
     "baseUrl": ".",
-    "outDir": "../../dist",
+    "paths": {
+      "client/*": [ "./src/*" ]
+    },
+    "outDir": "dist",
     "plugins": [
-      { "name": "next" }
+      {
+        "name": "next"
+      }
     ],
     "target": "es2022",
     "types": [
+      "node",
       "vitest/globals",
       "@testing-library/jest-dom"
     ],
-    "allowJs": true
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/lib/types"
+    ],
+    "allowJs": true,
+    "noEmit": true
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "./ecosystem.config.cjs",
+    "./vitest.setup.ts",
     ".next/types/**/*.ts",
-    "./vitest.setup.ts"
+    "next-env.d.ts",
+    "./src/lib/types/environment.d.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

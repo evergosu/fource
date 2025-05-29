@@ -72,6 +72,23 @@ export default config(
   },
   {
     rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              message:
+                'Do not import directly from src — use client/*, server/*, tests/*, etc.',
+              group: ['src/*'],
+            },
+            {
+              message:
+                'Avoid deep relative imports into src. Use proper aliases instead.',
+              group: ['../*/src/*', '../../*/src/*'],
+            },
+          ],
+        },
+      ],
       'import-x/no-extraneous-dependencies': [
         'error',
         {
@@ -107,7 +124,16 @@ export default config(
       'unicorn/prevent-abbreviations': [
         'error',
         {
+          allowList: {
+            ProcessEnv: true,
+          },
           ignore: [String.raw`(.|-)env`, /^ignore/i],
+        },
+      ],
+      '@typescript-eslint/no-namespace': [
+        'error',
+        {
+          allowDeclarations: true,
         },
       ],
       'import-x/newline-after-import': 'error',

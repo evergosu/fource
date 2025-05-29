@@ -16,11 +16,19 @@
     "baseUrl": ".",
     "target": "esnext",
     "types": ["node"],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/lib/environment.d.ts"
+    ],
     "composite": true,
     "outDir": "..",
     "tsBuildInfoFile": "./.next/cache/tsbuildinfo.config.json",
     "allowJs": true
   },
-  "include": [ "config" ],
+  "include": [
+    "./config/next.config.ts",
+    "./src/lib/environment.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

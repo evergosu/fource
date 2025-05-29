@@ -10,8 +10,9 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "client/*": ["../client/*"],
-      "server/*": ["../server/*"]
+      "client/*": ["../client/src/*"],
+      "server/*": ["../server/src/*"],
+      "tests/*": [ "./src/*" ]
     },
     "plugins": [
       {
@@ -19,15 +20,21 @@
       }
     ],
     "target": "es2022",
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": [
+      "node",
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/lib/types"
+    ],
   },
-  "references": [
-    { "path": "../client" },
-    { "path": "../server" }
-  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "./src/lib/types/environment.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }
