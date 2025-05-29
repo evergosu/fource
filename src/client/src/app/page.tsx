@@ -1,9 +1,31 @@
-import { relativeFetch } from 'src/lib/fetch';
+import { relativeFetch } from 'client/lib/fetch';
+
+import { Story } from './story/story';
 
 export default async function Home() {
-  const data = await relativeFetch('/api/story');
+  let title: string;
 
-  const story: string = (await data.json()) as string;
+  try {
+    const response = await relativeFetch('/api/story');
 
-  return <main>{story}</main>;
+    if (response.ok) {
+      const story = (await response.json()) as { title: string };
+
+      title = story.title;
+    } else {
+      const error = (await response.json()) as { message: string };
+
+      title = error.message;
+    }
+  } catch (error: unknown) {
+    title = String(error);
+  }
+
+  return (
+    <main>
+      <Story title={title} />
+    </main>
+  );
 }
+
+export const dynamic = 'force-dynamic';
