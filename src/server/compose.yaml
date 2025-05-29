@@ -1,0 +1,25 @@
+services:
+  database:
+    image: postgres:17
+    restart: unless-stopped
+    shm_size: 128mb
+    env_file:
+      - path: ../../.env.development
+        required: true
+      - path: ../../.env.production
+        required: false
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+
+volumes:
+  pgdata:
