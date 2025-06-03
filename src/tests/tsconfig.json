@@ -34,7 +34,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "./src/lib/types/environment.d.ts"
+    "./src/lib/types/*.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

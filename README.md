@@ -14,5 +14,6 @@ source ~/.zshrc
 ```
 
 ```fish
+# for fish:
 set -Ux FORCE_COLOR 1
 ```

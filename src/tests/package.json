@@ -24,6 +24,7 @@
     "*.feature": "pnpm lint:gherkin"
   },
   "dependencies": {
+    "@amiceli/vitest-cucumber": "^4.7.0",
     "@testing-library/react": "^16.2.0",
     "client": "workspace:*",
     "dotenv": "^16.5.0",
@@ -35,7 +36,6 @@
     "swr": "^2.3.0"
   },
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^4.7.0",
     "@electric-sql/pglite": "^0.3.1",
     "@eslint/compat": "^1.2.5",
     "@eslint/eslintrc": "^3.2.0",
