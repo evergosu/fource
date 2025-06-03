@@ -6,8 +6,8 @@ import { Logger } from '../lib/logger';
 const environment = getEnvironment();
 
 const logger = new Logger({
-  style: environment.node === 'production' ? 'default' : 'colorful',
-  level: environment.node === 'production' ? 'error' : 'success',
+  style: environment.node === 'development' ? 'colorful' : 'default',
+  level: environment.node === 'development' ? 'success' : 'error',
 });
 
 const pglite = await createPostgresLiteContext(logger);

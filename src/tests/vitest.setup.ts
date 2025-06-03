@@ -35,7 +35,7 @@ let nextServer: NextServerContext;
 beforeAll(async () => {
   const serverLogger = new ServerLogger({
     style: 'colorful',
-    level: 'success',
+    level: 'error',
   });
 
   database = await createPostgresLiteContext(serverLogger);
@@ -46,7 +46,7 @@ beforeAll(async () => {
 
   const clientLogger = new ClientLogger({
     style: 'colorful',
-    level: 'success',
+    level: 'error',
   });
 
   try {

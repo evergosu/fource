@@ -9,7 +9,7 @@ let database: DatabaseContext;
 beforeAll(async () => {
   const logger = new Logger({
     style: 'colorful',
-    level: 'success',
+    level: 'error',
   });
 
   database = await createPostgresLiteContext(logger);

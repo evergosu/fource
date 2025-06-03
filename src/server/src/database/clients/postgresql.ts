@@ -1,8 +1,11 @@
 import type { Logger } from 'server/lib/logger';
 
+import { migrate as postgresMigrate } from 'drizzle-orm/node-postgres/migrator';
 import { getEnvironment } from 'server/lib/environment';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { sql } from 'drizzle-orm';
+import path from 'node:path';
+import url from 'node:url';
 import { Pool } from 'pg';
 import os from 'node:os';
 
@@ -10,7 +13,6 @@ import type { DatabaseContext } from './client';
 
 import { schema } from '../schema/schema';
 import { seedAll } from '../seeds/all';
-import { migrate } from '../migrate';
 
 const environment = getEnvironment();
 
@@ -19,12 +21,8 @@ const pool = new Pool({
   max: Math.min(os.cpus().length * 2, 16),
 });
 
-pool.on('error', error => {
-  console.error('Unexpected error at postgres client pool.', error);
-});
-
 export const database = drizzle(pool, {
-  logger: environment.node === 'development',
+  logger: environment.node === 'development' ? true : false,
   schema,
 });
 
@@ -33,7 +31,23 @@ export type Postgres = typeof database;
 export const createPostgresContext = async (
   logger: Logger,
 ): Promise<DatabaseContext> => {
-  await migrate(database);
+  pool.on('error', error => {
+    logger.error('Unexpected error at postgres client pool.', error);
+  });
+
+  async function migrate() {
+    const migrationsFolder = resolve(import.meta.url, '../migrations');
+
+    try {
+      await postgresMigrate(database, { migrationsFolder });
+
+      logger.success('Migrations done.');
+    } catch (error) {
+      throw new Error('Migrations failed due:', { cause: error });
+    }
+  }
+
+  await migrate();
 
   return {
     async truncateAll() {
@@ -44,7 +58,7 @@ export const createPostgresContext = async (
       const tables = tableNames.map(name => `"${name}"`).join(', ');
 
       await database.execute(
-        sql.raw(`TRUNCATE TABLE ${tables} RESTART IDENTITY CASCADE`),
+        sql.raw(`truncate table ${tables} restart identity cascade`),
       );
     },
     async close() {
@@ -55,9 +69,11 @@ export const createPostgresContext = async (
     getClient(): Postgres {
       return database;
     },
+    seed: () => seedAll(database),
+    migrate: migrate,
   };
 };
 
-export async function seed() {
-  await seedAll(database);
+function resolve(metaUrl: string, relativePath: string) {
+  return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
 }
