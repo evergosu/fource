@@ -1,33 +1,57 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { story } from '@server/story/story';
+import { connectRepository } from 'tests/lib/connect-repository';
+import { NoStoriesError, Stories } from 'server/story/story';
+import { render, screen } from '@testing-library/react';
+import { STEPS } from 'tests/steps';
+import Page from 'client/app/page';
 
 describeFeature(await loadFeature('./story.feature'), ({ Scenario }) => {
-  Scenario('There is a story to suggest', ({ Given, When, Then }) => {
-    Given('a story to suggest is available', () => {
-      expect(story).toBeDefined();
+  Scenario('there is a story to suggest', ({ Given, When, Then }) => {
+    let stories: Stories;
+
+    Given('a story to suggest is available', async (context: unknown) => {
+      stories = connectRepository(Stories, context);
+
+      await stories.create({ title: 'The story' });
+
+      expect(await stories.getNext()).not.toBeNull();
     });
-    When('the user accesses the story', () => {
-      // expect(true).toBe(true);
-      fail();
-    });
-    Then('the story should be presented to the user', () => {
-      // expect(true).toBe(true);
-      fail();
+
+    STEPS.aReaderVisitsTheHomePage(When);
+
+    Then('the story should be presented to the reader', async () => {
+      const story = await stories.getNext();
+
+      render(await Page());
+
+      expect(screen.getByRole('main')).toHaveTextContent(story.title);
     });
   });
 
-  Scenario('There is no story to suggest', ({ Given, When, Then }) => {
-    Given('a story to suggest is not available', () => {
-      // expect(true).toBe(true);
-      fail();
+  Scenario('there is no story to suggest', ({ Given, When, Then }) => {
+    let stories: Stories;
+
+    Given('a story to suggest is not available', async (context: unknown) => {
+      stories = connectRepository(Stories, context);
+
+      await stories.drop();
+
+      await expect(() => stories.getNext()).rejects.toThrow(
+        new NoStoriesError(),
+      );
     });
-    When('the user accesses the story', () => {
-      // expect(true).toBe(true);
-      fail();
-    });
-    Then('the system should indicate that there are no stories to show', () => {
-      // expect(true).toBe(true);
-      fail();
-    });
+
+    STEPS.aReaderVisitsTheHomePage(When);
+
+    Then(
+      'the system should indicate that there are no stories to be shawn',
+      async () => {
+        render(await Page());
+
+        expect(screen.getByRole('main')).toHaveTextContent(
+          'There is no stories',
+        );
+      },
+    );
   });
 });
