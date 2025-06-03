@@ -10,11 +10,13 @@ export class NoStoriesError extends Error {
 
 type StoryUpdate = Partial<Omit<StorySchema, 'id'>> & { id: number };
 
-export class Stories {
-  constructor(private database: Database) {
+export class Repository {
+  constructor(protected database: Database) {
     this.database = database;
   }
+}
 
+export class Stories extends Repository {
   public async getNext() {
     const [lastStory] = await this.database
       .select()
