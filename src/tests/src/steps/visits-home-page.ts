@@ -1,4 +1,4 @@
-import type { Step } from 'src/lib/step';
+import type { Step } from 'tests/lib/step';
 
 export const aReaderVisitsTheHomePage = (step: Step) => {
   step('a reader visits the home page', () => {
