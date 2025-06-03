@@ -22,6 +22,7 @@ const root = searchForWorkspaceRoot(process.cwd());
 const vitestConfig = defineVitestConfig({
   test: {
     include: [`${root}/src/server/**/?(*.)+(spec|test).[jt]s?(x)`],
+    setupFiles: [`${root}/src/server/vitest.setup.ts`],
     environment: 'node',
     globals: true,
   },
