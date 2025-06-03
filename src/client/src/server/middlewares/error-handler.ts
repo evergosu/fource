@@ -6,7 +6,7 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
     logger.error('Express error.', error);
 
     if (!response.headersSent) {
-      response.status(500).json({ error: 'Internal NextJS server error.' });
+      response.status(500).json({ message: 'Internal NextJS server error.' });
     }
   };
 }
