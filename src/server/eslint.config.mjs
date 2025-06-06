@@ -114,6 +114,12 @@ export default config(
           ignore: [String.raw`(.|-)env`, /^ignore/i],
         },
       ],
+      '@typescript-eslint/no-empty-function': [
+        'error',
+        {
+          allow: ['arrowFunctions', 'private-constructors'],
+        },
+      ],
       '@typescript-eslint/no-namespace': [
         'error',
         {
@@ -130,6 +136,8 @@ export default config(
       'sonarjs/no-empty-test-file': 'off',
       'import-x/no-duplicates': 'error',
       'n/no-missing-import': 'off',
+      // Enabled in @typescript-eslint/no-empty-function.
+      'no-empty-function': 'off',
       'import-x/first': 'error',
       // Already checked by typescript.
       'import-x/no-named-as-default-member': 'off',
