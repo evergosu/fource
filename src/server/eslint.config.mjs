@@ -73,6 +73,7 @@ export default config(
           ],
         },
       ],
+
       'import-x/no-extraneous-dependencies': [
         'error',
         {
@@ -118,6 +119,12 @@ export default config(
         'error',
         {
           allow: ['arrowFunctions', 'private-constructors'],
+        },
+      ],
+      '@typescript-eslint/no-invalid-void-type': [
+        'error',
+        {
+          allowAsThisParameter: true,
         },
       ],
       '@typescript-eslint/no-namespace': [
