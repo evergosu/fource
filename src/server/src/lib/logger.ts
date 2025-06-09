@@ -1,40 +1,52 @@
 /**
- * Supported log levels for controlling verbosity of output.
+ * Supported log levels for controlling verbosity.
  */
 export type LogLevel = 'success' | 'silent' | 'error' | 'warn' | 'info';
 
 /**
- * Supported styles for controlling visual output.
+ * Output style for terminal formatting.
  */
 export type LogStyle = 'colorful' | 'default';
 
 /**
- * Configuration options for the Logger instance.
+ * Emoji symbols associated with log levels.
+ */
+export type LogEmoji = '➜' | '✔' | '❢' | '✖';
+
+/**
+ * Configuration options for the Logger.
  */
 export interface LoggerOptions {
   /**
-   * Minimum severity level to log. Messages below this level are ignored.
+   * Minimum level of messages to output. Lower severity messages are ignored.
    *
-   * - `'silent'`  - disables all logging.
-   * - `'error'`   - logs only errors.
-   * - `'warn'`    - logs warnings and above.
-   * - `'info'`    - logs informational messages and above.
-   * - `'success'` - logs everything including success notices.
-   *
-   * @default 'success'
+   * @default 'info'
    */
   level?: LogLevel;
 
   /**
-   * Style of output using ANSI color codes.
+   * Output style for ANSI formatting.
    * Default is useful in environments where color is unsupported or undesired.
-   *
-   * - `'default'`  - disables all styling, using defaults.
-   * - `'colorful'` - logs using ANSI color codes.
    *
    * @default 'colorful'
    */
   style?: LogStyle;
+
+  /**
+   * Custom function for logging regular output.
+   * Useful for testing or redirection (e.g., to file, memory).
+   *
+   * @default console.log
+   */
+  logFunction?: typeof console.log;
+
+  /**
+   * Custom function for logging error output.
+   * Useful for testing or redirection (e.g., to file, memory).
+   *
+   * @default console.error
+   */
+  errorFunction?: typeof console.error;
 }
 
 /**
@@ -43,9 +55,11 @@ export interface LoggerOptions {
  * Automatically adapts to browser and Node.js environments.
  */
 export class Logger {
+  private errorFunction: typeof console.error;
+  private logFunction: typeof console.log;
   private style: LogStyle;
-  private level: LogLevel;
   private isNode: boolean;
+  public level: LogLevel;
 
   /**
    * Create a new Logger instance.
@@ -53,7 +67,9 @@ export class Logger {
    * @param options - Logger configuration for output level and styling.
    */
   constructor(options: LoggerOptions = {}) {
-    this.level = options.level ?? 'success';
+    this.logFunction = options.logFunction ?? console.log;
+    this.errorFunction = options.errorFunction ?? console.error;
+    this.level = options.level ?? 'info';
     this.style = options.style ?? 'colorful';
     this.isNode = typeof process !== 'undefined' && !!process.versions.node;
   }
@@ -68,35 +84,26 @@ export class Logger {
   }
 
   /**
-   * Updates the current log style.
-   *
-   * @param style - The type of styling output.
-   */
-  setStyle(style: LogStyle): void {
-    this.style = style;
-  }
-
-  /**
    * Logs a success message with a checkmark emoji.
    *
    * @param message - The message to print.
    */
   success(message: string): void {
     if (this.shouldLog('success')) {
-      this.print('[✔]', message, 'green');
+      this.print(message, 'green', EMOJI.success);
     }
   }
 
   /**
    * Logs an error message with optional stack trace formatting.
    *
-   * @param message - Summary of the error.
+   * @param message - The message to print.
    * @param error - Optional `Error` instance for stack trace output.
    */
   error(message: string, error?: unknown): void {
     if (!this.shouldLog('error')) return;
 
-    this.print('[✖]', message, 'red');
+    this.print(message, 'red', EMOJI.error);
 
     if (error instanceof Error) {
       this.trace(error);
@@ -104,35 +111,35 @@ export class Logger {
   }
 
   /**
-   * Logs a warning message with a warning emoji.
+   * Logs a warning message with an exclamation emoji.
    *
-   * @param message - The warning content.
+   * @param message - The message to print.
    */
   warn(message: string): void {
     if (this.shouldLog('warn')) {
-      this.print('[⚠]', message, 'yellow');
+      this.print(message, 'yellow', EMOJI.warn);
     }
   }
 
   /**
-   * Logs an informational message with an info emoji.
+   * Logs an informational message with an arrow emoji.
    *
-   * @param message - The information to display.
+   * @param message - The message to print.
    */
   info(message: string): void {
     if (this.shouldLog('info')) {
-      this.print('[➜]', message, 'blue');
+      this.print(message, 'blue', EMOJI.info);
     }
   }
 
   /**
    * Logs a plain, unstyled message (same level as `info`).
    *
-   * @param message - Any generic message to show.
+   * @param message - Any generic message to print.
    */
   log(message: string): void {
     if (this.shouldLog('info')) {
-      this.print('', message, 'gray');
+      this.print(message, 'gray');
     }
   }
 
@@ -143,43 +150,115 @@ export class Logger {
    * @returns `true` if the message should be printed, `false` otherwise.
    */
   private shouldLog(level: LogLevel): boolean {
+    if (level === 'silent') return false;
+
     return LEVELS[level] <= LEVELS[this.level];
   }
 
   /**
-   * Prints a formatted log line with emoji, color, and timestamp.
+   * Prints a formatted log message with emoji, color, and timestamp.
    *
-   * @param emoji - Emoji symbol prefixing the message.
-   * @param message - Text content of the log line.
+   * @param message - The message to print.
    * @param color - Color to use for Node terminal output.
+   * @param emoji - Emoji symbol prefixing the message.
    */
   private print(
-    emoji: string,
     message: string,
     color: keyof typeof COLOR,
+    emoji?: LogEmoji,
   ): void {
-    const line = this.formatLine(emoji, message);
-
-    if (!this.isNode || this.style === 'default') {
-      console.log(line);
-    } else {
-      console.log(`${COLOR[color]}${line}${COLOR.reset}`);
-    }
+    this.pipeToLog(
+      message,
+      this.addEmoji(emoji),
+      this.addTimestamp,
+      this.addColor(color),
+      this.logFunction,
+    );
   }
 
   /**
-   * Builds a formatted line with timestamp and emoji.
+   * Wraps provided message with ANSI color codes,
+   * if environment allows.
    *
-   * @param emoji - Optional emoji to prefix the message.
-   * @param message - Raw message string.
-   * @returns A line formatted with timestamp and emoji.
+   * @param message - Text content to colorize.
+   * @param color - Color to use for Node terminal output.
+   * @returns The formatted message with an ANSI colors.
    */
-  private formatLine(emoji: string, message: string): string {
+  private addColor(color: keyof typeof COLOR): (message: string) => string {
+    return message =>
+      !this.isNode || this.style === 'default'
+        ? message
+        : `${COLOR[color]}${message}${COLOR.reset}`;
+  }
+
+  /**
+   * Prepends message with emoji.
+   *
+   * @param message - Raw text string.
+   * @param emoji - Optional emoji to prefix the line.
+   * @returns The formatted message with an emoji.
+   */
+  private addEmoji(emoji?: LogEmoji): (message: string) => string {
+    return message => (emoji ? `[${emoji}] ${message}` : message);
+  }
+
+  /**
+   * Prepends message with timestamp (en-US, 24-hours).
+   *
+   * @param message - Raw text string.
+   * @returns The formatted message with a timestamp.
+   */
+  private addTimestamp(this: void, message: string): string {
     const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
 
-    const maybeEmoji = emoji ? `${emoji} ` : '';
+    return `[${timestamp}] ${message}`;
+  }
 
-    return `[${timestamp}] ${maybeEmoji}${message}`;
+  /**
+   * Prepends line with four spaces per level.
+   *
+   * @param line - Raw text string.
+   * @param level - Optional level of message.
+   * @returns The formatted line with an indentation.
+   */
+  private addIndent(level = 0): (line: string) => string {
+    return line => `${'    '.repeat(level)}${line}`;
+  }
+
+  /**
+   * Applies a sequence of transformation functions to a value,
+   * then passes the final result to a side-effect function.
+   *
+   * This method enforces a functional pipeline pattern:
+   * - All but the last function must return a value of the same type (`T`).
+   * - The final function must perform a side effect (returning `void`),
+   *   such as writing to a log or console.
+   *
+   * @template T The data type being transformed.
+   * @param value The initial value to pass through the pipeline.
+   * @param fns A series of functions:
+   *   - Zero or more pure functions of type `(input: T) => T`
+   *   - One final terminal function of type `(input: T) => void`
+   *
+   * @example
+   * this.pipeToLog('message', this.addTimestamp, this.addColor, console.log);
+   */
+  private pipeToLog<T>(
+    value: T,
+    ...fns: [...((input: T) => T)[], (input: T) => void]
+  ): void {
+    const length = fns.length;
+
+    if (length === 0) return;
+
+    const log = fns[length - 1] as (input: T) => void;
+
+    let result = value;
+    for (let index = 0; index < length - 1; index++) {
+      result = (fns[index] as (input: T) => T)(result);
+    }
+
+    log(result);
   }
 
   /**
@@ -188,50 +267,51 @@ export class Logger {
    *
    * @param error - The error instance to trace.
    */
-  private trace(error: Error): void {
+  private trace(error: Error, level = 0): void {
     if (!this.isNode) {
-      console.error(error);
+      this.errorFunction(error);
+
       return;
     }
 
-    const header = `${error.name}: ${error.message}`;
+    this.pipeToLog(
+      `${error.name}: ${error.message}`,
+      this.addIndent(level),
+      this.addColor('red'),
+      this.errorFunction,
+    );
 
-    this.error(header);
+    if (error.stack && typeof error.stack === 'string') {
+      const rawLines = error.stack.split('\n').slice(1);
 
-    if (error.stack) {
-      const lines = error.stack.split('\n').slice(1);
+      const lines = rawLines.filter(line => {
+        const isInternal =
+          /^(?:\s*at .*node:(?:internal|vm|fs|timers)|node_modules\/internal)/.test(
+            line,
+          );
 
-      const isNodeError =
-        error.stack.includes('node:') || error.name.startsWith('Node');
-
-      const filtered = lines.filter(line => {
-        const isInternal = /node:|internal\/|node_modules\/internal-/.test(
-          line,
-        );
-
-        return !isInternal || isNodeError;
+        return !isInternal;
       });
 
-      for (const line of filtered) {
-        const message = line.trim();
-
-        console.error(
-          this.style === 'default'
-            ? message
-            : `${COLOR.gray}${message}${COLOR.reset}`,
+      for (const line of lines) {
+        this.pipeToLog(
+          line.trim(),
+          this.addIndent(level),
+          this.addColor('gray'),
+          this.errorFunction,
         );
       }
     }
 
     if (error.cause instanceof Error) {
-      const prefix =
-        this.style === 'default'
-          ? 'Caused by:'
-          : `${COLOR.gray}Caused by:${COLOR.reset}`;
+      this.pipeToLog(
+        'Caused by:',
+        this.addIndent(level),
+        this.addColor('red'),
+        this.errorFunction,
+      );
 
-      console.error(prefix);
-
-      this.trace(error.cause);
+      this.trace(error.cause, level + 1);
     }
   }
 }
@@ -250,9 +330,19 @@ const COLOR = {
  * Internal log level severity map used for filtering output.
  */
 const LEVELS: Record<LogLevel, number> = {
-  success: 4,
+  success: 3,
   silent: 0,
   error: 1,
+  info: 4,
   warn: 2,
-  info: 3,
+};
+
+/**
+ * Internal log emoji map used for marking output.
+ */
+const EMOJI: Record<Exclude<LogLevel, 'silent'>, LogEmoji> = {
+  success: '✔',
+  error: '✖',
+  warn: '❢',
+  info: '➜',
 };
