@@ -12,6 +12,7 @@
     "paths": {
       "client/*": ["../client/src/*"],
       "server/*": ["../server/src/*"],
+      "library/*": ["../library/src/*"],
       "tests/*": [ "./src/*" ]
     },
     "plugins": [

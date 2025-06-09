@@ -61,6 +61,7 @@
     "express-rate-limit": "^7.5.0",
     "globby": "^14.1.0",
     "helmet": "^8.0.0",
+    "library": "workspace:*",
     "morgan": "^1.10.0",
     "pg": "^8.15.6",
     "pm2": "^6.0.6",

@@ -8,8 +8,7 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
-      "server/*": [ "./src/*" ],
-      "library/*": ["../library/src/*"],
+      "server/*": [ "./src/*" ]
     },
     "outDir": "dist",
     "target": "es2022",
@@ -20,7 +19,7 @@
     "typeRoots": [
       "./node_modules",
       "./node_modules/@types",
-      "./src/lib/types"
+      "./src/types"
     ],
   },
   "ts-node": {
@@ -30,8 +29,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "./ecosystem.config.cjs",
-    "./src/lib/types/*.d.ts"
+    "./src/types/*.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

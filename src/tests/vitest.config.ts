@@ -32,6 +32,7 @@ const root = searchForWorkspaceRoot(process.cwd());
 const vitestConfig = defineVitestConfig({
   test: {
     alias: {
+      library: resolve(import.meta.url, '../library/src'),
       client: resolve(import.meta.url, '../client/src'),
       server: resolve(import.meta.url, '../server/src'),
     },

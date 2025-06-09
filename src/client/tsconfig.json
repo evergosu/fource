@@ -13,7 +13,8 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "client/*": [ "./src/*" ]
+      "client/*": [ "./src/*" ],
+      "library/*": ["../library/src/*"],
     },
     "outDir": "dist",
     "plugins": [
