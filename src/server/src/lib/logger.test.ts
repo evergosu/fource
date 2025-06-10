@@ -1,8 +1,7 @@
+import type { UnionTuple } from 'library/typescript/union-tuple';
 import type { MockInstance } from 'vitest';
 
 import { readFileSync } from 'node:fs';
-
-import type { UnionTuple } from './union-tuple';
 
 import { type LogEmoji, type LogLevel, Logger } from './logger';
 

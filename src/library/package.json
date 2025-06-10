@@ -6,7 +6,7 @@
     "node": ">=22.8.0"
   },
   "scripts": {
-    "build": "tsc ./src && pnpm succeed:build",
+    "build": "tsc && pnpm succeed:build",
     "build:production": "NODE_ENV=production pnpm lint && pnpm build && pnpm test:once",
     "lint": "pnpm lint:code && pnpm lint:gherkin && pnpm succeed:lint",
     "lint:code": "tsc --noEmit --pretty -p tsconfig.json && eslint --fix",
