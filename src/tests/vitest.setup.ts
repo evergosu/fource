@@ -18,8 +18,7 @@ import {
   afterAll,
 } from 'vitest';
 import { createPostgresLiteContext } from 'server/database/clients/pglite';
-import { Logger as ServerLogger } from 'server/lib/logger';
-import { Logger as ClientLogger } from 'client/lib/logger';
+import { Logger } from 'library/tools/logger';
 
 vi.mock('next/font/google', () => ({
   Inter: () => ({
@@ -33,30 +32,25 @@ let server: ApplicationServerContext;
 let nextServer: NextServerContext;
 
 beforeAll(async () => {
-  const serverLogger = new ServerLogger({
+  const logger = new Logger({
     style: 'colorful',
     level: 'error',
   });
 
-  database = await createPostgresLiteContext(serverLogger);
+  database = await createPostgresLiteContext(logger);
 
-  server = startApplicationServer(database, serverLogger, 'random');
+  server = startApplicationServer(database, logger, 'random');
 
   await database.truncateAll();
 
-  const clientLogger = new ClientLogger({
-    style: 'colorful',
-    level: 'error',
-  });
-
   try {
     nextServer = await startNextServer(
-      clientLogger,
+      logger,
       new URL(`http://localhost:${server.getPort()}`),
       'random',
     );
   } catch (error: unknown) {
-    clientLogger.error('Error during NextJS start.', error);
+    logger.error('Error during NextJS start.', error);
   }
 
   const url = `http://localhost:${nextServer.getPort().toString()}`;

@@ -1,4 +1,4 @@
-import type { Logger } from 'server/lib/logger';
+import type { Logger } from 'library/tools/logger';
 
 import type { Database } from '../database';
 

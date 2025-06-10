@@ -1,5 +1,5 @@
 import { type Table, sql } from 'drizzle-orm';
-import { Logger } from 'server/lib/logger';
+import { Logger } from 'library/tools/logger';
 
 import type { Database } from '../database';
 

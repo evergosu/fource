@@ -1,5 +1,5 @@
 import type { ErrorRequestHandler } from 'express';
-import type { Logger } from 'server/lib/logger';
+import type { Logger } from 'library/tools/logger';
 
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (error, _request, response) => {

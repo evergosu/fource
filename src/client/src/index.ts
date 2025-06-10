@@ -1,12 +1,13 @@
+import { Logger } from 'library/tools/logger';
+
 import { getEnvironment } from './lib/environment';
 import { startServer } from './server/express';
-import { Logger } from './lib/logger';
 
 const environment = getEnvironment();
 
 const logger = new Logger({
-  style: environment.node === 'production' ? 'default' : 'colorful',
-  level: environment.node === 'production' ? 'error' : 'success',
+  style: environment.node === 'development' ? 'colorful' : 'default',
+  level: environment.node === 'development' ? 'info' : 'error',
 });
 
 export default await startServer(logger, environment.server.url).catch(

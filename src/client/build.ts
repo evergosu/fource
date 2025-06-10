@@ -1,4 +1,4 @@
-import { Logger } from 'client/lib/logger';
+import { Logger } from 'library/tools/logger';
 import fs from 'node:fs/promises';
 import { globby } from 'globby';
 import esbuild from 'esbuild';
@@ -6,7 +6,7 @@ import path from 'node:path';
 
 const logger = new Logger({
   style: 'colorful',
-  level: 'success',
+  level: 'info',
 });
 
 /**

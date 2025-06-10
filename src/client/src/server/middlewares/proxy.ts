@@ -1,4 +1,4 @@
-import type { Logger } from 'client/lib/logger';
+import type { Logger } from 'library/tools/logger';
 import type { RequestHandler } from 'express';
 
 import { createProxyMiddleware } from 'http-proxy-middleware';

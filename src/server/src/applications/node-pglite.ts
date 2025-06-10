@@ -1,13 +1,14 @@
+import { Logger } from 'library/tools/logger';
+
 import { createPostgresLiteContext } from '../database/clients/pglite';
 import { getEnvironment } from '../lib/environment';
 import { startServer } from '../server/express';
-import { Logger } from '../lib/logger';
 
 const environment = getEnvironment();
 
 const logger = new Logger({
   style: environment.node === 'development' ? 'colorful' : 'default',
-  level: environment.node === 'development' ? 'success' : 'error',
+  level: environment.node === 'development' ? 'info' : 'error',
 });
 
 const pglite = await createPostgresLiteContext(logger);

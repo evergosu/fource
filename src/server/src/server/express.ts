@@ -1,3 +1,4 @@
+import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
 import { getEnvironment } from 'server/lib/environment';
@@ -5,7 +6,6 @@ import express from 'express';
 import cors from 'cors';
 
 import type { DatabaseContext } from '../database/clients/client';
-import type { Logger } from '../lib/logger';
 
 import { rateLimitByEnvironment } from './middlewares/rate-limit';
 import { createErrorHandler } from './middlewares/error-handler';

@@ -1,4 +1,4 @@
-import type { Logger } from 'server/lib/logger';
+import type { Logger } from 'library/tools/logger';
 
 import { migrate as pgliteMigrate } from 'drizzle-orm/pglite/migrator';
 import { PgliteDatabase, drizzle } from 'drizzle-orm/pglite';

@@ -1,7 +1,7 @@
 import { migrate as postgresMigrate } from 'drizzle-orm/node-postgres/migrator';
 import { getEnvironment } from 'server/lib/environment';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Logger } from 'server/lib/logger';
+import { Logger } from 'library/tools/logger';
 import { sql } from 'drizzle-orm';
 import path from 'node:path';
 import url from 'node:url';

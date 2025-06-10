@@ -1,3 +1,4 @@
+import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
 import express from 'express';
@@ -12,7 +13,6 @@ import { helmetByEnvironment } from './middlewares/helmet';
 import { morganByEnvironment } from './middlewares/morgan';
 import { createApiProxy } from './middlewares/proxy';
 import { getEnvironment } from '../lib/environment';
-import { Logger } from '../lib/logger';
 
 function resolve(metaUrl: string, relativePath: string) {
   return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);

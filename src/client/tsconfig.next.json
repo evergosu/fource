@@ -14,6 +14,10 @@
     "skipLibCheck": true,
     "noEmit": true,
     "baseUrl": ".",
+    "paths": {
+      "client/*": [ "./src/*" ],
+      "library/*": ["../library/src/*"],
+    },
     "target": "esnext",
     "types": ["node"],
     "typeRoots": [
