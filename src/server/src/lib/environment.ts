@@ -1,11 +1,6 @@
-import path from 'node:path';
+import { resolvePath } from 'library/resolve-path';
 import dotenv from 'dotenv';
-import url from 'node:url';
 import env from 'env-var';
-
-function resolve(metaUrl: string, relativePath: string) {
-  return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
-}
 
 const NODE_ENV = env
   .get('NODE_ENV')
@@ -16,10 +11,10 @@ dotenv.config({
   path: [
     // Bundle relative path for direct nodejs usage.
     NODE_ENV === 'production'
-      ? resolve(import.meta.url, `../../../.env.${NODE_ENV}`)
+      ? resolvePath(import.meta.url, `../../../.env.${NODE_ENV}`)
       : '',
     // Project relative path for typescript environment.
-    resolve(import.meta.url, `../../../../.env.${NODE_ENV}`),
+    resolvePath(import.meta.url, `../../../../.env.${NODE_ENV}`),
   ],
 });
 

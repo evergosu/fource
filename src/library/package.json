@@ -12,7 +12,7 @@
     "lint:code": "tsc --noEmit --pretty -p tsconfig.json && eslint --fix",
     "lint:gherkin": "gherkin-lint -c ../../.gherkin-lintrc",
     "pre-commit": "lint-staged && pnpm test:changed",
-    "start": "NODE_ENV=development tsx watch --clear-screen=false ./src",
+    "start": "NODE_ENV=development tsc --watch",
     "succeed:build": ": '\u001b[1;32m✔ build succeed\u001b[0m'",
     "succeed:lint": ": '\u001b[1;32m✔ lint succeed\u001b[0m'",
     "succeed:test": ": '\u001b[1;32m✔ test succeed\u001b[0m'",

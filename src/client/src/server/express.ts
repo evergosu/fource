@@ -1,9 +1,8 @@
 import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
+import { resolvePath } from 'library/resolve-path';
 import express from 'express';
-import path from 'node:path';
-import url from 'node:url';
 import next from 'next';
 import cors from 'cors';
 
@@ -13,10 +12,6 @@ import { helmetByEnvironment } from './middlewares/helmet';
 import { morganByEnvironment } from './middlewares/morgan';
 import { createApiProxy } from './middlewares/proxy';
 import { getEnvironment } from '../lib/environment';
-
-function resolve(metaUrl: string, relativePath: string) {
-  return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
-}
 
 export interface ServerContext {
   shutdown: (reason: string) => ReturnType<typeof shutdown>;
@@ -34,7 +29,7 @@ export async function startServer(
     environment.node === 'development' || environment.node === 'test';
 
   const nextjs = next({
-    dir: resolve(import.meta.url, '../..'),
+    dir: resolvePath(import.meta.url, '../..'),
     dev: isDevelopment,
   });
 

@@ -6,15 +6,10 @@ import {
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import react from '@vitejs/plugin-react';
-import path from 'node:path';
-import url from 'node:url';
 
 // eslint-disable-next-line no-restricted-imports
-import nextConfig from '../../src/client/config/next.config';
-
-function resolve(metaUrl: string, relativePath: string) {
-  return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
-}
+import { resolvePath } from '../library/src/resolve-path';
+import nextConfig from '../client/next.config';
 
 // FIX: add vitest-cucumber settings, when issue get fixed
 // https://github.com/amiceli/vitest-cucumber/issues/181
@@ -32,9 +27,9 @@ const root = searchForWorkspaceRoot(process.cwd());
 const vitestConfig = defineVitestConfig({
   test: {
     alias: {
-      library: resolve(import.meta.url, '../library/src'),
-      client: resolve(import.meta.url, '../client/src'),
-      server: resolve(import.meta.url, '../server/src'),
+      library: resolvePath(import.meta.url, '../library/src'),
+      client: resolvePath(import.meta.url, '../client/src'),
+      server: resolvePath(import.meta.url, '../server/src'),
     },
     include: [`${root}/src/tests/**/?(*.)+(spec|test).[jt]s?(x)`],
     setupFiles: [`${root}/src/tests/vitest.setup.ts`],

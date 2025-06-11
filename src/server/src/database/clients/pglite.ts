@@ -3,10 +3,9 @@ import type { Logger } from 'library/tools/logger';
 import { migrate as pgliteMigrate } from 'drizzle-orm/pglite/migrator';
 import { PgliteDatabase, drizzle } from 'drizzle-orm/pglite';
 import { getEnvironment } from 'server/lib/environment';
+import { resolvePath } from 'library/resolve-path';
 import { PGlite } from '@electric-sql/pglite';
 import { sql } from 'drizzle-orm';
-import path from 'node:path';
-import url from 'node:url';
 
 import { type Schema, schema } from '../schema/schema';
 import { DatabaseContext } from './client';
@@ -27,7 +26,7 @@ export const createPostgresLiteContext = async (
   });
 
   async function migrate() {
-    const migrationsFolder = resolve(import.meta.url, '../migrations');
+    const migrationsFolder = resolvePath(import.meta.url, '../migrations');
 
     try {
       await pgliteMigrate(database, { migrationsFolder });
@@ -64,7 +63,3 @@ export const createPostgresLiteContext = async (
     migrate: migrate,
   };
 };
-
-function resolve(metaUrl: string, relativePath: string) {
-  return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
-}

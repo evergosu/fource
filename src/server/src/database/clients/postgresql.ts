@@ -1,10 +1,9 @@
 import { migrate as postgresMigrate } from 'drizzle-orm/node-postgres/migrator';
 import { getEnvironment } from 'server/lib/environment';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { resolvePath } from 'library/resolve-path';
 import { Logger } from 'library/tools/logger';
 import { sql } from 'drizzle-orm';
-import path from 'node:path';
-import url from 'node:url';
 import { Pool } from 'pg';
 import os from 'node:os';
 
@@ -60,12 +59,8 @@ export const createPostgresContext = async (
   };
 };
 
-function resolve(metaUrl: string, relativePath: string) {
-  return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
-}
-
 async function migrate(logger: Logger) {
-  const migrationsFolder = resolve(import.meta.url, '../migrations');
+  const migrationsFolder = resolvePath(import.meta.url, '../migrations');
 
   try {
     await postgresMigrate(database, { migrationsFolder });
