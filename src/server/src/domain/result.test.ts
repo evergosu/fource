@@ -1,6 +1,6 @@
 import { Result } from './result';
 
-describe('Result', () => {
+describe('result', () => {
   const error = 'Something went wrong';
 
   describe('.isSuccess()', () => {

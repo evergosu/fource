@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import { Story } from './story';
 
-describe('Story', () => {
+describe('story', () => {
   it('should be visible', () => {
     render(<Story title="title" />);
 
