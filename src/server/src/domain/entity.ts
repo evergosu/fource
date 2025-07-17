@@ -19,15 +19,18 @@ export abstract class Entity<T> {
    *
    * @param properties - The entity's domain properties.
    * @param id - An optional pre-defined unique identifier. If not provided, a new one will be generated.
+   * @param shouldFreeze - An optional freeze of an entity to ensure that object is not extensible.
    */
   constructor(
     public readonly properties: T,
     id?: UniqueIdentifier,
+    shouldFreeze = true,
   ) {
     this._id = id ?? UniqueIdentifier.create();
     this.properties = properties;
-
-    Object.freeze(this);
+    if (shouldFreeze) {
+      Object.freeze(this);
+    }
   }
 
   /**
