@@ -7,7 +7,6 @@ import { Result } from './result';
  * perform a specific action or request. They orchestrate domain entities, services,
  * repositories, and return a `Result`.
  *
- * @template Input - Type of the request object or input parameters.
  * @template Output - Type of the response object or output value.
  */
 export abstract class UseCase<Output> {
@@ -18,4 +17,34 @@ export abstract class UseCase<Output> {
    * @returns A Promise of a Result containing either the expected output or an error.
    */
   abstract execute(input: unknown): Promise<Result<Output>>;
+}
+
+/**
+ * Represents a write operation (Command) in CQRS.
+ *
+ * @template Output - Type of the response object or output value (often void or ID of new entity).
+ */
+export abstract class CommandUseCase<Output = void> extends UseCase<Output> {
+  /**
+   * Executes the command use case logic.
+   *
+   * @param input - The input parameters required for execution.
+   * @returns A Promise of a Result containing either the expected output or an error.
+   */
+  abstract override execute(input: unknown): Promise<Result<Output>>;
+}
+
+/**
+ * Represents a read operation (Query) in CQRS.
+ *
+ * @template Output - Type of the response object or output value (often DTOs or aggregates).
+ */
+export abstract class QueryUseCase<Output> extends UseCase<Output> {
+  /**
+   * Executes the command use case logic.
+   *
+   * @param input - The input parameters required for execution.
+   * @returns A Promise of a Result containing either the expected output or an error.
+   */
+  abstract override execute(input: unknown): Promise<Result<Output>>;
 }
