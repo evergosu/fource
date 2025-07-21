@@ -96,6 +96,15 @@ export default config(
           types: ['boolean'],
         },
       ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          destructuredArrayIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       'prettier/prettier': [
         'error',
         {
