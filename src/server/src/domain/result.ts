@@ -1,3 +1,5 @@
+import type { DomainError } from './domain-error';
+
 /**
  * A functional object representing the result of an operation,
  * which can either succeed (`ok`) or fail (`fail`), but never both.
@@ -6,9 +8,9 @@
  * Commonly used in Domain-Driven Design, Functional Programming, and Error Handling patterns.
  *
  * @template T - Type of the value when operation succeeds.
- * @template E - Type of the error when operation fails (defaults to `string`).
+ * @template E - Type of the error when operation fails (defaults to `string` or `DomainError`).
  */
-export class Result<T, E = string> {
+export class Result<T, E = DomainError | string> {
   private readonly _error: undefined | E;
   private readonly _value: undefined | T;
   private readonly _isSuccess: boolean;
@@ -53,7 +55,7 @@ export class Result<T, E = string> {
    * @param results - Array of results to combine.
    * @returns Combined result.
    */
-  public static combine<T, E>(results: Result<T, E>[]): Result<void, E> {
+  public static combine<E>(results: Result<unknown, E>[]): Result<void, E> {
     for (const result of results) {
       if (result.isFailure) {
         return Result.fail(result.getError());
@@ -79,7 +81,7 @@ export class Result<T, E = string> {
    * @param value - Success payload (optional).
    * @returns Success result.
    */
-  public static ok<U>(value?: U): Result<U, never> {
+  public static ok<U = void>(value?: U): Result<U, never> {
     return new Result<U, never>(true, undefined, value);
   }
 

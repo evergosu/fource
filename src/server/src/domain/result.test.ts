@@ -19,6 +19,8 @@ describe('result', () => {
 
       expect(result.isSuccess).toBe(true);
       expect(result.isFailure).toBe(false);
+
+      // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
       expect(result.getValue()).toBeUndefined();
     });
 
