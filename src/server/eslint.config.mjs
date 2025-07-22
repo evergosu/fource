@@ -124,6 +124,13 @@ export default config(
           ignore: [String.raw`(.|-)env`, /^ignore/i],
         },
       ],
+      '@typescript-eslint/dot-notation': [
+        'error',
+        {
+          allowProtectedClassPropertyAccess: true,
+          allowPrivateClassPropertyAccess: true,
+        },
+      ],
       '@typescript-eslint/no-empty-function': [
         'error',
         {
@@ -152,6 +159,8 @@ export default config(
       'sonarjs/no-empty-test-file': 'off',
       'import-x/no-duplicates': 'error',
       'n/no-missing-import': 'off',
+      // Note: you must disable the base rule as it can report incorrect errors.
+      'dot-notation': 'off',
       // Enabled in @typescript-eslint/no-empty-function.
       'no-empty-function': 'off',
       'import-x/first': 'error',
