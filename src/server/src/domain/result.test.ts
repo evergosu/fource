@@ -96,4 +96,24 @@ describe('result', () => {
       expect(combined.getError()).toBe('Failed at step 2');
     });
   });
+
+  describe('.fold()', () => {
+    it('should fold success value correctly', () => {
+      const result = Result.ok(7).fold(
+        () => 'failed',
+        value => `success: ${value.toString()}`,
+      );
+
+      expect(result).toBe('success: 7');
+    });
+
+    it('should fold error value correctly', () => {
+      const result = Result.fail('oops').fold(
+        error => `error: ${error}`,
+        () => 'success',
+      );
+
+      expect(result).toBe('error: oops');
+    });
+  });
 });

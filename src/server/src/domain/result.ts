@@ -120,6 +120,19 @@ export class Result<T, E = DomainError | string> {
   }
 
   /**
+   * Folds (reduces) the Result into a single value by providing handlers for both Value and Error.
+   *
+   * @param onFailure - The function to handle the Error case.
+   * @param onSuccess - The function to handle the Value case.
+   * @returns The result of applying the appropriate handler.
+   */
+  public fold<U>(onFailure: (error: E) => U, onSuccess: (value: T) => U): U {
+    return this.isFailure
+      ? onFailure(this.getError())
+      : onSuccess(this.getValue());
+  }
+
+  /**
    * Whether the result represents failure.
    */
   public get isFailure(): boolean {
