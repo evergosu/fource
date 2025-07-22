@@ -1,8 +1,8 @@
 import { UseCase } from './use-case';
 import { Result } from './result';
 
-class MultiplyByTwoUseCase extends UseCase<number> {
-  async execute(input: { number: number }): Promise<Result<number>> {
+class MultiplyByTwoUseCase extends UseCase<{ number: number }, number> {
+  async implement(input: { number: number }): Promise<Result<number>> {
     await Promise.resolve();
 
     if (input.number < 0) {

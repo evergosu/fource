@@ -7,16 +7,33 @@ import { Result } from './result';
  * perform a specific action or request. They orchestrate domain entities, services,
  * repositories, and return a `Result`.
  *
+ * @template Input - Type of the request object or input parameters.
  * @template Output - Type of the response object or output value.
  */
-export abstract class UseCase<Output> {
+export abstract class UseCase<Input = unknown, Output = unknown> {
   /**
-   * Executes the use case logic.
+   * Wraps domain errors and calls business logic in `implement`.
    *
    * @param input - The input parameters required for execution.
    * @returns A Promise of a Result containing either the expected output or an error.
    */
-  abstract execute(input: unknown): Promise<Result<Output>>;
+  public async execute(input: Input): Promise<Result<Output>> {
+    try {
+      return await this.implement(input);
+    } catch (error) {
+      return Result.fail(
+        error instanceof Error ? error : new Error('Unknown error'),
+      );
+    }
+  }
+
+  /**
+   * Actual implementation of the use case business logic.
+   * Should not contain try/catch — all errors bubble to `execute()`.
+   *
+   * @param input - The input parameters required for execution.
+   */
+  protected abstract implement(input: Input): Promise<Result<Output>>;
 }
 
 /**
@@ -24,14 +41,17 @@ export abstract class UseCase<Output> {
  *
  * @template Output - Type of the response object or output value (often void or ID of new entity).
  */
-export abstract class CommandUseCase<Output = void> extends UseCase<Output> {
+export abstract class CommandUseCase<Input, Output = void> extends UseCase<
+  Input,
+  Output
+> {
   /**
-   * Executes the command use case logic.
+   * Actual implementation of the use case business logic.
+   * Should not contain try/catch — all errors bubble to `execute()`.
    *
    * @param input - The input parameters required for execution.
-   * @returns A Promise of a Result containing either the expected output or an error.
    */
-  abstract override execute(input: unknown): Promise<Result<Output>>;
+  protected abstract override implement(input: Input): Promise<Result<Output>>;
 }
 
 /**
@@ -39,12 +59,15 @@ export abstract class CommandUseCase<Output = void> extends UseCase<Output> {
  *
  * @template Output - Type of the response object or output value (often DTOs or aggregates).
  */
-export abstract class QueryUseCase<Output> extends UseCase<Output> {
+export abstract class QueryUseCase<Input, Output> extends UseCase<
+  Input,
+  Output
+> {
   /**
-   * Executes the command use case logic.
+   * Actual implementation of the use case business logic.
+   * Should not contain try/catch — all errors bubble to `execute()`.
    *
    * @param input - The input parameters required for execution.
-   * @returns A Promise of a Result containing either the expected output or an error.
    */
-  abstract override execute(input: unknown): Promise<Result<Output>>;
+  protected abstract override implement(input: Input): Promise<Result<Output>>;
 }
