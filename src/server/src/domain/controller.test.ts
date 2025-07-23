@@ -1,6 +1,9 @@
+import type { Mapper } from './mapper';
+
 import { DomainError } from './domain-error';
 import { Controller } from './controller';
 import { UseCase } from './use-case';
+import { Entity } from './entity';
 import { Either } from './either';
 import { Option } from './option';
 import { Result } from './result';
@@ -13,6 +16,16 @@ class TestError extends DomainError {
   }
 }
 
+interface TestDTO {
+  foo: string;
+}
+
+const testDTO = { foo: 'bar' };
+
+class Test extends Entity<TestDTO> {}
+
+const test = new Test(testDTO);
+
 type Request = Record<'body', unknown>;
 
 interface Response {
@@ -20,17 +33,50 @@ interface Response {
   json: (payload: unknown) => void;
 }
 
-class SuccessController extends Controller {
+const request = { body: testDTO } as Request;
+
+const response = {
+  status: vi.fn().mockReturnThis(),
+  json: vi.fn(),
+};
+
+const useCaseSucceeded = {
+  execute: vi.fn().mockResolvedValue(Result.ok(test)),
+} as unknown as UseCase<Test, Test>;
+
+const useCaseFailed = {
+  execute: vi.fn().mockResolvedValue(Result.fail(new TestError())),
+} as unknown as UseCase<Test, Test>;
+
+const mapper = {
+  toDomain: vi.fn().mockReturnValue(Result.ok(test)),
+  toDTO: vi.fn().mockReturnValue(Result.ok(testDTO)),
+} as unknown as Mapper<Test, TestDTO>;
+
+class SuccessController extends Controller<
+  Request,
+  Response,
+  typeof useCaseSucceeded,
+  typeof mapper
+> {
+  protected async implement(request: Request): Promise<Result<TestDTO>> {
+    return this.mapper
+      .toDomain(request.body)
+      .flatMapAsync(r => this.useCase.execute(r))
+      .then(r => r.flatMap(this.mapper.toDTO.bind(this)));
+  }
+
   protected send(response: Response, status: number, payload: unknown): void {
     response.status(status).json(payload);
   }
-
-  protected implement(request: Request): Promise<Result<unknown>> {
-    return this.useCase.execute(request.body);
-  }
 }
 
-class ErrorController extends Controller {
+class ErrorController extends Controller<
+  Request,
+  Response,
+  typeof useCaseFailed,
+  typeof mapper
+> {
   protected implement(request: Request): Promise<Result<unknown>> {
     throw new Error(message, { cause: request.body });
   }
@@ -40,42 +86,25 @@ class ErrorController extends Controller {
   }
 }
 
-const payload = { foo: 'bar' };
-
-const request = { body: payload } as Request;
-
-const response = {
-  status: vi.fn().mockReturnThis(),
-  json: vi.fn(),
-};
-
-const useCaseSucceeded = {
-  execute: vi.fn().mockResolvedValue(Result.ok(payload)),
-} as unknown as UseCase;
-
-const useCaseFailed = {
-  execute: vi.fn().mockResolvedValue(Result.fail(new TestError())),
-} as unknown as UseCase;
-
 describe('controller', () => {
   let controller: SuccessController | ErrorController;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    controller = new SuccessController(useCaseSucceeded);
+    controller = new SuccessController(useCaseSucceeded, mapper);
   });
 
   describe('.execute()', () => {
     it('should call use case with provided payload', async () => {
-      const controller = new SuccessController(useCaseSucceeded);
+      const controller = new SuccessController(useCaseSucceeded, mapper);
 
       await expect(
         controller.execute(request, response),
       ).resolves.not.toThrow();
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(useCaseSucceeded.execute).toHaveBeenCalledWith(payload);
+      expect(useCaseSucceeded.execute).toHaveBeenCalledWith(test);
     });
 
     it('should send result on success with 200 status code', async () => {
@@ -84,11 +113,11 @@ describe('controller', () => {
       ).resolves.not.toThrow();
 
       expect(response.status).toHaveBeenCalledWith(200);
-      expect(response.json).toHaveBeenCalledWith(payload);
+      expect(response.json).toHaveBeenCalledWith(testDTO);
     });
 
     it('should send message on expected error with 400 status code', async () => {
-      controller = new SuccessController(useCaseFailed);
+      controller = new SuccessController(useCaseFailed, mapper);
 
       await expect(
         controller.execute(request, response),
@@ -99,7 +128,7 @@ describe('controller', () => {
     });
 
     it('should send message on unexpected error with 500 status code', async () => {
-      controller = new ErrorController(useCaseSucceeded);
+      controller = new ErrorController(useCaseSucceeded, mapper);
 
       await expect(
         controller.execute(request, response),

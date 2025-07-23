@@ -1,8 +1,10 @@
 import type { DomainError } from './domain-error';
-import type { UseCase } from './use-case';
+import type { UseCase as UC } from './use-case';
+import type { Mapper as M } from './mapper';
 import type { Result } from './result';
 import type { Either } from './either';
 import type { Option } from './option';
+import type { Entity } from './entity';
 
 /**
  * Base class for all controllers, responsible for formatting responses and
@@ -16,13 +18,21 @@ import type { Option } from './option';
  *
  * Concrete subclasses must provide `implement`.
  */
-export abstract class Controller<Request = unknown, Response = unknown> {
+export abstract class Controller<
+  Request,
+  Response,
+  UseCase extends UC<unknown, unknown>,
+  Mapper extends M<Entity<unknown>, unknown>,
+> {
   /**
    * Constructor must be implemented by all subclasses with required arguments.
    *
    * @param useCase - use case to work within controller.
    */
-  constructor(protected readonly useCase: UseCase) {}
+  constructor(
+    protected readonly useCase: UseCase,
+    protected readonly mapper: Mapper,
+  ) {}
   /**
    * Template method. Concrete controllers must override this.
    *
