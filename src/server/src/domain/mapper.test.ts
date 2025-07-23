@@ -53,27 +53,27 @@ describe('mapper', () => {
     const result = mapper.toDTO(domainOne);
 
     expect(result.isSuccess).toBe(true);
-    expect(result.getValue()).toEqual(dtoOne);
+    expect(result.value).toEqual(dtoOne);
   });
 
   it('should map DTO to domain', () => {
     const result = mapper.toDomain(dtoOne);
 
     expect(result.isSuccess).toBe(true);
-    expect(result.getValue()).toEqual(domainOne);
+    expect(result.value).toEqual(domainOne);
   });
 
   it('should map domain list to DTO list', () => {
     const result = mapper.toDTOList(domains);
 
     expect(result.isSuccess).toBe(true);
-    expect(result.getValue()).toEqual(dtos);
+    expect(result.value).toEqual(dtos);
   });
 
   it('should map DTO list to domain list', () => {
     const result = mapper.toDomainList(dtos);
 
     expect(result.isSuccess).toBe(true);
-    expect(result.getValue()).toEqual(domains);
+    expect(result.value).toEqual(domains);
   });
 });

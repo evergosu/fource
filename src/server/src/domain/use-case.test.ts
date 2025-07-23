@@ -20,7 +20,7 @@ describe('use case', () => {
     const result = await useCase.execute({ number: 3 });
 
     expect(result.isSuccess).toBe(true);
-    expect(result.getValue()).toBe(6);
+    expect(result.value).toBe(6);
   });
 
   it('should fail with invalid input', async () => {
@@ -29,6 +29,6 @@ describe('use case', () => {
     const result = await useCase.execute({ number: -5 });
 
     expect(result.isFailure).toBe(true);
-    expect(result.getError()).toBe('Negative number not allowed');
+    expect(result.error).toBe('Negative number not allowed');
   });
 });

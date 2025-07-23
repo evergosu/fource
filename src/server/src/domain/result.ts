@@ -58,7 +58,7 @@ export class Result<T, E = DomainError | string> {
   public static combine<E>(results: Result<unknown, E>[]): Result<void, E> {
     for (const result of results) {
       if (result.isFailure) {
-        return Result.fail(result.getError());
+        return Result.fail(result.error);
       }
     }
 
@@ -84,10 +84,10 @@ export class Result<T, E = DomainError | string> {
 
     for (const result of results) {
       if (result.isFailure) {
-        return Result.fail(result.getError());
+        return Result.fail(result.error);
       }
 
-      values.push(result.getValue());
+      values.push(result.value);
     }
 
     return Result.ok(values as OkTypes);
@@ -102,13 +102,9 @@ export class Result<T, E = DomainError | string> {
    * @returns A promise resolving to a `Result<U, E>`, either the transformed success or the same failure.
    */
   public async mapAsync<U>(f: (value: T) => Promise<U>): Promise<Result<U, E>> {
-    if (this.isFailure) {
-      return Result.fail(this.getError());
-    }
-
-    const value = await f(this.getValue());
-
-    return Result.ok(value);
+    return this.isSuccess
+      ? Result.ok(await f(this.value))
+      : Result.fail(this.error);
   }
 
   /**
@@ -124,9 +120,7 @@ export class Result<T, E = DomainError | string> {
   public async flatMapAsync<U>(
     f: (value: T) => Promise<Result<U, E>>,
   ): Promise<Result<U, E>> {
-    return this.isSuccess
-      ? await f(this.getValue())
-      : Result.fail(this.getError());
+    return this.isSuccess ? await f(this.value) : Result.fail(this.error);
   }
 
   /**
@@ -140,7 +134,7 @@ export class Result<T, E = DomainError | string> {
    * @returns A new `Result<U, E>`, or the current failure.
    */
   public flatMap<U>(f: (value: T) => Result<U, E>): Result<U, E> {
-    return this.isSuccess ? f(this.getValue()) : Result.fail(this.getError());
+    return this.isSuccess ? f(this.value) : Result.fail(this.error);
   }
 
   /**
@@ -152,9 +146,7 @@ export class Result<T, E = DomainError | string> {
    * @returns A new `Result<U, E>` containing the transformed value, or the current failure.
    */
   public map<U>(f: (value: T) => U): Result<U, E> {
-    return this.isSuccess
-      ? Result.ok(f(this.getValue()))
-      : Result.fail(this.getError());
+    return this.isSuccess ? Result.ok(f(this.value)) : Result.fail(this.error);
   }
 
   /**
@@ -184,7 +176,7 @@ export class Result<T, E = DomainError | string> {
    * @returns Error payload.
    * @throws Error if result is successful.
    */
-  public getError(): E {
+  public get error(): E {
     if (this._isSuccess) {
       throw new InvariantViolationError(
         'InvalidResult: Cannot get the error of a successful result',
@@ -201,7 +193,7 @@ export class Result<T, E = DomainError | string> {
    * @returns Success payload.
    * @throws Error if result is a failure.
    */
-  public getValue(): T {
+  public get value(): T {
     if (!this._isSuccess) {
       throw new InvariantViolationError(
         'InvalidResult: Cannot get the value of a failed result',
@@ -219,9 +211,7 @@ export class Result<T, E = DomainError | string> {
    * @returns The result of applying the appropriate handler.
    */
   public fold<U>(onFailure: (error: E) => U, onSuccess: (value: T) => U): U {
-    return this.isFailure
-      ? onFailure(this.getError())
-      : onSuccess(this.getValue());
+    return this.isFailure ? onFailure(this.error) : onSuccess(this.value);
   }
 
   /**

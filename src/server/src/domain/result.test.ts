@@ -11,7 +11,7 @@ describe('result', () => {
 
       expect(result.isSuccess).toBe(true);
       expect(result.isFailure).toBe(false);
-      expect(result.getValue()).toBe(value);
+      expect(result.value).toBe(value);
     });
 
     it('should create a success result without value (void)', () => {
@@ -20,14 +20,13 @@ describe('result', () => {
       expect(result.isSuccess).toBe(true);
       expect(result.isFailure).toBe(false);
 
-      // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
-      expect(result.getValue()).toBeUndefined();
+      expect(result.value).toBeUndefined();
     });
 
     it('should throw when accessing error on success result', () => {
       const result = Result.ok(value);
 
-      expect(() => result.getError()).toThrowError(
+      expect(() => result.error).toThrowError(
         'InvalidResult: Cannot get the error of a successful result',
       );
     });
@@ -39,7 +38,7 @@ describe('result', () => {
 
       expect(result.isSuccess).toBe(false);
       expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBe(error);
+      expect(result.error).toBe(error);
     });
 
     it('should create a failure result with custom error type', () => {
@@ -56,13 +55,13 @@ describe('result', () => {
       const result = Result.fail<never, DomainError>(error);
 
       expect(result.isFailure).toBe(true);
-      expect(result.getError()).toEqual(error);
+      expect(result.error).toEqual(error);
     });
 
     it('should throw when accessing value on failure result', () => {
       const result = Result.fail(error);
 
-      expect(() => result.getValue()).toThrowError(
+      expect(() => result.value).toThrowError(
         'InvalidResult: Cannot get the value of a failed result',
       );
     });
@@ -77,8 +76,8 @@ describe('result', () => {
       const combined = Result.combine([resultOne, resultTwo, resultThree]);
 
       expect(combined.isSuccess).toBe(true);
-      // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
-      expect(combined.getValue()).toBe(undefined);
+
+      expect(combined.value).toBe(undefined);
     });
 
     it('should return first failure if any result fails', () => {
@@ -95,7 +94,7 @@ describe('result', () => {
       ]);
 
       expect(combined.isFailure).toBe(true);
-      expect(combined.getError()).toBe('Failed at step 2');
+      expect(combined.error).toBe('Failed at step 2');
     });
   });
 
@@ -109,7 +108,7 @@ describe('result', () => {
 
       expect(combined.isSuccess).toBe(true);
       expect(combined).toStrictEqual(Result.ok([42, 'foo', undefined]));
-      expect(combined.getValue()).toStrictEqual([42, 'foo', undefined]);
+      expect(combined.value).toStrictEqual([42, 'foo', undefined]);
     });
 
     it('should return first failure if any result fails', () => {
@@ -126,7 +125,7 @@ describe('result', () => {
       ]);
 
       expect(combined.isFailure).toBe(true);
-      expect(combined.getError()).toBe('Failed at step 2');
+      expect(combined.error).toBe('Failed at step 2');
     });
   });
 
@@ -157,7 +156,7 @@ describe('result', () => {
       const mapped = result.map(n => n * 3);
 
       expect(mapped.isSuccess).toBe(true);
-      expect(mapped.getValue()).toBe(6);
+      expect(mapped.value).toBe(6);
     });
 
     it('should return same failure if result is failure', () => {
@@ -166,7 +165,7 @@ describe('result', () => {
       const mapped = result.map((n: number) => n * 3);
 
       expect(mapped.isFailure).toBe(true);
-      expect(mapped.getError()).toBe('error');
+      expect(mapped.error).toBe('error');
     });
   });
 
@@ -177,7 +176,7 @@ describe('result', () => {
       const flatMapped = result.flatMap(n => Result.ok(n * 5));
 
       expect(flatMapped.isSuccess).toBe(true);
-      expect(flatMapped.getValue()).toBe(10);
+      expect(flatMapped.value).toBe(10);
     });
 
     it('should return same failure if result is failure', () => {
@@ -186,7 +185,7 @@ describe('result', () => {
       const flatMapped = result.flatMap((n: number) => Result.ok(n * 5));
 
       expect(flatMapped.isFailure).toBe(true);
-      expect(flatMapped.getError()).toBe('fail');
+      expect(flatMapped.error).toBe('fail');
     });
 
     it('should propagate failure from inner result', () => {
@@ -195,7 +194,7 @@ describe('result', () => {
       const flatMapped = result.flatMap(() => Result.fail('inner fail'));
 
       expect(flatMapped.isFailure).toBe(true);
-      expect(flatMapped.getError()).toBe('inner fail');
+      expect(flatMapped.error).toBe('inner fail');
     });
   });
 
@@ -208,7 +207,7 @@ describe('result', () => {
       );
 
       expect(mapped.isSuccess).toBe(true);
-      expect(mapped.getValue()).toBe(10);
+      expect(mapped.value).toBe(10);
     });
 
     it('should return same failure if result is failure', async () => {
@@ -219,7 +218,7 @@ describe('result', () => {
       );
 
       expect(mapped.isFailure).toBe(true);
-      expect(mapped.getError()).toBe('async error');
+      expect(mapped.error).toBe('async error');
     });
   });
 
@@ -232,7 +231,7 @@ describe('result', () => {
       );
 
       expect(flatMapped.isSuccess).toBe(true);
-      expect(flatMapped.getValue()).toBe(8);
+      expect(flatMapped.value).toBe(8);
     });
 
     it('should return same failure if result is failure', async () => {
@@ -242,7 +241,7 @@ describe('result', () => {
       );
 
       expect(flatMapped.isFailure).toBe(true);
-      expect(flatMapped.getError()).toBe('initial failure');
+      expect(flatMapped.error).toBe('initial failure');
     });
 
     it('should propagate inner async failure result', async () => {
@@ -253,7 +252,7 @@ describe('result', () => {
       );
 
       expect(flatMapped.isFailure).toBe(true);
-      expect(flatMapped.getError()).toBe('inner failure');
+      expect(flatMapped.error).toBe('inner failure');
     });
   });
 });

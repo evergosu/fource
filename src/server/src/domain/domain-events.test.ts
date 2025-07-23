@@ -29,7 +29,6 @@ describe('domain events', () => {
   it('should register a handler for a domain event', () => {
     DomainEvents.subscribe(PostCreatedEvent, handler);
 
-    // eslint-disable-next-line @typescript-eslint/dot-notation
     expect(DomainEvents['subscribers'].has(PostCreatedEvent.name)).toBe(true);
   });
 

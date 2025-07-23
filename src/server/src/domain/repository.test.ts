@@ -183,7 +183,7 @@ describe('repository', () => {
     const result = await repository.delete(unknownId);
 
     expect(result.isFailure).toBe(true);
-    expect(result.getError()).toBeInstanceOf(AggregateNotFoundError);
-    expect(result.getError().message).toContain(unknownId);
+    expect(result.error).toBeInstanceOf(AggregateNotFoundError);
+    expect(result.error.message).toContain(unknownId);
   });
 });

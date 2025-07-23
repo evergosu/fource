@@ -86,8 +86,8 @@ export abstract class Controller<
     onSuccessStatus = 200,
   ): [number, unknown] {
     return result.fold(
-      () => this.handleError(result.getError()),
-      () => [onSuccessStatus, result.getValue()],
+      () => this.handleError(result.error),
+      () => [onSuccessStatus, result.value],
     );
   }
 
