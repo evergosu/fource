@@ -10,7 +10,7 @@ import { Result } from './result';
  * @template Input - Type of the request object or input parameters.
  * @template Output - Type of the response object or output value.
  */
-export abstract class UseCase<Input = unknown, Output = unknown> {
+export abstract class UseCase<Input, Output> {
   /**
    * Wraps domain errors and calls business logic in `implement`.
    *
