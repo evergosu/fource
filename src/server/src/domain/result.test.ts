@@ -77,6 +77,8 @@ describe('result', () => {
       const combined = Result.combine([resultOne, resultTwo, resultThree]);
 
       expect(combined.isSuccess).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
+      expect(combined.getValue()).toBe(undefined);
     });
 
     it('should return first failure if any result fails', () => {
@@ -86,6 +88,37 @@ describe('result', () => {
       const resultFour = Result.fail('Failed at step 4');
 
       const combined = Result.combine([
+        resultOne,
+        resultTwo,
+        resultThree,
+        resultFour,
+      ]);
+
+      expect(combined.isFailure).toBe(true);
+      expect(combined.getError()).toBe('Failed at step 2');
+    });
+  });
+
+  describe('.combineList()', () => {
+    it('should return result of values if all results succeed', () => {
+      const resultOne = Result.ok(42);
+      const resultTwo = Result.ok('foo');
+      const resultThree = Result.ok();
+
+      const combined = Result.combineList([resultOne, resultTwo, resultThree]);
+
+      expect(combined.isSuccess).toBe(true);
+      expect(combined).toStrictEqual(Result.ok([42, 'foo', undefined]));
+      expect(combined.getValue()).toStrictEqual([42, 'foo', undefined]);
+    });
+
+    it('should return first failure if any result fails', () => {
+      const resultOne = Result.ok('bar');
+      const resultTwo = Result.fail('Failed at step 2');
+      const resultThree = Result.ok('baz');
+      const resultFour = Result.fail('Failed at step 4');
+
+      const combined = Result.combineList([
         resultOne,
         resultTwo,
         resultThree,
@@ -114,6 +147,113 @@ describe('result', () => {
       );
 
       expect(result).toBe('error: oops');
+    });
+  });
+
+  describe('map', () => {
+    it('should transform value if success', () => {
+      const result = Result.ok(2);
+
+      const mapped = result.map(n => n * 3);
+
+      expect(mapped.isSuccess).toBe(true);
+      expect(mapped.getValue()).toBe(6);
+    });
+
+    it('should return same failure if result is failure', () => {
+      const result = Result.fail('error');
+
+      const mapped = result.map((n: number) => n * 3);
+
+      expect(mapped.isFailure).toBe(true);
+      expect(mapped.getError()).toBe('error');
+    });
+  });
+
+  describe('flatMap', () => {
+    it('should transform to new result if success', () => {
+      const result = Result.ok(2);
+
+      const flatMapped = result.flatMap(n => Result.ok(n * 5));
+
+      expect(flatMapped.isSuccess).toBe(true);
+      expect(flatMapped.getValue()).toBe(10);
+    });
+
+    it('should return same failure if result is failure', () => {
+      const result = Result.fail('fail');
+
+      const flatMapped = result.flatMap((n: number) => Result.ok(n * 5));
+
+      expect(flatMapped.isFailure).toBe(true);
+      expect(flatMapped.getError()).toBe('fail');
+    });
+
+    it('should propagate failure from inner result', () => {
+      const result: Result<number, string> = Result.ok(2);
+
+      const flatMapped = result.flatMap(() => Result.fail('inner fail'));
+
+      expect(flatMapped.isFailure).toBe(true);
+      expect(flatMapped.getError()).toBe('inner fail');
+    });
+  });
+
+  describe('mapAsync', () => {
+    it('should asynchronously transform value if success', async () => {
+      const result = Result.ok(3);
+
+      const mapped = await result.mapAsync(
+        async n => await Promise.resolve(n + 7),
+      );
+
+      expect(mapped.isSuccess).toBe(true);
+      expect(mapped.getValue()).toBe(10);
+    });
+
+    it('should return same failure if result is failure', async () => {
+      const result = Result.fail('async error');
+
+      const mapped = await result.mapAsync(
+        async (n: number) => await Promise.resolve(n + 1),
+      );
+
+      expect(mapped.isFailure).toBe(true);
+      expect(mapped.getError()).toBe('async error');
+    });
+  });
+
+  describe('flatMapAsync', () => {
+    it('should asynchronously transform value into a result if success', async () => {
+      const result = Result.ok(4);
+
+      const flatMapped = await result.flatMapAsync(
+        async n => await Promise.resolve(Result.ok(n * 2)),
+      );
+
+      expect(flatMapped.isSuccess).toBe(true);
+      expect(flatMapped.getValue()).toBe(8);
+    });
+
+    it('should return same failure if result is failure', async () => {
+      const result = Result.fail('initial failure');
+      const flatMapped = await result.flatMapAsync(
+        async (n: number) => await Promise.resolve(Result.ok(n * 2)),
+      );
+
+      expect(flatMapped.isFailure).toBe(true);
+      expect(flatMapped.getError()).toBe('initial failure');
+    });
+
+    it('should propagate inner async failure result', async () => {
+      const result: Result<number, string> = Result.ok(100);
+
+      const flatMapped = await result.flatMapAsync(
+        async () => await Promise.resolve(Result.fail('inner failure')),
+      );
+
+      expect(flatMapped.isFailure).toBe(true);
+      expect(flatMapped.getError()).toBe('inner failure');
     });
   });
 });

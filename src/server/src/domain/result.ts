@@ -66,6 +66,98 @@ export class Result<T, E = DomainError | string> {
   }
 
   /**
+   * Combine multiple results into a single result.
+   * - If any result failed, returns the first failure.
+   * - Otherwise, returns success with list of values.
+   *
+   * @param results - Array of results to combine.
+   * @returns Combined result with values from each result.
+   */
+  static combineList<
+    ErrorType,
+    T extends readonly Result<unknown, ErrorType>[],
+    OkTypes = {
+      [K in keyof T]: T[K] extends Result<infer U, unknown> ? U : never;
+    },
+  >(results: [...T]): Result<OkTypes, ErrorType> {
+    const values: unknown[] = [];
+
+    for (const result of results) {
+      if (result.isFailure) {
+        return Result.fail(result.getError());
+      }
+
+      values.push(result.getValue());
+    }
+
+    return Result.ok(values as OkTypes);
+  }
+
+  /**
+   * Applies an asynchronous transformation function to the successful value of the result,
+   * returning a new successful result. If the current result is a failure, the same failure is returned.
+   *
+   * @template U - The type of the value in the new result.
+   * @param f - An asynchronous function to transform the successful value.
+   * @returns A promise resolving to a `Result<U, E>`, either the transformed success or the same failure.
+   */
+  public async mapAsync<U>(f: (value: T) => Promise<U>): Promise<Result<U, E>> {
+    if (this.isFailure) {
+      return Result.fail(this.getError());
+    }
+
+    const value = await f(this.getValue());
+
+    return Result.ok(value);
+  }
+
+  /**
+   * Applies an asynchronous transformation function that returns a `Result` to the successful value
+   * of the result. If the current result is a failure, the same failure is returned.
+   *
+   * This is useful for chaining asynchronous operations that can also fail.
+   *
+   * @template U - The type of the value in the new result.
+   * @param f - An asynchronous function that takes the successful value and returns a `Result<U, E>`.
+   * @returns A promise resolving to a new `Result<U, E>`, or the current failure.
+   */
+  public async flatMapAsync<U>(
+    f: (value: T) => Promise<Result<U, E>>,
+  ): Promise<Result<U, E>> {
+    return this.isSuccess
+      ? await f(this.getValue())
+      : Result.fail(this.getError());
+  }
+
+  /**
+   * Applies a synchronous transformation function that returns a `Result` to the successful value
+   * of the result. If the current result is a failure, the same failure is returned.
+   *
+   * This is useful for chaining operations that may return a result indicating failure.
+   *
+   * @template U - The type of the value in the new result.
+   * @param f - A function that transforms the successful value into a `Result<U, E>`.
+   * @returns A new `Result<U, E>`, or the current failure.
+   */
+  public flatMap<U>(f: (value: T) => Result<U, E>): Result<U, E> {
+    return this.isSuccess ? f(this.getValue()) : Result.fail(this.getError());
+  }
+
+  /**
+   * Applies a synchronous transformation function to the successful value of the result,
+   * returning a new successful result. If the current result is a failure, the same failure is returned.
+   *
+   * @template U - The type of the value in the new result.
+   * @param f - A function that transforms the successful value into a new value.
+   * @returns A new `Result<U, E>` containing the transformed value, or the current failure.
+   */
+  public map<U>(f: (value: T) => U): Result<U, E> {
+    return this.isSuccess
+      ? Result.ok(f(this.getValue()))
+      : Result.fail(this.getError());
+  }
+
+  /**
    * Create a failed result.
    *
    * @param error - Error payload.
