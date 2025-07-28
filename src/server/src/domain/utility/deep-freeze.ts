@@ -1,6 +1,5 @@
 /**
  * Recursively deeply freezes an object and all nested objects/arrays.
- *
  * @param object - The object to freeze.
  * @returns The frozen object.
  */

@@ -5,13 +5,11 @@ import { Entity } from './entity';
 
 /**
  * Abstract base class for aggregate roots in a DDD system.
- *
- * @typeParam T - The type of the aggregate's properties.
+ * @template T - The type of the aggregate's properties.
  */
 export abstract class AggregateRoot<T> extends Entity<T> {
   /**
    * Constructs a new `AggregateRoot` instance.
-   *
    * @param properties - The entity's domain properties.
    * @param id - An optional pre-defined unique identifier. If not provided, a new one will be generated.
    */
@@ -27,7 +25,8 @@ export abstract class AggregateRoot<T> extends Entity<T> {
   private _domainEvents: DomainEvent[] = [];
 
   /**
-   * Returns a copy of the list of domain events.
+   * Shallow copy of associated aggregate domain events.
+   * @returns shallow copy of current aggregate domain events.
    */
   public get domainEvents(): DomainEvent[] {
     return [...this._domainEvents];
@@ -35,7 +34,6 @@ export abstract class AggregateRoot<T> extends Entity<T> {
 
   /**
    * Adds a domain event to the internal list and marks this aggregate for dispatch.
-   *
    * @param event - The domain event to add.
    */
   protected addDomainEvent(event: DomainEvent): void {

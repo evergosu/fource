@@ -38,9 +38,9 @@ export class DomainEvents {
 
   /**
    * Registers a handler for a specific domain event type.
-   *
    * @param event - The name of the domain event.
    * @param handler - The callback function to be called when the event is dispatched.
+   * @returns function to unsubsribe given handler.
    */
   public static subscribe<T extends DomainEvent>(
     event: new (aggregateId: UniqueIdentifier) => T,
@@ -68,7 +68,6 @@ export class DomainEvents {
 
   /**
    * Marks an aggregate for domain event dispatch.
-   *
    * @param aggregate - The aggregate to mark.
    */
   public static markAggregateForDispatch(
@@ -81,7 +80,6 @@ export class DomainEvents {
 
   /**
    * Dispatches domain events for an aggregate and clears them.
-   *
    * @param aggregate - The aggregate whose events should be dispatched.
    */
   public static dispatchEventsForAggregate(
@@ -109,7 +107,6 @@ export class DomainEvents {
 
   /**
    * Dispatches a single domain event to all registered handlers.
-   *
    * @param event - The domain event to dispatch.
    */
   private static dispatch(event: DomainEvent): void {
@@ -123,21 +120,21 @@ export class DomainEvents {
   }
 
   /**
-   * Clear all event handlers (subscribers).
+   * Clears all event handlers (subscribers).
    */
   public static clearHandlers(): void {
     this.subscribers.clear();
   }
 
   /**
-   * Clear all aggregates marked for dispatch.
+   * Clears all aggregates marked for dispatch.
    */
   public static clearMarkedAggregates(): void {
     this.aggregatesMarkedForDispatch.clear();
   }
 
   /**
-   * Clear both handlers and marked aggregates (used in tests).
+   * Clears both handlers and marked aggregates (used in tests).
    */
   public static clear(): void {
     this.clearHandlers();

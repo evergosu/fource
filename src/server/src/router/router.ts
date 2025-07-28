@@ -5,6 +5,11 @@ import express, { type Response, type Request, type Router } from 'express';
 import { NoStoriesError, Stories } from '../story/story';
 import { asyncHandler } from './async-handler';
 
+/**
+ * Provides database context to async handler.
+ * @param database - database context to pass for handler.
+ * @returns get story handler.
+ */
 function createGetStory(database: DatabaseContext) {
   return async function getStory(_: Request, response: Response) {
     try {
@@ -23,6 +28,11 @@ function createGetStory(database: DatabaseContext) {
   };
 }
 
+/**
+ * Creates express router processing get story action.
+ * @param database - database context to pass for handler.
+ * @returns get story router.
+ */
 export function createStoryRouter(database: DatabaseContext): Router {
   return express.Router().get('/story', asyncHandler(createGetStory(database)));
 }

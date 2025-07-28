@@ -16,8 +16,7 @@ import { Identifier } from './identifier';
  * - A non-empty `string` (e.g. UUID, external identifier)
  * - A `number` (e.g. database-generated numeric ID)
  * - If no ID is provided, a UUIDv7 is automatically generated.
- *
- * @example
+ * @example .
  * const id1 = UniqueIdentifier.create(); // auto-generate UUIDv7
  * const id2 = UniqueIdentifier.create('abc-123'); // provide string ID
  * const id3 = UniqueIdentifier.create(123); // provide numeric ID
@@ -25,7 +24,6 @@ import { Identifier } from './identifier';
 export class UniqueIdentifier extends Identifier<string | number> {
   /**
    * Internal constructor. Use `UniqueIdentifier.create()` instead.
-   *
    * @param id - Optional identifier value.
    * @throws {Error} if string value is empty.
    * @throws {TypeError} if value is not string or number.
@@ -50,7 +48,6 @@ export class UniqueIdentifier extends Identifier<string | number> {
 
   /**
    * Factory method for safely creating a `UniqueIdentifier` instance.
-   *
    * @param id - Optional identifier value.
    * @returns A valid `UniqueIdentifier` instance.
    */

@@ -6,9 +6,8 @@
  * - `Left` represents a failure case containing an error.
  *
  * This allows error-handling to be expressed explicitly and functionally.
- *
- * @template L - The type of the error (Left).
- * @template R - The type of the success value (Right).
+ * @template L - The type of the error (`Left`).
+ * @template R - The type of the success value (`Right`).
  */
 export class Either<L, R> {
   private constructor(
@@ -23,26 +22,29 @@ export class Either<L, R> {
   }
 
   /**
-   * Creates a Right instance representing a successful computation.
-   *
+   * Creates a `Right` instance representing a successful computation.
    * @param value - The success value.
-   * @returns An Either in the Right state.
+   * @returns An `Either` in the `Right` state.
    */
   static right<R, L = never>(value: R): Either<L, R> {
     return new Either<L, R>(undefined, value, true);
   }
 
   /**
-   * Creates a Left instance representing a failed computation.
-   *
+   * Creates a `Left` instance representing a failed computation.
    * @param value - The error value.
-   * @returns An Either in the Left state.
+   * @returns An `Either` in the `Left` state.
    */
   static left<L, R = never>(value: L): Either<L, R> {
     return new Either<L, R>(value, undefined, false);
   }
 
-  /** Wraps a function call, capturing any thrown exception as Left. */
+  /**
+   * Wraps a function call, capturing any thrown exception as `Left`.
+   * @param function_ - The function to try.
+   * @param onError - The function to invoke on error state.
+   * @returns An `Right` on success, `Left` otherwise.
+   */
   static tryCatch<L, R>(
     function_: () => R,
     onError: (error: unknown) => L,
@@ -55,48 +57,52 @@ export class Either<L, R> {
   }
 
   /**
-   * Type guard to check whether the Either is a Right.
-   *
-   * @param either - The Either instance to check.
-   * @returns `true` if the instance is Right.
+   * Type guard to check whether the `Either` is a `Right`.
+   * @returns `true` if the instance is `Right`.
    */
   public isRight(): this is Either<never, R> {
     return this.isRightFlag;
   }
 
   /**
-   * Type guard to check whether the Either is a Left.
-   *
-   * @param either - The Either instance to check.
-   * @returns `true` if the instance is Left.
+   * Type guard to check whether the `Either` is a `Left`.
+   * @returns `true` if the instance is `Left`.
    */
   public isLeft(): this is Either<L, never> {
     return !this.isRightFlag;
   }
 
-  /** Get value from Right. Throws if Left. */
+  /**
+   * Unboxes the `Right` value of `Either` type.
+   * @returns a `Right` value if called on `Right`
+   * @throws An `InvariantViolationError` if called on `Left`
+   */
   public getRight(): R {
     if (this.isLeft()) {
-      throw new Error('Cannot get value from Left');
+      throw new InvariantViolationError('Cannot get value from Left');
     }
+
     return this.rightValue as R;
   }
 
-  /** Get value from Left. Throws if Right. */
+  /**
+   * Unboxes the `Left` value of `Either` type.
+   * @returns a `Left` value if called on `Left`
+   * @throws An `InvariantViolationError` if called on `Right`
+   */
   public getLeft(): L {
     if (this.isRight()) {
-      throw new Error('Cannot get left value from Right');
+      throw new InvariantViolationError('Cannot get left value from Right');
     }
+
     return this.leftValue as L;
   }
 
   /**
-   * Applies a function to transform the Right value if present.
-   *
-   * If the Either is Left, the original Left is returned unchanged.
-   *
-   * @param function_ - The function to apply to the Right value.
-   * @returns A new Either with the transformed Right value or the original Left.
+   * Applies a function to transform the `Right` value if present.
+   * If the `Either` is `Left`, the original `Left` is returned unchanged.
+   * @param function_ - The function to apply to the `Right` value.
+   * @returns A new `Either` with the transformed `Right` value or the original `Left`.
    */
   public map<U>(function_: (r: R) => U): Either<L, U> {
     return this.isRight()
@@ -105,12 +111,10 @@ export class Either<L, R> {
   }
 
   /**
-   * Applies a function to transform the Left value if present.
-   *
-   * If the Either is Right, the original Right is returned unchanged.
-   *
-   * @param function_ - The function to apply to the Left value.
-   * @returns A new Either with the transformed Left value or the original Right.
+   * Applies a function to transform the `Left` value if present.
+   * If the `Either` is `Right`, the original `Right` is returned unchanged.
+   * @param function_ - The function to apply to the `Left` value.
+   * @returns A new `Either` with the transformed `Left` value or the original `Right`.
    */
   public mapLeft<U>(function_: (l: L) => U): Either<U, R> {
     return this.isLeft()
@@ -119,13 +123,11 @@ export class Either<L, R> {
   }
 
   /**
-   * Applies a function that returns another Either to the Right value if present (monadic bind).
-   *
+   * Applies a function that returns another `Either` to the `Right` value if present (monadic bind).
    * Enables chaining multiple computations that may fail.
-   * If the Either is Left, the original Left is returned unchanged.
-   *
-   * @param function_ - The function to apply to the Right value, returning a new Either.
-   * @returns The result of applying the function or the original Left.
+   * If the `Either` is `Left`, the original `Left` is returned unchanged.
+   * @param function_ - The function to apply to the `Right` value, returning a new `Either`.
+   * @returns The result of applying the function or the original `Left`.
    */
   public flatMap<U, NL>(function_: (r: R) => Either<NL, U>): Either<NL | L, U> {
     return this.isRight()
@@ -134,10 +136,9 @@ export class Either<L, R> {
   }
 
   /**
-   * Folds (reduces) the Either into a single value by providing handlers for both Left and Right.
-   *
-   * @param onLeft - The function to handle the Left case.
-   * @param onRight - The function to handle the Right case.
+   * Folds (reduces) the `Either` into a single value by providing handlers for both `Left` and `Right`.
+   * @param onLeft - The function to handle the `Left` case.
+   * @param onRight - The function to handle the `Right` case.
    * @returns The result of applying the appropriate handler.
    */
   public fold<T>(onLeft: (l: L) => T, onRight: (r: R) => T): T {
@@ -146,10 +147,15 @@ export class Either<L, R> {
       : onRight(this.rightValue as R);
   }
 
-  /** Convert to string for debugging */
+  /**
+   * Serializes current `Either` for logging purpose.
+   *@returns A formatted string.
+   */
   public toString(): string {
     return this.isRight()
       ? `Right(${JSON.stringify(this.rightValue)})`
       : `Left(${JSON.stringify(this.leftValue)})`;
   }
 }
+
+class InvariantViolationError extends Error {}

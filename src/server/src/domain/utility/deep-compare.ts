@@ -14,7 +14,6 @@
  *
  * This function is suitable for domain-driven design (DDD) equality checks
  * where immutability, pure value semantics, and deterministic comparison are required.
- *
  * @param a - The first value to compare.
  * @param b - The second value to compare.
  * @returns `true` if both values are deeply equal; otherwise, `false`.

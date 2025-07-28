@@ -4,14 +4,12 @@ import { Result } from './result';
 
 /**
  * Abstract base class for mapping between domain entities and DTOs.
- *
  * @template Domain - The domain entity type.
  * @template DTO - The data transfer object type.
  */
 export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
   /**
    * Convert a domain entity to a plain DTO.
-   *
    * @param domain - The domain entity.
    * @returns A result with plain object suitable for transport or storage.
    */
@@ -19,7 +17,6 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
 
   /**
    * Convert a plain DTO into a domain entity.
-   *
    * @param raw - The raw DTO object.
    * @returns A result with domain entity reconstructed from the DTO.
    */
@@ -27,7 +24,6 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
 
   /**
    * Convert an array of domain entities to DTOs.
-   *
    * @param domains - Array of domain entities.
    * @returns Array of DTOs.
    */
@@ -37,7 +33,6 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
 
   /**
    * Convert an array of DTOs to domain entities.
-   *
    * @param raws - Array of DTOs.
    * @returns Array of domain entities.
    */

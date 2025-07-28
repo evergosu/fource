@@ -4,14 +4,13 @@
  * Similar to Rust's Option or Scala's Option/Maybe.
  *
  * This is useful to avoid `null`/`undefined` and express absence safely.
- *
  * @template T - The type of the value.
  */
 export abstract class Option<T> {
   /**
    * Creates an Option containing a value.
-   *
    * @param value The value to wrap.
+   * @returns new instance of the Some class representing a value.
    */
   public static some<T>(value: T): Option<T> {
     // eslint-disable-next-line sonarjs/different-types-comparison
@@ -24,6 +23,7 @@ export abstract class Option<T> {
 
   /**
    * Creates an Option with no value.
+   * @returns new instance of the None class representing a lack of value.
    */
   public static none<T = never>(): Option<T> {
     return new None();
@@ -31,7 +31,6 @@ export abstract class Option<T> {
 
   /**
    * Creates an Option from a nullable value.
-   *
    * @param value A potentially nullable value.
    * @returns None if value is null or undefined.
    */
@@ -54,35 +53,30 @@ export abstract class Option<T> {
 
   /**
    * Prefer `unwrapOr` to avoid exceptions.
-   *
    * @returns the contained value, or throws if it's None.
    */
   public abstract unwrap(): T;
 
   /**
    * @param fallback The fallback value.
-   *
    * @returns the contained value or the provided fallback.
    */
   public abstract unwrapOr(fallback: T): T;
 
   /**
    * Maps the contained value using a function, if present.
-   *
    * @param function_ Mapping function.
    */
   public abstract map<U>(function_: (value: T) => U): Option<U>;
 
   /**
    * Maps the contained value to another Option.
-   *
    * @param function_ Function returning another Option.
    */
   public abstract flatMap<U>(function_: (value: T) => Option<U>): Option<U>;
 
   /**
    * Matches on Option.
-   *
    * @param handlers - An object with `some` and `none` branches.
    */
   public abstract fold<U>(handlers: {

@@ -18,6 +18,10 @@ dotenv.config({
   ],
 });
 
+/**
+ * Provides validated environment.
+ * @returns object with environment settings.
+ */
 export function getEnvironment() {
   return {
     server: {

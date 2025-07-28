@@ -3,7 +3,6 @@ import type { Server } from 'node:http';
 
 import { getEnvironment } from 'server/lib/environment';
 import express from 'express';
-import cors from 'cors';
 
 import type { DatabaseContext } from '../database/clients/client';
 
@@ -12,12 +11,20 @@ import { createErrorHandler } from './middlewares/error-handler';
 import { helmetByEnvironment } from './middlewares/helmet';
 import { morganByEnvironment } from './middlewares/morgan';
 import { createStoryRouter } from '../router/router';
+import { allowCorsFor } from './middlewares/cors';
 
 export interface ServerContext {
   shutdown: (reason: string) => ReturnType<typeof shutdown>;
   getPort: () => ReturnType<typeof getPort>;
 }
 
+/**
+ * Starts NodeJS server with provided settings.
+ * @param database - database context with DSL API of current database.
+ * @param logger - custom logger to print system messages.
+ * @param port - port to run the application, randomly discovered otherwise.
+ * @returns server context with DSL API.
+ */
 export function startServer(
   database: DatabaseContext,
   logger: Logger,
@@ -28,7 +35,10 @@ export function startServer(
   const server = express()
     .set('trust proxy', 1)
     .use(
-      setupCors([environment.server.url.origin, environment.client.url.origin]),
+      allowCorsFor([
+        environment.server.url.origin,
+        environment.client.url.origin,
+      ]),
     )
     .use(...helmetByEnvironment)
     .use(...rateLimitByEnvironment)
@@ -53,26 +63,25 @@ export function startServer(
   };
 }
 
+/**
+ * Send `ready` signal to underlying process,
+ * usually it is a docker container or
+ * some other sort of virtualisation.
+ */
 function sendReady() {
   if (process.env.NODE_ENV !== 'test' && 'send' in process) {
     process.send('ready');
   }
 }
 
-function setupCors(allowList: string[]) {
-  return cors({
-    origin(requestOrigin, callback) {
-      if (!requestOrigin || allowList.includes(requestOrigin)) {
-        // eslint-disable-next-line unicorn/no-null
-        callback(null, true);
-      } else if (requestOrigin) {
-        callback(new Error(`${requestOrigin} not allowed by CORS.`));
-      }
-    },
-    credentials: true,
-  });
-}
-
+/**
+ * The public DSL method allowing to gracefully
+ * turn off current server instance.
+ * @param reason - The reason to stop.
+ * @param server - The current instance of the server.
+ * @param database The database connection to gracefully drop.
+ * @param logger - The custom logger to print system messages.
+ */
 async function shutdown(
   reason: string,
   server: Server,
@@ -108,6 +117,15 @@ async function shutdown(
   }
 }
 
+/**
+ * Allows to register automatic graceful shutdowns
+ * on signal events from underlying process, to
+ * free up resources and connections.
+ * @param signals - The list of NodeJS signals to react.
+ * @param server - The server instance to shutdown.
+ * @param database - The database connection to close.
+ * @param logger - The custom logger to print system messages.
+ */
 function registerShutdownOnSignals(
   signals: NodeJS.Signals[],
   server: Server,
@@ -131,6 +149,13 @@ function registerShutdownOnSignals(
   }
 }
 
+/**
+ * The public DSL method allowing to see a port
+ * of current running server instance.
+ * @param server - The server instance to ask for port.
+ * @returns http port if server is running.
+ * @throws {Error} if server instance was not found.
+ */
 function getPort(server: Server): string {
   const address = server.address();
 

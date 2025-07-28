@@ -8,13 +8,11 @@ type Properties = Record<string, unknown>;
  *
  * `ValueObjects` are defined by their properties rather than identity.
  * Two `ValueObjects` are considered equal if all their properties are equal.
- *
  * @template T is a shape representing the structure of the `ValueObject`'s properties.
  */
 export abstract class ValueObject<T extends Properties> {
   /**
    * Constructs a new `ValueObject` instance.
-   *
    * @param properties - The structural properties that define the `ValueObject`.
    */
   constructor(public readonly properties: T) {
@@ -23,7 +21,6 @@ export abstract class ValueObject<T extends Properties> {
 
   /**
    * Type guard to check whether a given value is an instance of an `ValueObject`.
-   *
    * @param value - The value to check.
    * @returns `true` if the value is an `ValueObject`, `false` otherwise.
    */
@@ -33,7 +30,6 @@ export abstract class ValueObject<T extends Properties> {
 
   /**
    * Compares this `ValueObject` with another for structural equality.
-   *
    * @param value - The other `ValueObject` instance to compare against.
    * @returns `true` if all properties match, `false` otherwise.
    */

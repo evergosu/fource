@@ -16,6 +16,10 @@ const mock = () => {
   return data;
 };
 
+/**
+ * Database DSL method to seed story table with mock values.
+ * @param database - current working database.
+ */
 export async function seedStory(database: Database) {
   await database.insert(story).values(mock());
 }

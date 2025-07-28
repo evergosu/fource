@@ -12,47 +12,37 @@ import {
 import { Result } from './result';
 
 /**
- * Guard class offering both static and instance validation methods.
+ * `Guard` class offering both static and instance validation methods.
  *
  * Static methods validate individual values with custom field names.
  * Instance methods validate properties of an object, ensuring field names
  * correspond to actual keys of that object at compile time.
- *
- * @typeParam T - Type of the object to be validated by instance methods.
+ * @template T - Type of the object to be validated by instance methods.
  */
 export class Guard<T extends Record<string, unknown> = never> {
   private constructor(private readonly object: T) {}
 
   /**
    * Factory to create an instance guard for a given object.
-   *
    * @param object - Object to be validated.
-   * @returns An instance of Guard for the object.
-   *
-   * @example
-   * ```ts
+   * @returns An instance of `Guard` for the object.
+   * @example .
    * const user = { email: 'foo@example.com', age: 42 };
    * const guard = Guard.for(user);
    * const result = guard.againstNullOrUndefined('email');
-   * ```
    */
   public static for<T extends Record<string, unknown>>(object: T): Guard<T> {
     return new Guard(object);
   }
 
-  /** ----------------- STATIC METHODS ----------------- **/
+  /** ----------------- STATIC METHODS ----------------- */
 
   /**
-   * Validates that a value is neither null nor undefined.
-   *
+   * Validates that a value is neither `null` nor `undefined`.
    * @param value - Value to check.
    * @param field - Name of the field for error reporting.
-   * @returns Result.ok() if valid; Result.fail(NullOrUndefinedError) otherwise.
-   *
-   * @example
-   * ```ts
-   * Guard.againstNullOrUndefined(null, 'username');
-   * ```
+   * @returns `Result.ok()` if valid; `Result.fail(NullOrUndefinedError)` otherwise.
+   * @example Guard.againstNullOrUndefined(null, 'username');
    */
   public static againstNullOrUndefined(
     value: unknown,
@@ -66,10 +56,10 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that value is a string.
-   *
+   * Validates that value is a `string`.
    * @param value - The value to check.
    * @param name - Field name for reporting.
+   * @returns `Result.ok()` if valid; `Result.fail(StringError)` otherwise.
    */
   public static againstNotString(
     value: unknown,
@@ -88,10 +78,10 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a string is not only whitespace.
-   *
-   * @param value - The string to check.
+   * Validates that a `string` is `not` only `whitespace`.
+   * @param value - The value to check.
    * @param name - Field name for reporting.
+   * @returns `Result.ok()` if valid; `Result.fail(BlankStringError)` otherwise.
    */
   public static againstBlankString(
     value: unknown,
@@ -111,12 +101,11 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a string's length is at least a minimum length.
-   *
-   * @param value - String to check.
+   * Validates that a `string`'s length is at least a `minimum length`.
+   * @param value - The value to check.
    * @param minimumLength - Minimum allowed length.
    * @param name - Field name for error reporting.
-   * @returns Result.ok() if valid; Result.fail(MinimumLengthNotMetError) otherwise.
+   * @returns `Result.ok()` if valid; Result.fail(MinimumLengthNotMetError) otherwise.
    */
   public static againstMinimumLength(
     value: unknown,
@@ -137,12 +126,11 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a string's length does not exceed a maximum length.
-   *
-   * @param value - String to check.
+   * Validates that a `string`'s length does not exceed a `maximum length`.
+   * @param value - The value to check.
    * @param maximumLength - Maximum allowed length.
    * @param name - Field name for error reporting.
-   * @returns Result.ok() if valid; Result.fail(MaximumLengthExceededError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(MaximumLengthExceededError)` otherwise.
    */
   public static againstMaximumLength(
     value: unknown,
@@ -163,12 +151,11 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a string matches the provided regex pattern.
-   *
-   * @param value - String to validate.
+   * Validates that a `string` matches the provided `regex` pattern.
+   * @param value - The value to check.
    * @param pattern - Regex pattern to match.
    * @param name - Field name for error reporting.
-   * @returns Result.ok() if valid; Result.fail(InvalidFormatError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(InvalidFormatError)` otherwise.
    */
   public static againstInvalidFormat(
     value: unknown,
@@ -189,11 +176,10 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a string is a valid email address.
-   *
-   * @param value - Email string to validate.
+   * Validates that a `string` is a valid `email address`.
+   * @param value - The value to check.
    * @param name - Field name for error reporting.
-   * @returns Result.ok() if valid; Result.fail(InvalidEmailError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(InvalidEmailError)` otherwise.
    */
   public static againstInvalidEmail(
     value: unknown,
@@ -215,11 +201,10 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a Date is not in the past (compared to now).
-   *
-   * @param value - Date to check.
+   * Validates that a `Date` is `not in the past` (compared to now).
+   * @param value - The value to check.
    * @param name - Field name for error reporting.
-   * @returns Result.ok() if valid; Result.fail(DateInPastError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(DateInPastError)` otherwise.
    */
   public static againstDateInPast(
     value: unknown,
@@ -237,9 +222,8 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a number is within a specified inclusive range.
-   *
-   * @param value - Number to check.
+   * Validates that a `number` is `within` a specified inclusive `range`.
+   * @param value - The value to check.
    * @param minimum - Minimum allowed value.
    * @param maximum - Maximum allowed value.
    * @param name - Field name for error reporting.
@@ -258,20 +242,16 @@ export class Guard<T extends Record<string, unknown> = never> {
     return Result.ok();
   }
 
-  /** ----------------- INSTANCE METHODS ----------------- **/
+  /** ----------------- INSTANCE METHODS ----------------- */
 
   /**
    * Validates that a property of the instance object
-   * is neither null nor undefined.
-   *
+   * is neither `null` nor `undefined`.
    * @param field - Key of the property to check.
-   * @returns Result.ok() if valid; Result.fail(NullOrUndefinedError) otherwise.
-   *
-   * @example
-   * ```ts
+   * @returns `Result.ok()` if valid; `Result.fail(NullOrUndefinedError)` otherwise.
+   * @example .
    * const guard = Guard.for({ username: 'bob' });
    * guard.againstNullOrUndefined('username');
-   * ```
    */
   public againstNullOrUndefined(
     field: keyof T,
@@ -283,9 +263,9 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a string.
-   *
+   * is a `string`.
    * @param field - Field name for reporting.
+   * @returns `Result.ok()` if valid; `Result.fail(StringError)` otherwise.
    */
   public againstNotString(field: keyof T): Result<void, StringError> {
     const value = this.object[field];
@@ -295,9 +275,9 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a string and not blank or contains only whitespaces.
-   *
+   * is a `string` and `not blank` or contains only `whitespaces`.
    * @param field - Field name for reporting.
+   * @returns `Result.ok()` if valid; `Result.fail(BlankStringError)` otherwise.
    */
   public againstBlankString(field: keyof T): Result<void, BlankStringError> {
     const value = this.object[field];
@@ -307,11 +287,10 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a string with at least of minimum length.
-   *
+   * is a `string` with at least of `minimum length`.
    * @param field - Property key to validate.
    * @param minimumLength - Minimum length required.
-   * @returns Result.ok() if valid; Result.fail(MinimumLengthNotMetError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(MinimumLengthNotMetError)` otherwise.
    */
   public againstMinimumLength(
     field: keyof T,
@@ -324,11 +303,10 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a string and does not exceed a maximum length.
-   *
+   * is a `string` and does not exceed a `maximum length`.
    * @param field - Property key to validate.
    * @param maximumLength - Maximum length allowed.
-   * @returns Result.ok() if valid; Result.fail(MaximumLengthExceededError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(MaximumLengthExceededError)` otherwise.
    */
   public againstMaximumLength(
     field: keyof T,
@@ -341,11 +319,10 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a string that matches a regex pattern.
-   *
+   * is a `string` that matches a `regex` pattern.
    * @param field - Property key to validate.
    * @param pattern - Regex pattern to match.
-   * @returns Result.ok() if valid; Result.fail(InvalidFormatError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(InvalidFormatError)` otherwise.
    */
   public againstInvalidFormat(
     field: keyof T,
@@ -358,10 +335,9 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a string and valid email.
-   *
+   * is a `string` and valid `email`.
    * @param field - Property key to validate.
-   * @returns Result.ok() if valid; Result.fail(InvalidEmailError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(InvalidEmailError)` otherwise.
    */
   public againstInvalidEmail(field: keyof T): Result<void, InvalidEmailError> {
     const value = this.object[field];
@@ -371,10 +347,9 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a Date and not in the past.
-   *
+   * is a `Date` and `not` in the `past`.
    * @param field - Property key to validate.
-   * @returns Result.ok() if valid; Result.fail(DateInPastError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(DateInPastError)` otherwise.
    */
   public againstDateInPast(field: keyof T): Result<void, DateInPastError> {
     const value = this.object[field];
@@ -384,12 +359,11 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
-   * is a number within a specified inclusive range.
-   *
+   * is a `number` within a specified inclusive `range`.
    * @param field - Property key to validate.
    * @param minimum - Minimum allowed value.
    * @param maximum - Maximum allowed value.
-   * @returns Result.ok() if valid; Result.fail(OutOfRangeError) otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(OutOfRangeError)` otherwise.
    */
   public againstOutOfRange(
     field: keyof T,

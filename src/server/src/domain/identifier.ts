@@ -4,10 +4,13 @@
  *
  * Commonly used to abstract away primitive IDs (like UUIDs or numbers)
  * in domain-driven design.
- *
- * @template `T` is the underlying type of the `Identifier` (e.g., string, number).
+ * @template T is the underlying type of the `Identifier` (e.g., string, number).
  */
 export class Identifier<T> {
+  /**
+   * Creates unique identifier from provided value.
+   * @param value The value to use as identifier.
+   */
   constructor(private value: T) {
     if (!value) {
       throw new Error('InvalidIdentifier: Value cannot be null or undefined');
@@ -20,7 +23,6 @@ export class Identifier<T> {
 
   /**
    * Checks whether this `Identifier` is equal to another.
-   *
    * @param id - The `Identifier` to compare against.
    * @returns `true` if the other `Identifier` is of the same type and has the same value.
    */
@@ -38,7 +40,6 @@ export class Identifier<T> {
 
   /**
    * Provides a `string` representation of the `identifier`'s value.
-   *
    * @returns The value converted to a `string`.
    */
   toString(): string {
@@ -47,7 +48,6 @@ export class Identifier<T> {
 
   /**
    * Provides the `raw` value of the `Identifier`.
-   *
    * @returns The underlying value of the `Identifier`.
    */
   toValue(): T {

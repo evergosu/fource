@@ -10,6 +10,10 @@ import { DomainError } from './domain-error';
  * Error representing an aggregate not found in the repository.
  */
 export class AggregateNotFoundError extends DomainError {
+  /**
+   * Creates domain error with optional identifier of the aggregate.
+   * @param id - The identifier of the aggregate root.
+   */
   constructor(public readonly id?: UniqueIdentifier) {
     super(
       id
@@ -21,32 +25,26 @@ export class AggregateNotFoundError extends DomainError {
 
 /**
  * Base interface for repositories in the domain layer.
- *
  * @template T - The concrete AggregateRoot type handled by the repository.
  */
 export interface Repository<T extends AggregateRoot<unknown>> {
   /**
    * Retrieves an aggregate root by ID.
-   *
-   * Returns Either a `AggregateNotFoundError` or the aggregate.
-   *
    * @param id - The unique identifier of the aggregate.
+   * @returns Either an `AggregateNotFoundError` or the aggregate.
    */
   findById(id: T['id']): Promise<Either<AggregateNotFoundError, T>>;
 
   /**
    * Finds all aggregates related to this repository.
-   *
-   * Returns Either a `AggregateNotFoundError` or the aggregates.
+   * @returns Either an `AggregateNotFoundError` or the aggregates.
    */
   findAll(): Promise<Either<AggregateNotFoundError, T[]>>;
 
   /**
    * Finds all aggregates that match the given specification.
-   *
-   * Returns Either a `AggregateNotFoundError` or the aggregates.
-   *
    * @param specification - Optional filtering logic.
+   * @returns Either an `AggregateNotFoundError` or the aggregates.
    */
   findBySpecification(
     specification?: Specification<T>,
@@ -54,19 +52,15 @@ export interface Repository<T extends AggregateRoot<unknown>> {
 
   /**
    * Saves or updates the aggregate in the underlying store.
-   *
-   * Returns Result.ok() on success, or Result.fail() with an error.
-   *
    * @param aggregate - The aggregate to persist.
+   * @returns `Result.ok()` on success, or `Result.fail()` with an error.
    */
   save(aggregate: T): Promise<Result<void>>;
 
   /**
    * Deletes the aggregate from the store.
-   *
-   * Returns Result.ok() on success, or Result.fail() with an error.
-   *
    * @param id - The unique identifier of the aggregate to delete.
+   * @returns `Result.ok()` on success, or `Result.fail()` with an error.
    */
   delete(id: T['id']): Promise<Result<void>>;
 }

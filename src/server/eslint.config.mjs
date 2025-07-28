@@ -11,6 +11,7 @@ import sonarjs from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import vitest from 'eslint-plugin-vitest';
 import { fileURLToPath } from 'node:url';
+import jsdoc from 'eslint-plugin-jsdoc';
 import node from 'eslint-plugin-n';
 import globals from 'globals';
 import path from 'node:path';
@@ -31,8 +32,20 @@ export default config(
   sonarjs.configs.recommended,
   unicorn.configs['flat/recommended'],
   regexp.configs['flat/recommended'],
+  jsdoc.configs['flat/recommended-typescript-error'],
   promise.configs['flat/recommended'],
   prettier,
+  {
+    rules: {
+      ...jsdoc.configs['flat/recommended-typescript-error'].rules,
+      'jsdoc/require-description': 'error',
+      'jsdoc/require-jsdoc': 'error',
+    },
+    plugins: {
+      jsdoc,
+    },
+    files: ['**/*.{ts,tsx}'],
+  },
   {
     rules: {
       ...drizzle.configs.recommended.rules,
@@ -73,7 +86,6 @@ export default config(
           ],
         },
       ],
-
       'import-x/no-extraneous-dependencies': [
         'error',
         {
@@ -159,6 +171,7 @@ export default config(
       'sonarjs/no-empty-test-file': 'off',
       'import-x/no-duplicates': 'error',
       'n/no-missing-import': 'off',
+      'sonarjs/todo-tag': 'warn',
       // Note: you must disable the base rule as it can report incorrect errors.
       'dot-notation': 'off',
       // Enabled in @typescript-eslint/no-empty-function.

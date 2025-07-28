@@ -15,6 +15,11 @@ const environment = getEnvironment();
 
 export type PostgresLite = PgliteDatabase<Schema>;
 
+/**
+ * Creates concrete context for postgres lite database.
+ * @param logger - custom logger to print system messages.
+ * @returns postgres lite database context.
+ */
 export const createPostgresLiteContext = async (
   logger: Logger,
 ): Promise<DatabaseContext> => {
@@ -25,6 +30,9 @@ export const createPostgresLiteContext = async (
     schema,
   });
 
+  /**
+   * Migrates database with persisted migrations.
+   */
   async function migrate() {
     const migrationsFolder = resolvePath(import.meta.url, '../migrations');
 

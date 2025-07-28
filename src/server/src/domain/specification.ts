@@ -1,12 +1,10 @@
 /**
  * A specification defines a business rule or filter that can be evaluated against objects.
- *
  * @template T The type of object this specification operates on.
  */
 export abstract class Specification<T> {
   /**
    * Determines whether a candidate satisfies this specification.
-   *
    * @param candidate - The object to evaluate.
    * @returns `true` if the candidate satisfies the specification, otherwise `false`.
    */
@@ -14,7 +12,6 @@ export abstract class Specification<T> {
 
   /**
    * Combines this specification with another using logical AND.
-   *
    * @param other - Another specification.
    * @returns A new specification that represents the logical AND.
    */
@@ -24,7 +21,6 @@ export abstract class Specification<T> {
 
   /**
    * Combines this specification with another using logical OR.
-   *
    * @param other - Another specification.
    * @returns A new specification that represents the logical OR.
    */
@@ -34,7 +30,6 @@ export abstract class Specification<T> {
 
   /**
    * Negates this specification.
-   *
    * @returns A new specification that represents the logical NOT.
    */
   public not(): Specification<T> {

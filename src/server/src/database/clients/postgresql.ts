@@ -25,6 +25,11 @@ export const database = drizzle(pool, {
 
 export type Postgres = typeof database;
 
+/**
+ * Creates concrete context for postgres database.
+ * @param logger - custom logger to print system messages.
+ * @returns postgres database context.
+ */
 export const createPostgresContext = async (
   logger: Logger,
 ): Promise<DatabaseContext> => {
@@ -59,6 +64,10 @@ export const createPostgresContext = async (
   };
 };
 
+/**
+ * Migrates database with persisted migrations.
+ * @param logger - custom logger to print system messages.
+ */
 async function migrate(logger: Logger) {
   const migrationsFolder = resolvePath(import.meta.url, '../migrations');
 
@@ -71,6 +80,13 @@ async function migrate(logger: Logger) {
   }
 }
 
+/**
+ * Establishes connection to database with retry policy.
+ * @param logger to print system messages.
+ * @param retries - amount of attempts to connect.
+ * @param baseDelay - time in milliseconds to strat delay from.
+ * @returns `Pool` with database connection.
+ */
 async function connectToDatabase(
   logger: Logger,
   retries = 10,
@@ -115,6 +131,11 @@ async function connectToDatabase(
   );
 }
 
+/**
+ * Formats error messages from raw errors.
+ * @param error - raw error to apply format.
+ * @returns formatted error message.
+ */
 function processError(error: unknown) {
   if (error instanceof AggregateError) {
     const aggregateError = error as { code: string } & AggregateError;

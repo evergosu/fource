@@ -5,15 +5,12 @@
  * or invalid states discovered during domain model validation.
  *
  * All domain errors are safe for clients to consume, loggable, and can be localized.
- *
- * @remarks
  * Using `Object.setPrototypeOf(this, new.target.prototype)` is necessary to fix prototype chain issues
  * when extending built-in Error in TypeScript.
  */
 export abstract class DomainError extends Error {
   /**
    * Creates a new instance of DomainError.
-   *
    * @param message The descriptive error message explaining the failure.
    */
   constructor(message: string) {
@@ -26,19 +23,13 @@ export abstract class DomainError extends Error {
 
 /**
  * Error indicating that a required value is null or undefined.
- *
- * @example
- * ```ts
- * throw new NullOrUndefinedError('username');
- * ```
+ * @example throw new NullOrUndefinedError('username')
  */
 export class NullOrUndefinedError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value that was null or undefined.
-   *
-   * @example
-   * ```ts
-   * throw new NullOrUndefinedError('username');
+   * @example throw new NullOrUndefinedError('username');
    */
   constructor(public readonly value: string) {
     super(`${value} is null or undefined`);
@@ -47,14 +38,11 @@ export class NullOrUndefinedError extends DomainError {
 
 /**
  * Error indicating that a value is not a string.
- *
- * @example
- * ```ts
- * throw new StringError(42);
- * ```
+ * @example throw new StringError(42);
  */
 export class StringError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value being validated.
    */
   constructor(public readonly value: string) {
@@ -65,14 +53,11 @@ export class StringError extends DomainError {
 /**
  * Error indicating that a string
  * is blank or contains only whitespaces.
- *
- * @example
- * ```ts
- * throw new BlankStringError('username');
- * ```
+ * @example throw new BlankStringError('username');
  */
 export class BlankStringError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value being validated.
    */
   constructor(public readonly value: string) {
@@ -82,14 +67,11 @@ export class BlankStringError extends DomainError {
 
 /**
  * Error indicating that a string exceeded its allowed maximum length.
- *
- * @example
- * ```ts
- * throw new MaximumLengthExceededError('username', 50);
- * ```
+ * @example throw new MaximumLengthExceededError('username', 50);
  */
 export class MaximumLengthExceededError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value being validated.
    * @param maximumLength The maximum allowed length.
    */
@@ -103,14 +85,11 @@ export class MaximumLengthExceededError extends DomainError {
 
 /**
  * Error indicating that a string failed to meet the minimum required length.
- *
- * @example
- * ```ts
- * throw new MinimumLengthNotMetError('password', 8);
- * ```
+ * @example throw new MinimumLengthNotMetError('password', 8);
  */
 export class MinimumLengthNotMetError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value being validated.
    * @param minimumLength The minimum required length.
    */
@@ -124,16 +103,12 @@ export class MinimumLengthNotMetError extends DomainError {
 
 /**
  * Error indicating that a string failed to match a required format or pattern.
- *
  * Typically used for validating format constraints via regular expressions.
- *
- * @example
- * ```ts
- * throw new InvalidFormatError('phoneNumber');
- * ```
+ * @example throw new InvalidFormatError('phoneNumber');
  */
 export class InvalidFormatError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value that failed format validation.
    */
   constructor(public readonly value: string) {
@@ -143,14 +118,11 @@ export class InvalidFormatError extends DomainError {
 
 /**
  * Error indicating that a string is not a valid email address.
- *
- * @example
- * ```ts
- * throw new InvalidEmailError('email');
- * ```
+ * @example throw new InvalidEmailError('email');
  */
 export class InvalidEmailError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the email value being validated.
    */
   constructor(public readonly value: string) {
@@ -160,14 +132,11 @@ export class InvalidEmailError extends DomainError {
 
 /**
  * Error indicating that a date value occurs in the past when future or present dates are required.
- *
- * @example
- * ```ts
- * throw new DateInPastError('expirationDate');
- * ```
+ * @example throw new DateInPastError('expirationDate');
  */
 export class DateInPastError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the date value being validated.
    */
   constructor(public readonly value: string) {
@@ -177,14 +146,11 @@ export class DateInPastError extends DomainError {
 
 /**
  * Error indicating that a numeric value falls outside the permitted inclusive range.
- *
- * @example
- * ```ts
- * throw new OutOfRangeError('age', 18, 65);
- * ```
+ * @example throw new OutOfRangeError('age', 18, 65);
  */
 export class OutOfRangeError extends DomainError {
   /**
+   * Creates domain error with provided error message.
    * @param value The name of the value being validated.
    * @param minimum The minimum inclusive boundary.
    * @param maximum The maximum inclusive boundary.

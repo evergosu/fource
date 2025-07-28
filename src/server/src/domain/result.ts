@@ -6,7 +6,6 @@ import type { DomainError } from './domain-error';
  *
  * This class enforces correct usage via private constructor and static factory methods.
  * Commonly used in Domain-Driven Design, Functional Programming, and Error Handling patterns.
- *
  * @template T - Type of the value when operation succeeds.
  * @template E - Type of the error when operation fails (defaults to `string` or `DomainError`).
  */
@@ -20,7 +19,6 @@ export class Result<T, E = DomainError | string> {
    * Ensures invariants:
    * - Success cannot contain an error.
    * - Failure must contain an error.
-   *
    * @param isSuccess - Whether the result represents success.
    * @param error - Error value (required for failures).
    * @param value - Success value (optional for successes).
@@ -51,7 +49,6 @@ export class Result<T, E = DomainError | string> {
    * - Otherwise, returns success.
    *
    * Useful for validating multiple independent operations.
-   *
    * @param results - Array of results to combine.
    * @returns Combined result.
    */
@@ -69,7 +66,6 @@ export class Result<T, E = DomainError | string> {
    * Combine multiple results into a single result.
    * - If any result failed, returns the first failure.
    * - Otherwise, returns success with list of values.
-   *
    * @param results - Array of results to combine.
    * @returns Combined result with values from each result.
    */
@@ -96,7 +92,6 @@ export class Result<T, E = DomainError | string> {
   /**
    * Applies an asynchronous transformation function to the successful value of the result,
    * returning a new successful result. If the current result is a failure, the same failure is returned.
-   *
    * @template U - The type of the value in the new result.
    * @param f - An asynchronous function to transform the successful value.
    * @returns A promise resolving to a `Result<U, E>`, either the transformed success or the same failure.
@@ -112,7 +107,6 @@ export class Result<T, E = DomainError | string> {
    * of the result. If the current result is a failure, the same failure is returned.
    *
    * This is useful for chaining asynchronous operations that can also fail.
-   *
    * @template U - The type of the value in the new result.
    * @param f - An asynchronous function that takes the successful value and returns a `Result<U, E>`.
    * @returns A promise resolving to a new `Result<U, E>`, or the current failure.
@@ -128,7 +122,6 @@ export class Result<T, E = DomainError | string> {
    * of the result. If the current result is a failure, the same failure is returned.
    *
    * This is useful for chaining operations that may return a result indicating failure.
-   *
    * @template U - The type of the value in the new result.
    * @param f - A function that transforms the successful value into a `Result<U, E>`.
    * @returns A new `Result<U, E>`, or the current failure.
@@ -140,7 +133,6 @@ export class Result<T, E = DomainError | string> {
   /**
    * Applies a synchronous transformation function to the successful value of the result,
    * returning a new successful result. If the current result is a failure, the same failure is returned.
-   *
    * @template U - The type of the value in the new result.
    * @param f - A function that transforms the successful value into a new value.
    * @returns A new `Result<U, E>` containing the transformed value, or the current failure.
@@ -151,7 +143,6 @@ export class Result<T, E = DomainError | string> {
 
   /**
    * Create a failed result.
-   *
    * @param error - Error payload.
    * @returns Failure result.
    */
@@ -161,7 +152,6 @@ export class Result<T, E = DomainError | string> {
 
   /**
    * Create a successful result.
-   *
    * @param value - Success payload (optional).
    * @returns Success result.
    */
@@ -172,7 +162,6 @@ export class Result<T, E = DomainError | string> {
   /**
    * Retrieve the error value.
    * Throws if called on a success result.
-   *
    * @returns Error payload.
    * @throws Error if result is successful.
    */
@@ -189,7 +178,6 @@ export class Result<T, E = DomainError | string> {
   /**
    * Retrieve the success value.
    * Throws if called on a failure result.
-   *
    * @returns Success payload.
    * @throws Error if result is a failure.
    */
@@ -205,7 +193,6 @@ export class Result<T, E = DomainError | string> {
 
   /**
    * Folds (reduces) the Result into a single value by providing handlers for both Value and Error.
-   *
    * @param onFailure - The function to handle the Error case.
    * @param onSuccess - The function to handle the Value case.
    * @returns The result of applying the appropriate handler.
@@ -216,6 +203,7 @@ export class Result<T, E = DomainError | string> {
 
   /**
    * Whether the result represents failure.
+   * @returns failure flag of the result.
    */
   public get isFailure(): boolean {
     return !this._isSuccess;
@@ -223,6 +211,7 @@ export class Result<T, E = DomainError | string> {
 
   /**
    * Whether the result represents success.
+   * @returns success flag of the result.
    */
   public get isSuccess(): boolean {
     return this._isSuccess;
