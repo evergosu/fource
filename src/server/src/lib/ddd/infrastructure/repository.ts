@@ -1,10 +1,10 @@
-import type { UniqueIdentifier } from './unique-identifier';
-import type { AggregateRoot } from './aggregate-root';
-import type { Specification } from './specification';
-import type { Either } from './either';
-import type { Result } from './result';
+import type { UniqueIdentifier } from '../domain/identifiers/unique-identifier';
+import type { Specification } from '../domain/rules/specification';
+import type { AggregateRoot } from '../domain/aggregate-root';
+import type { Either } from '../types/either';
+import type { Result } from '../types/result';
 
-import { DomainError } from './domain-error';
+import { DomainError } from '../domain/domain-error';
 
 /**
  * Error representing an aggregate not found in the repository.

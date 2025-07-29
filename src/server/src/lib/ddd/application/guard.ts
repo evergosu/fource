@@ -8,8 +8,8 @@ import {
   DateInPastError,
   OutOfRangeError,
   StringError,
-} from './domain-error';
-import { Result } from './result';
+} from '../domain/domain-error';
+import { Result } from '../types/result';
 
 /**
  * `Guard` class offering both static and instance validation methods.

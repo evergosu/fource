@@ -1,4 +1,4 @@
-import { Result } from './result';
+import { Result } from '../types/result';
 
 /**
  * Represents a generic application use case.

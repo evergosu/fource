@@ -1,12 +1,11 @@
-import type { Mapper } from './mapper';
-
-import { DomainError } from './domain-error';
+import { DomainError } from '../../domain/domain-error';
+import { Mapper } from '../../infrastructure/mapper';
+import { UseCase } from '../../application/use-case';
+import { Entity } from '../../domain/entity';
+import { Result } from '../../types/result';
+import { Either } from '../../types/either';
+import { Option } from '../../types/option';
 import { Controller } from './controller';
-import { UseCase } from './use-case';
-import { Entity } from './entity';
-import { Either } from './either';
-import { Option } from './option';
-import { Result } from './result';
 
 const message = 'Test error occurred';
 

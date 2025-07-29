@@ -1,9 +1,9 @@
+import { UniqueIdentifier } from '../domain/identifiers/unique-identifier';
 import { AggregateNotFoundError, type Repository } from './repository';
-import { UniqueIdentifier } from './unique-identifier';
-import { AggregateRoot } from './aggregate-root';
-import { Specification } from './specification';
-import { Either } from './either';
-import { Result } from './result';
+import { Specification } from '../domain/rules/specification';
+import { AggregateRoot } from '../domain/aggregate-root';
+import { Either } from '../types/either';
+import { Result } from '../types/result';
 
 class FakeAggregate extends AggregateRoot<{ isActive: boolean }> {
   deactivate(): void {

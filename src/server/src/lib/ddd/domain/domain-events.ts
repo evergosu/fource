@@ -1,4 +1,4 @@
-import type { UniqueIdentifier } from './unique-identifier';
+import type { UniqueIdentifier } from './identifiers/unique-identifier';
 import type { AggregateRoot } from './aggregate-root';
 
 /**

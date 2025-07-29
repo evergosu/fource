@@ -1,10 +1,10 @@
-import type { DomainError } from './domain-error';
-import type { UseCase as UC } from './use-case';
-import type { Mapper as M } from './mapper';
-import type { Result } from './result';
-import type { Either } from './either';
-import type { Option } from './option';
-import type { Entity } from './entity';
+import type { UseCase as UC } from '../../application/use-case';
+import type { Mapper as M } from '../../infrastructure/mapper';
+import type { DomainError } from '../../domain/domain-error';
+import type { Entity } from '../../domain/entity';
+import type { Result } from '../../types/result';
+import type { Either } from '../../types/either';
+import type { Option } from '../../types/option';
 
 /**
  * Base class for all controllers, responsible for formatting responses and

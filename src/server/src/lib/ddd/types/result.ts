@@ -1,4 +1,4 @@
-import type { DomainError } from './domain-error';
+import type { DomainError } from '../domain/domain-error';
 
 /**
  * A functional object representing the result of an operation,

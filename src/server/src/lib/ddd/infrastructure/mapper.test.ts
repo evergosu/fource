@@ -1,7 +1,7 @@
-import { UniqueIdentifier } from './unique-identifier';
-import { Entity } from './entity';
+import { UniqueIdentifier } from '../domain/identifiers/unique-identifier';
+import { Entity } from '../domain/entity';
+import { Result } from '../types/result';
 import { Mapper } from './mapper';
-import { Result } from './result';
 
 interface TestDTO {
   string: string;

@@ -1,6 +1,6 @@
-import type { Entity } from './entity';
+import type { Entity } from '../domain/entity';
 
-import { Result } from './result';
+import { Result } from '../types/result';
 
 /**
  * Abstract base class for mapping between domain entities and DTOs.

@@ -1,5 +1,5 @@
-import { deepCompare } from './utility/deep-compare';
-import { deepFreeze } from './utility/deep-freeze';
+import { deepCompare } from '../utility/deep-compare';
+import { deepFreeze } from '../utility/deep-freeze';
 
 type Properties = Record<string, unknown>;
 

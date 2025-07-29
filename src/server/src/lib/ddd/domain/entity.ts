@@ -1,4 +1,4 @@
-import { UniqueIdentifier } from './unique-identifier';
+import { UniqueIdentifier } from './identifiers/unique-identifier';
 
 /**
  * Base class representing a domain entity with a unique identity.

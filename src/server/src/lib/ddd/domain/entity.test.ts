@@ -1,4 +1,4 @@
-import { UniqueIdentifier } from './unique-identifier';
+import { UniqueIdentifier } from './identifiers/unique-identifier';
 import { Entity } from './entity';
 
 describe('entity', () => {
