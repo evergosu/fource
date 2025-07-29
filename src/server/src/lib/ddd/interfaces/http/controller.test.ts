@@ -1,29 +1,17 @@
-import { DomainError } from '../../domain/domain-error';
-import { Mapper } from '../../infrastructure/mapper';
-import { UseCase } from '../../application/use-case';
-import { Entity } from '../../domain/entity';
+import {
+  useCaseSucceeded,
+  useCaseFailed,
+  type TestDTO,
+  TestError,
+  message,
+  testDTO,
+  mapper,
+  test,
+} from './controller.mock';
 import { Result } from '../../types/result';
 import { Either } from '../../types/either';
 import { Option } from '../../types/option';
 import { Controller } from './controller';
-
-const message = 'Test error occurred';
-
-class TestError extends DomainError {
-  constructor() {
-    super(message);
-  }
-}
-
-interface TestDTO {
-  foo: string;
-}
-
-const testDTO = { foo: 'bar' };
-
-class Test extends Entity<TestDTO> {}
-
-const test = new Test(testDTO);
 
 type Request = Record<'body', unknown>;
 
@@ -38,19 +26,6 @@ const response = {
   status: vi.fn().mockReturnThis(),
   json: vi.fn(),
 };
-
-const useCaseSucceeded = {
-  execute: vi.fn().mockResolvedValue(Result.ok(test)),
-} as unknown as UseCase<Test, Test>;
-
-const useCaseFailed = {
-  execute: vi.fn().mockResolvedValue(Result.fail(new TestError())),
-} as unknown as UseCase<Test, Test>;
-
-const mapper = {
-  toDomain: vi.fn().mockReturnValue(Result.ok(test)),
-  toDTO: vi.fn().mockReturnValue(Result.ok(testDTO)),
-} as unknown as Mapper<Test, TestDTO>;
 
 class SuccessController extends Controller<
   Request,
