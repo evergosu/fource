@@ -1,3 +1,4 @@
+import { EmptyIdentifierError } from './identifier-errors';
 import { Identifier } from './identifier';
 
 describe('identifier', () => {
@@ -9,15 +10,11 @@ describe('identifier', () => {
 
   it('should throw an error when created with null', () => {
     // eslint-disable-next-line unicorn/no-null
-    expect(() => new Identifier(null)).toThrow(
-      'InvalidIdentifier: Value cannot be null or undefined',
-    );
+    expect(() => new Identifier(null)).toThrow(new EmptyIdentifierError());
   });
 
   it('should throw an error when created with undefined', () => {
-    expect(() => new Identifier(undefined)).toThrow(
-      'InvalidIdentifier: Value cannot be null or undefined',
-    );
+    expect(() => new Identifier(undefined)).toThrow(new EmptyIdentifierError());
   });
 
   describe('.equals()', () => {

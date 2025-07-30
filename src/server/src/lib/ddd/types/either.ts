@@ -1,3 +1,5 @@
+import { DataTypeInvariantViolationError } from './adt-error';
+
 /**
  * Represents a disjoint union of two possible values: a value of type `R` (Right) or a value of type `L` (Left).
  *
@@ -75,11 +77,13 @@ export class Either<L, R> {
   /**
    * Unboxes the `Right` value of `Either` type.
    * @returns a `Right` value if called on `Right`
-   * @throws An `InvariantViolationError` if called on `Left`
+   * @throws An `DataTypeInvariantViolationError` if called on `Left`
    */
   public getRight(): R {
     if (this.isLeft()) {
-      throw new InvariantViolationError('Cannot get value from Left');
+      throw new DataTypeInvariantViolationError(
+        'Cannot get a right value from the left side',
+      );
     }
 
     return this.rightValue as R;
@@ -88,11 +92,13 @@ export class Either<L, R> {
   /**
    * Unboxes the `Left` value of `Either` type.
    * @returns a `Left` value if called on `Left`
-   * @throws An `InvariantViolationError` if called on `Right`
+   * @throws An `DataTypeInvariantViolationError` if called on `Right`
    */
   public getLeft(): L {
     if (this.isRight()) {
-      throw new InvariantViolationError('Cannot get left value from Right');
+      throw new DataTypeInvariantViolationError(
+        'Cannot get a left value from the right side',
+      );
     }
 
     return this.leftValue as L;
@@ -157,5 +163,3 @@ export class Either<L, R> {
       : `Left(${JSON.stringify(this.leftValue)})`;
   }
 }
-
-class InvariantViolationError extends Error {}

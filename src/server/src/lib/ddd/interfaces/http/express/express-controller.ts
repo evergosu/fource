@@ -1,7 +1,7 @@
 import type { Response, Request } from 'express';
 
-import type { UseCase as UC } from '../../../application/use-case';
-import type { Mapper as M } from '../../../infrastructure/mapper';
+import type { UseCase as UC } from '../../../application/use-case/use-case';
+import type { Mapper as M } from '../../../infrastructure/mapper/mapper';
 import type { Entity } from '../../../domain/entity';
 
 import { Controller } from '../controller';

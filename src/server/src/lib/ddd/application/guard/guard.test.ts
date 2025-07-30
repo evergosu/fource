@@ -8,7 +8,7 @@ import {
   DateInPastError,
   OutOfRangeError,
   StringError,
-} from '../domain/domain-error';
+} from './guard-errors';
 import { Guard } from './guard';
 
 describe('guard', () => {

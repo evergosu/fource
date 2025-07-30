@@ -1,5 +1,6 @@
-import type { UseCase as UC } from '../../application/use-case';
-import type { Mapper as M } from '../../infrastructure/mapper';
+import type { InfrastructureError } from '../../infrastructure/infrastructure-error';
+import type { UseCase as UC } from '../../application/use-case/use-case';
+import type { Mapper as M } from '../../infrastructure/mapper/mapper';
 import type { DomainError } from '../../domain/domain-error';
 import type { Entity } from '../../domain/entity';
 import type { Result } from '../../types/result';
@@ -96,10 +97,10 @@ export abstract class Controller<
    * @param onRightStatus - Status code to return on success (defaults to 200).
    * @returns A tuple of [status code, payload].
    */
-  protected handleEither<L extends DomainError | string, R>(
-    either: Either<L, R>,
-    onRightStatus = 200,
-  ): [number, unknown] {
+  protected handleEither<
+    L extends InfrastructureError | DomainError | string,
+    R,
+  >(either: Either<L, R>, onRightStatus = 200): [number, unknown] {
     return either.fold(
       () => this.handleError(either.getLeft()),
       () => [onRightStatus, either.getRight()],
@@ -129,7 +130,7 @@ export abstract class Controller<
    * @returns A tuple of [status code, payload].
    */
   protected handleError(
-    error: DomainError | string,
+    error: InfrastructureError | DomainError | string,
     statusCode?: number,
   ): [number, unknown] {
     const message = typeof error === 'string' ? error : error.message;

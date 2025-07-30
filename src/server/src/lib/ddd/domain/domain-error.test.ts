@@ -1,12 +1,10 @@
 import { DomainError } from './domain-error';
 
 describe('domain error', () => {
-  it('should create domain error with correct message and code', () => {
+  it('should create domain error with correct message and name', () => {
     const message = 'Test error occurred';
-    const code = 'TEST_ERROR';
 
     class TestError extends DomainError {
-      public readonly code = code;
       constructor() {
         super(message);
       }
@@ -16,7 +14,6 @@ describe('domain error', () => {
 
     expect(error).toBeInstanceOf(DomainError);
     expect(error.message).toBe(message);
-    expect(error.code).toBe(code);
-    expect(error.name).toBe('TestError');
+    expect(error.name).toBe('TestDomainError');
   });
 });

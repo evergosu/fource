@@ -1,6 +1,8 @@
+/* eslint-disable jsdoc/require-jsdoc */
+
+import { UseCase } from '../../application/use-case/use-case';
+import { Mapper } from '../../infrastructure/mapper/mapper';
 import { DomainError } from '../../domain/domain-error';
-import { Mapper } from '../../infrastructure/mapper';
-import { UseCase } from '../../application/use-case';
 import { Entity } from '../../domain/entity';
 import { Result } from '../../types/result';
 

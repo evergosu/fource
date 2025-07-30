@@ -1,3 +1,7 @@
+import {
+  StringOrNumberIdentifierError,
+  BlankIdentifierError,
+} from './identifier-errors';
 import { UniqueIdentifier } from './unique-identifier';
 
 describe('unique identifier', () => {
@@ -27,20 +31,20 @@ describe('unique identifier', () => {
 
   it('should throw for empty string', () => {
     expect(() => UniqueIdentifier.create('')).toThrow(
-      'InvalidUniqueIdentifier: String value cannot be empty',
+      new BlankIdentifierError(),
     );
   });
 
   it('should throw for null', () => {
     // eslint-disable-next-line unicorn/no-null
     expect(() => UniqueIdentifier.create(null as unknown as string)).toThrow(
-      'InvalidUniqueIdentifier: Must be a string or number',
+      new StringOrNumberIdentifierError(),
     );
   });
 
   it('should throw for objects', () => {
     expect(() => UniqueIdentifier.create({} as unknown as string)).toThrow(
-      'InvalidUniqueIdentifier: Must be a string or number',
+      new StringOrNumberIdentifierError(),
     );
   });
 

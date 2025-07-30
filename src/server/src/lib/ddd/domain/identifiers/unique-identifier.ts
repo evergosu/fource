@@ -1,5 +1,9 @@
 import { v7 } from 'uuid';
 
+import {
+  StringOrNumberIdentifierError,
+  BlankIdentifierError,
+} from './identifier-errors';
 import { Identifier } from './identifier';
 
 /**
@@ -25,21 +29,17 @@ export class UniqueIdentifier extends Identifier<string | number> {
   /**
    * Internal constructor. Use `UniqueIdentifier.create()` instead.
    * @param id - Optional identifier value.
-   * @throws {Error} if string value is empty.
-   * @throws {TypeError} if value is not string or number.
+   * @throws {BlankIdentifierError} if string value is empty.
+   * @throws {StringOrNumberIdentifierError} if value is not string or number.
    */
   private constructor(id?: string | number) {
     if (id !== undefined) {
       if (typeof id === 'string' && id.trim() === '') {
-        throw new Error(
-          'InvalidUniqueIdentifier: String value cannot be empty',
-        );
+        throw new BlankIdentifierError();
       }
 
       if (typeof id !== 'string' && typeof id !== 'number') {
-        throw new TypeError(
-          'InvalidUniqueIdentifier: Must be a string or number',
-        );
+        throw new StringOrNumberIdentifierError();
       }
     }
 

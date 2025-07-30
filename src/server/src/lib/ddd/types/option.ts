@@ -1,3 +1,5 @@
+import { DataTypeInvariantViolationError } from './adt-error';
+
 /**
  * Represents an optional value: every Option is either Some and contains a value, or None, and does not.
  *
@@ -11,11 +13,14 @@ export abstract class Option<T> {
    * Creates an Option containing a value.
    * @param value The value to wrap.
    * @returns new instance of the Some class representing a value.
+   * @throws {DataTypeInvariantViolationError} if called with nullish value.
    */
   public static some<T>(value: T): Option<T> {
     // eslint-disable-next-line sonarjs/different-types-comparison
     if (value === null || value === undefined) {
-      throw new Error('Option.some cannot wrap null or undefined');
+      throw new DataTypeInvariantViolationError(
+        'Cannot wrap null or undefined with Option.some',
+      );
     }
 
     return new Some(value);
@@ -132,7 +137,7 @@ class None extends Option<never> {
   }
 
   public unwrap(): never {
-    throw new InvariantViolationError('Called unwrap on None');
+    throw new DataTypeInvariantViolationError('Cannot call unwrap on None');
   }
 
   public flatMap<U>(_: (value: never) => Option<U>): Option<U> {
@@ -155,5 +160,3 @@ class None extends Option<never> {
     return true;
   }
 }
-
-class InvariantViolationError extends Error {}

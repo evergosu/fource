@@ -37,9 +37,34 @@ export default config(
   prettier,
   {
     rules: {
-      ...jsdoc.configs['flat/recommended-typescript-error'].rules,
+      ...jsdoc.configs['flat/recommended-typescript'].rules,
+      'jsdoc/require-jsdoc': [
+        'error',
+        {
+          require: {
+            ArrowFunctionExpression: false,
+            FunctionDeclaration: true,
+            FunctionExpression: false,
+            ClassDeclaration: true,
+            MethodDefinition: true,
+          },
+          publicOnly: true,
+        },
+      ],
+      'jsdoc/require-returns-description': 'error',
+      'jsdoc/require-param-description': 'error',
       'jsdoc/require-description': 'error',
-      'jsdoc/require-jsdoc': 'error',
+
+      'jsdoc/no-undefined-types': 'error',
+      'jsdoc/check-param-names': 'error',
+      'jsdoc/check-tag-names': 'error',
+      'jsdoc/check-examples': 'off',
+      'jsdoc/check-types': 'error',
+
+      // 🧹 Clean up unnecessary tags/types (TS handles it).
+      'jsdoc/require-returns-type': 'off',
+      'jsdoc/require-param-type': 'off',
+      'jsdoc/no-types': 'warn',
     },
     plugins: {
       jsdoc,

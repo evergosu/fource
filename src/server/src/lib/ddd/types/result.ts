@@ -1,4 +1,6 @@
-import type { DomainError } from '../domain/domain-error';
+import type { BaseError } from '../shared/base-error';
+
+import { DataTypeInvariantViolationError } from './adt-error';
 
 /**
  * A functional object representing the result of an operation,
@@ -9,7 +11,7 @@ import type { DomainError } from '../domain/domain-error';
  * @template T - Type of the value when operation succeeds.
  * @template E - Type of the error when operation fails (defaults to `string` or `DomainError`).
  */
-export class Result<T, E = DomainError | string> {
+export class Result<T, E = BaseError> {
   private readonly _error: undefined | E;
   private readonly _value: undefined | T;
   private readonly _isSuccess: boolean;
@@ -25,14 +27,14 @@ export class Result<T, E = DomainError | string> {
    */
   private constructor(isSuccess: boolean, error?: E, value?: T) {
     if (isSuccess && error !== undefined) {
-      throw new InvariantViolationError(
-        'InvalidResult: A result cannot be successful and contain an error',
+      throw new DataTypeInvariantViolationError(
+        'Cannot contain an error in the successful result',
       );
     }
 
     if (!isSuccess && error === undefined) {
-      throw new InvariantViolationError(
-        'InvalidResult: A failing result must contain an error',
+      throw new DataTypeInvariantViolationError(
+        'Must contain an error in the failed result',
       );
     }
 
@@ -163,12 +165,12 @@ export class Result<T, E = DomainError | string> {
    * Retrieve the error value.
    * Throws if called on a success result.
    * @returns Error payload.
-   * @throws Error if result is successful.
+   * @throws {DataTypeInvariantViolationError} if result is successful.
    */
   public get error(): E {
     if (this._isSuccess) {
-      throw new InvariantViolationError(
-        'InvalidResult: Cannot get the error of a successful result',
+      throw new DataTypeInvariantViolationError(
+        'Cannot get the error of a successful result',
       );
     }
 
@@ -179,12 +181,12 @@ export class Result<T, E = DomainError | string> {
    * Retrieve the success value.
    * Throws if called on a failure result.
    * @returns Success payload.
-   * @throws Error if result is a failure.
+   * @throws {DataTypeInvariantViolationError} if result is a failure.
    */
   public get value(): T {
     if (!this._isSuccess) {
-      throw new InvariantViolationError(
-        'InvalidResult: Cannot get the value of a failed result',
+      throw new DataTypeInvariantViolationError(
+        'Cannot get the value of a failed result',
       );
     }
 
@@ -217,5 +219,3 @@ export class Result<T, E = DomainError | string> {
     return this._isSuccess;
   }
 }
-
-class InvariantViolationError extends Error {}

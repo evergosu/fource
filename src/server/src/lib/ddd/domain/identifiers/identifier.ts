@@ -1,3 +1,5 @@
+import { EmptyIdentifierError } from './identifier-errors';
+
 /**
  * A strongly-typed identifier wrapper that encapsulates a raw value
  * and provides identity comparison and serialization logic.
@@ -10,10 +12,11 @@ export class Identifier<T> {
   /**
    * Creates unique identifier from provided value.
    * @param value The value to use as identifier.
+   * @throws {EmptyIdentifierError} error if no value provided.
    */
   constructor(private value: T) {
     if (!value) {
-      throw new Error('InvalidIdentifier: Value cannot be null or undefined');
+      throw new EmptyIdentifierError();
     }
 
     this.value = value;

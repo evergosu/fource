@@ -1,27 +1,8 @@
-import type { UniqueIdentifier } from '../domain/identifiers/unique-identifier';
-import type { Specification } from '../domain/rules/specification';
-import type { AggregateRoot } from '../domain/aggregate-root';
-import type { Either } from '../types/either';
-import type { Result } from '../types/result';
-
-import { DomainError } from '../domain/domain-error';
-
-/**
- * Error representing an aggregate not found in the repository.
- */
-export class AggregateNotFoundError extends DomainError {
-  /**
-   * Creates domain error with optional identifier of the aggregate.
-   * @param id - The identifier of the aggregate root.
-   */
-  constructor(public readonly id?: UniqueIdentifier) {
-    super(
-      id
-        ? `Aggregate with ID ${id.toString()} was not found`
-        : 'Aggregate was not found',
-    );
-  }
-}
+import type { Specification } from '../../domain/rules/specification';
+import type { AggregateNotFoundError } from './repository-errors';
+import type { AggregateRoot } from '../../domain/aggregate-root';
+import type { Either } from '../../types/either';
+import type { Result } from '../../types/result';
 
 /**
  * Base interface for repositories in the domain layer.
@@ -62,5 +43,5 @@ export interface Repository<T extends AggregateRoot<unknown>> {
    * @param id - The unique identifier of the aggregate to delete.
    * @returns `Result.ok()` on success, or `Result.fail()` with an error.
    */
-  delete(id: T['id']): Promise<Result<void>>;
+  delete(id: T['id']): Promise<Result<void, AggregateNotFoundError>>;
 }

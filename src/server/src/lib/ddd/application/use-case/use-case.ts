@@ -1,4 +1,5 @@
-import { Result } from '../types/result';
+import { UseCaseExecutionError } from './use-case-errors';
+import { Result } from '../../types/result';
 
 /**
  * Represents a generic application use case.
@@ -20,7 +21,9 @@ export abstract class UseCase<Input, Output> {
       return await this.implement(input);
     } catch (error) {
       return Result.fail(
-        error instanceof Error ? error : new Error('Unknown error'),
+        error instanceof Error
+          ? error
+          : new UseCaseExecutionError(this.constructor.name),
       );
     }
   }

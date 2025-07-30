@@ -1,3 +1,4 @@
+import { DataTypeInvariantViolationError } from './adt-error';
 import { Result } from './result';
 
 describe('result', () => {
@@ -26,9 +27,7 @@ describe('result', () => {
     it('should throw when accessing error on success result', () => {
       const result = Result.ok(value);
 
-      expect(() => result.error).toThrowError(
-        'InvalidResult: Cannot get the error of a successful result',
-      );
+      expect(() => result.error).toThrowError(DataTypeInvariantViolationError);
     });
   });
 
@@ -61,9 +60,7 @@ describe('result', () => {
     it('should throw when accessing value on failure result', () => {
       const result = Result.fail(error);
 
-      expect(() => result.value).toThrowError(
-        'InvalidResult: Cannot get the value of a failed result',
-      );
+      expect(() => result.value).toThrowError(DataTypeInvariantViolationError);
     });
   });
 
