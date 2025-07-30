@@ -95,37 +95,6 @@ describe('result', () => {
     });
   });
 
-  describe('.combineList()', () => {
-    it('should return result of values if all results succeed', () => {
-      const resultOne = Result.ok(42);
-      const resultTwo = Result.ok('foo');
-      const resultThree = Result.ok();
-
-      const combined = Result.combineList([resultOne, resultTwo, resultThree]);
-
-      expect(combined.isSuccess).toBe(true);
-      expect(combined).toStrictEqual(Result.ok([42, 'foo', undefined]));
-      expect(combined.value).toStrictEqual([42, 'foo', undefined]);
-    });
-
-    it('should return first failure if any result fails', () => {
-      const resultOne = Result.ok('bar');
-      const resultTwo = Result.fail('Failed at step 2');
-      const resultThree = Result.ok('baz');
-      const resultFour = Result.fail('Failed at step 4');
-
-      const combined = Result.combineList([
-        resultOne,
-        resultTwo,
-        resultThree,
-        resultFour,
-      ]);
-
-      expect(combined.isFailure).toBe(true);
-      expect(combined.error).toBe('Failed at step 2');
-    });
-  });
-
   describe('.fold()', () => {
     it('should fold success value correctly', () => {
       const result = Result.ok(7).fold(

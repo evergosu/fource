@@ -106,8 +106,10 @@ describe('mapper', () => {
       const result = mapper.toDomainList(dtosWithErrors);
 
       expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(InvalidDataTransferObjectError);
-      expect(result.error.message).toContain('TestMapper');
+      expect(result.error).toEqual(
+        expect.arrayContaining([expect.any(InvalidDataTransferObjectError)]),
+      );
+      expect(result.error.at(0)?.message).toContain('TestMapper');
     });
   });
 });

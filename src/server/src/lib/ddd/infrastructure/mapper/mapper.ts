@@ -2,6 +2,7 @@ import type { InfrastructureError } from '../infrastructure-error';
 import type { DomainError } from '../../domain/domain-error';
 import type { Entity } from '../../domain/entity';
 
+import { combineResults } from '../../types/combinators';
 import { Result } from '../../types/result';
 
 /**
@@ -33,7 +34,7 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
    * @returns A `Result` with an array of DTOs.
    */
   public toDTOList(domains: Domain[]): Result<DTO[]> {
-    return Result.combineList(domains.map(domain => this.toDTO(domain)));
+    return combineResults(domains.map(domain => this.toDTO(domain)));
   }
 
   /**
@@ -44,7 +45,7 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
    */
   public toDomainList(
     raws: DTO[],
-  ): Result<Domain[], InfrastructureError | DomainError> {
-    return Result.combineList(raws.map(raw => this.toDomain(raw)));
+  ): Result<Domain[], (InfrastructureError | DomainError)[]> {
+    return combineResults(raws.map(raw => this.toDomain(raw)));
   }
 }

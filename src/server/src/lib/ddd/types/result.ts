@@ -65,33 +65,6 @@ export class Result<T, E = BaseError> {
   }
 
   /**
-   * Combine multiple results into a single result.
-   * - If any result failed, returns the first failure.
-   * - Otherwise, returns success with list of values.
-   * @param results - Array of results to combine.
-   * @returns Combined result with values from each result.
-   */
-  static combineList<
-    ErrorType,
-    T extends readonly Result<unknown, ErrorType>[],
-    OkTypes = {
-      [K in keyof T]: T[K] extends Result<infer U, unknown> ? U : never;
-    },
-  >(results: [...T]): Result<OkTypes, ErrorType> {
-    const values: unknown[] = [];
-
-    for (const result of results) {
-      if (result.isFailure) {
-        return Result.fail(result.error);
-      }
-
-      values.push(result.value);
-    }
-
-    return Result.ok(values as OkTypes);
-  }
-
-  /**
    * Applies an asynchronous transformation function to the successful value of the result,
    * returning a new successful result. If the current result is a failure, the same failure is returned.
    * @template U - The type of the value in the new result.
