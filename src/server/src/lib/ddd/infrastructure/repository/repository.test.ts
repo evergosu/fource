@@ -3,7 +3,6 @@ import { Specification } from '../../domain/rules/specification';
 import { AggregateNotFoundError } from './repository-errors';
 import { AggregateRoot } from '../../domain/aggregate-root';
 import { type Repository } from './repository';
-import { Either } from '../../types/either';
 import { Result } from '../../types/result';
 
 class FakeAggregate extends AggregateRoot<{ isActive: boolean }> {
@@ -34,11 +33,11 @@ class FakeRepository implements Repository<FakeAggregate> {
 
     const values = [...store.values()];
 
-    const result = values.filter(specification.isSatisfiedBy.bind(this));
+    const result = values.filter(a => specification.isSatisfiedBy(a));
 
     return result.length > 0
-      ? Either.right(result)
-      : Either.left(new AggregateNotFoundError());
+      ? Result.ok(result)
+      : Result.fail(new AggregateNotFoundError());
   }
 
   async delete(id: FakeAggregate['id']) {
@@ -60,8 +59,8 @@ class FakeRepository implements Repository<FakeAggregate> {
     const found = store.get(id.toString());
 
     return found
-      ? Either.right(found)
-      : Either.left(new AggregateNotFoundError(id));
+      ? Result.ok(found)
+      : Result.fail(new AggregateNotFoundError(id));
   }
 
   async findAll() {
@@ -70,8 +69,8 @@ class FakeRepository implements Repository<FakeAggregate> {
     const result = [...store.values()];
 
     return result.length > 0
-      ? Either.right(result)
-      : Either.left(new AggregateNotFoundError());
+      ? Result.ok(result)
+      : Result.fail(new AggregateNotFoundError());
   }
 
   async save(aggregate: FakeAggregate) {
@@ -103,9 +102,9 @@ describe('repository', () => {
 
     const result = await repository.findById(aggregate.id);
 
-    expect(result.isRight()).toBe(true);
-    expect(result.getRight().id.equals(aggregate.id)).toBe(true);
-    expect(result.getRight().isActive).toBe(true);
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.id.equals(aggregate.id)).toBe(true);
+    expect(result.value.isActive).toBe(true);
   });
 
   it('should return AggregateNotFoundError if ID not found', async () => {
@@ -113,9 +112,9 @@ describe('repository', () => {
 
     const result = await repository.findById(unknownId);
 
-    expect(result.isLeft()).toBe(true);
-    expect(result.getLeft()).toBeInstanceOf(AggregateNotFoundError);
-    expect(result.getLeft().message).toContain(unknownId);
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(AggregateNotFoundError);
+    expect(result.error.message).toContain(unknownId);
   });
 
   it('should retrieve all aggregates', async () => {
@@ -127,15 +126,15 @@ describe('repository', () => {
 
     const result = await repository.findAll();
 
-    expect(result.isRight()).toBe(true);
-    expect(result.getRight().length).toBe(2);
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.length).toBe(2);
   });
 
   it('should return AggregateNotFoundError if there is no entities', async () => {
     const result = await repository.findAll();
 
-    expect(result.isLeft()).toBe(true);
-    expect(result.getLeft()).toBeInstanceOf(AggregateNotFoundError);
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(AggregateNotFoundError);
   });
 
   it('should find entities by specification', async () => {
@@ -149,10 +148,10 @@ describe('repository', () => {
 
     const result = await repository.findBySpecification(specification);
 
-    expect(result.isRight()).toBe(true);
-    expect(result.getRight().length).toBe(1);
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.length).toBe(1);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    expect(result.getRight().at(0)!.isActive).toBe(true);
+    expect(result.value.at(0)!.isActive).toBe(true);
   });
 
   it('should return AggregateNotFoundError if no entities match specification', async () => {
@@ -160,8 +159,8 @@ describe('repository', () => {
 
     const result = await repository.findBySpecification(specification);
 
-    expect(result.isLeft()).toBe(true);
-    expect(result.getLeft()).toBeInstanceOf(AggregateNotFoundError);
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(AggregateNotFoundError);
   });
 
   it('should delete an aggregate by ID', async () => {
@@ -174,7 +173,7 @@ describe('repository', () => {
 
     const deletedResult = await repository.findById(aggregate.id);
 
-    expect(deletedResult.isLeft()).toBe(true);
+    expect(deletedResult.isFailure).toBe(true);
   });
 
   it('should fail deletion if ID was not found', async () => {

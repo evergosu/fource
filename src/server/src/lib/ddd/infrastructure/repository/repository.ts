@@ -1,7 +1,6 @@
 import type { Specification } from '../../domain/rules/specification';
 import type { AggregateNotFoundError } from './repository-errors';
 import type { AggregateRoot } from '../../domain/aggregate-root';
-import type { Either } from '../../types/either';
 import type { Result } from '../../types/result';
 
 /**
@@ -12,24 +11,24 @@ export interface Repository<T extends AggregateRoot<unknown>> {
   /**
    * Retrieves an aggregate root by ID.
    * @param id - The unique identifier of the aggregate.
-   * @returns Either an `AggregateNotFoundError` or the aggregate.
+   * @returns `Result` with an `AggregateNotFoundError` or the aggregate.
    */
-  findById(id: T['id']): Promise<Either<AggregateNotFoundError, T>>;
+  findById(id: T['id']): Promise<Result<T, AggregateNotFoundError>>;
 
   /**
    * Finds all aggregates related to this repository.
-   * @returns Either an `AggregateNotFoundError` or the aggregates.
+   * @returns `Result` with an `AggregateNotFoundError` or the aggregates.
    */
-  findAll(): Promise<Either<AggregateNotFoundError, T[]>>;
+  findAll(): Promise<Result<T[], AggregateNotFoundError>>;
 
   /**
    * Finds all aggregates that match the given specification.
    * @param specification - Optional filtering logic.
-   * @returns Either an `AggregateNotFoundError` or the aggregates.
+   * @returns `Result` with an `AggregateNotFoundError` or the aggregates.
    */
   findBySpecification(
     specification?: Specification<T>,
-  ): Promise<Either<AggregateNotFoundError, T[]>>;
+  ): Promise<Result<T[], AggregateNotFoundError>>;
 
   /**
    * Saves or updates the aggregate in the underlying store.
