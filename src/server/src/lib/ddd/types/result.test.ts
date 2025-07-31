@@ -64,6 +64,42 @@ describe('result', () => {
     });
   });
 
+  describe('.getOrElse()', () => {
+    const value = 'test value';
+
+    it('should return value on successful result', () => {
+      const result = Result.ok(value);
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.getOrElse('foo')).toBe(value);
+    });
+
+    it('should return fallback on failed result', () => {
+      const result = Result.fail(value);
+
+      expect(result.isFailure).toBe(true);
+      expect(result.getOrElse('foo' as never)).toBe('foo');
+    });
+  });
+
+  describe('.getOrElseLazy()', () => {
+    const value = 'test value';
+
+    it('should return value on successful result', () => {
+      const result = Result.ok(value);
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.getOrElseLazy(() => 'foo')).toBe(value);
+    });
+
+    it('should return fallback on failed result', () => {
+      const result = Result.fail(value);
+
+      expect(result.isFailure).toBe(true);
+      expect(result.getOrElseLazy((() => 'foo') as never)).toBe('foo');
+    });
+  });
+
   describe('.combine()', () => {
     it('should return ok if all results succeed', () => {
       const resultOne = Result.ok(42);
@@ -95,6 +131,32 @@ describe('result', () => {
     });
   });
 
+  describe('.fromThrowable()', () => {
+    it('should wrap try-catch correctly on success', () => {
+      const result = Result.fromThrowable(
+        () => 42,
+        error => (error as Error).message,
+      );
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBe(42);
+    });
+
+    it('should wrap try-catch correctly on error', () => {
+      const error = 'something went wrong';
+
+      const result = Result.fromThrowable(
+        () => {
+          throw new Error(error);
+        },
+        error => (error as Error).message,
+      );
+
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toBe(error);
+    });
+  });
+
   describe('.fold()', () => {
     it('should fold success value correctly', () => {
       const result = Result.ok(7).fold(
@@ -115,7 +177,7 @@ describe('result', () => {
     });
   });
 
-  describe('map', () => {
+  describe('.map()', () => {
     it('should transform value if success', () => {
       const result = Result.ok(2);
 
@@ -135,7 +197,23 @@ describe('result', () => {
     });
   });
 
-  describe('flatMap', () => {
+  describe('.mapError()', () => {
+    it('should mapError correctly', () => {
+      const left = Result.fail('fail').mapError(error => error.toUpperCase());
+
+      expect(left.isFailure).toBe(true);
+      expect(left.error).toBe('FAIL');
+    });
+
+    it('should not map success value', () => {
+      const right = Result.ok(14).mapError(x => x * 3);
+
+      expect(right.isSuccess).toBe(true);
+      expect(right.value).toBe(14);
+    });
+  });
+
+  describe('.flatMap()', () => {
     it('should transform to new result if success', () => {
       const result = Result.ok(2);
 
@@ -164,7 +242,7 @@ describe('result', () => {
     });
   });
 
-  describe('mapAsync', () => {
+  describe('.mapAsync()', () => {
     it('should asynchronously transform value if success', async () => {
       const result = Result.ok(3);
 
@@ -188,7 +266,7 @@ describe('result', () => {
     });
   });
 
-  describe('flatMapAsync', () => {
+  describe('.flatMapAsync()', () => {
     it('should asynchronously transform value into a result if success', async () => {
       const result = Result.ok(4);
 
@@ -219,6 +297,20 @@ describe('result', () => {
 
       expect(flatMapped.isFailure).toBe(true);
       expect(flatMapped.error).toBe('inner failure');
+    });
+  });
+
+  describe('.toString()', () => {
+    it('should serialize success value', () => {
+      const result = Result.ok(42);
+
+      expect(result.toString()).toBe('Success(42)');
+    });
+
+    it('should serialize error', () => {
+      const result = Result.fail(42);
+
+      expect(result.toString()).toBe('Failure(42)');
     });
   });
 });

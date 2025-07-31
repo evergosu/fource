@@ -28,7 +28,7 @@ export class Either<L, R> {
    * @param value - The success value.
    * @returns An `Either` in the `Right` state.
    */
-  static right<R, L = never>(value: R): Either<L, R> {
+  static right<R = void, L = never>(value?: R): Either<L, R> {
     return new Either<L, R>(undefined, value, true);
   }
 
@@ -43,16 +43,16 @@ export class Either<L, R> {
 
   /**
    * Wraps a function call, capturing any thrown exception as `Left`.
-   * @param function_ - The function to try.
+   * @param f - The function to try.
    * @param onError - The function to invoke on error state.
    * @returns An `Right` on success, `Left` otherwise.
    */
   static tryCatch<L, R>(
-    function_: () => R,
+    f: () => R,
     onError: (error: unknown) => L,
   ): Either<L, R> {
     try {
-      return Either.right(function_());
+      return Either.right(f());
     } catch (error) {
       return Either.left(onError(error));
     }
@@ -105,26 +105,75 @@ export class Either<L, R> {
   }
 
   /**
+   * Combine multiple Eithers into a single Either.
+   * - If any Either is Left, returns the first Left.
+   * - Otherwise, returns Right(void).
+   *
+   * Useful for validating multiple independent operations.
+   * @param eithers - Array of Eithers to combine.
+   * @returns Combined either.
+   */
+  public static combine<L>(eithers: Either<L, unknown>[]): Either<L, void> {
+    for (const either of eithers) {
+      if (either.isLeft()) {
+        return Either.left(either.getLeft());
+      }
+    }
+
+    return Either.right();
+  }
+
+  /**
+   * Retrieves current value if `Either` is `Right`, fallback otherwise.
+   * @param fallback The fallback value.
+   * @returns the contained value or the provided fallback.
+   */
+  public getOrElse(fallback: R): R {
+    return this.isRight() ? (this.rightValue as R) : fallback;
+  }
+
+  /**
+   * Retrieves current value if `Either` is `Right`, invokes fallback otherwise.
+   * @param getFallback The fallback function to invoke.
+   * @returns the contained value or the provided fallback.
+   */
+  public getOrElseLazy(getFallback: () => R): R {
+    return this.isRight() ? (this.rightValue as R) : getFallback();
+  }
+
+  /**
    * Applies a function to transform the `Right` value if present.
    * If the `Either` is `Left`, the original `Left` is returned unchanged.
-   * @param function_ - The function to apply to the `Right` value.
+   * @param f - The function to apply to the `Right` value.
    * @returns A new `Either` with the transformed `Right` value or the original `Left`.
    */
-  public map<U>(function_: (r: R) => U): Either<L, U> {
+  public map<U>(f: (r: R) => U): Either<L, U> {
     return this.isRight()
-      ? Either.right(function_(this.rightValue as R))
+      ? Either.right(f(this.rightValue as R))
+      : Either.left(this.leftValue as L);
+  }
+
+  /**
+   * Applies an asynchronous function to transform the `Right` value if present.
+   * If the `Either` is `Left`, the original `Left` is returned unchanged.
+   * @param f - The asynchronous function to apply to the `Right` value.
+   * @returns A new `Either` with the transformed `Right` value or the original `Left`.
+   */
+  public async mapAsync<U>(f: (r: R) => Promise<U>): Promise<Either<L, U>> {
+    return this.isRight()
+      ? Either.right(await f(this.rightValue as R))
       : Either.left(this.leftValue as L);
   }
 
   /**
    * Applies a function to transform the `Left` value if present.
    * If the `Either` is `Right`, the original `Right` is returned unchanged.
-   * @param function_ - The function to apply to the `Left` value.
+   * @param f - The function to apply to the `Left` value.
    * @returns A new `Either` with the transformed `Left` value or the original `Right`.
    */
-  public mapLeft<U>(function_: (l: L) => U): Either<U, R> {
+  public mapLeft<U>(f: (l: L) => U): Either<U, R> {
     return this.isLeft()
-      ? Either.left(function_(this.leftValue as L))
+      ? Either.left(f(this.leftValue as L))
       : Either.right(this.rightValue as R);
   }
 
@@ -132,12 +181,25 @@ export class Either<L, R> {
    * Applies a function that returns another `Either` to the `Right` value if present (monadic bind).
    * Enables chaining multiple computations that may fail.
    * If the `Either` is `Left`, the original `Left` is returned unchanged.
-   * @param function_ - The function to apply to the `Right` value, returning a new `Either`.
+   * @param f - The function to apply to the `Right` value, returning a new `Either`.
    * @returns The result of applying the function or the original `Left`.
    */
-  public flatMap<U, NL>(function_: (r: R) => Either<NL, U>): Either<NL | L, U> {
+  public flatMap<U, NL>(f: (r: R) => Either<NL, U>): Either<NL | L, U> {
+    return this.isRight() ? f(this.getRight()) : Either.left(this.getLeft());
+  }
+
+  /**
+   * Applies an asynchronous function that returns another `Either` to the `Right` value if present (monadic bind).
+   * Enables chaining multiple asynchronous computations that may fail.
+   * If the `Either` is `Left`, the original `Left` is returned unchanged.
+   * @param f - The asynchronous function to apply to the `Right` value, returning a new `Either`.
+   * @returns The result of applying the function or the original `Left`.
+   */
+  public async flatMapAsync<U, NL>(
+    f: (r: R) => Promise<Either<NL, U>>,
+  ): Promise<Either<NL | L, U>> {
     return this.isRight()
-      ? function_(this.getRight())
+      ? await f(this.getRight())
       : Either.left(this.getLeft());
   }
 
@@ -161,5 +223,13 @@ export class Either<L, R> {
     return this.isRight()
       ? `Right(${JSON.stringify(this.rightValue)})`
       : `Left(${JSON.stringify(this.leftValue)})`;
+  }
+
+  /**
+   * Adds better Node.js debugging support.
+   * @returns sirialized `Either` values.
+   */
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.toString();
   }
 }

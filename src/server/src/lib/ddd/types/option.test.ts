@@ -7,7 +7,7 @@ describe('option', () => {
       const option = Option.some(42);
 
       expect(option.isSome()).toBe(true);
-      expect(option.unwrap()).toBe(42);
+      expect(option.get()).toBe(42);
     });
 
     it('should throw if Some is passed null or undefined', () => {
@@ -47,32 +47,46 @@ describe('option', () => {
     });
   });
 
-  describe('.unwrap()', () => {
+  describe('.get()', () => {
     it('should unwrap Some value without errors', () => {
       const option = Option.some(42);
 
-      expect(() => option.unwrap()).not.toThrow();
-      expect(option.unwrap()).toBe(42);
+      expect(() => option.get()).not.toThrow();
+      expect(option.get()).toBe(42);
     });
 
     it('should throw if unwrap None value', () => {
       const option = Option.none<number>();
 
-      expect(() => option.unwrap()).toThrow(DataTypeInvariantViolationError);
+      expect(() => option.get()).toThrow(DataTypeInvariantViolationError);
     });
   });
 
-  describe('.unwrapOr()', () => {
+  describe('.getOrElse()', () => {
     it('should unwrap on Some with inner value', () => {
       const option = Option.some(42);
 
-      expect(option.unwrapOr(34)).toBe(42);
+      expect(option.getOrElse(34)).toBe(42);
     });
 
     it('should unwrap on None value with fallback', () => {
       const option = Option.none<number>();
 
-      expect(option.unwrapOr(42)).toBe(42);
+      expect(option.getOrElse(42)).toBe(42);
+    });
+  });
+
+  describe('.getOrElseLazy()', () => {
+    it('should unwrap on Some with inner value', () => {
+      const option = Option.some(42);
+
+      expect(option.getOrElseLazy(() => 34)).toBe(42);
+    });
+
+    it('should unwrap on None value with fallback', () => {
+      const option = Option.none<number>();
+
+      expect(option.getOrElseLazy(() => 42)).toBe(42);
     });
   });
 
@@ -105,7 +119,7 @@ describe('option', () => {
       const option = Option.some(42).map(x => x - 8);
 
       expect(option.isSome()).toBe(true);
-      expect(option.unwrap()).toBe(34);
+      expect(option.get()).toBe(34);
     });
 
     it('should not map value if None', () => {
@@ -120,13 +134,27 @@ describe('option', () => {
       const option = Option.some('foo').flatMap(v => Option.some(v + 'bar'));
 
       expect(option.isSome()).toBe(true);
-      expect(option.unwrap()).toBe('foobar');
+      expect(option.get()).toBe('foobar');
     });
 
     it('should flatMap None and remain None', () => {
       const option = Option.none<string>().flatMap(v => Option.some(v + 'foo'));
 
       expect(option.isNone()).toBe(true);
+    });
+  });
+
+  describe('.toString()', () => {
+    it('should serialize Some value', () => {
+      const option = Option.some(42);
+
+      expect(option.toString()).toBe('Some(42)');
+    });
+
+    it('should serialize None', () => {
+      const option = Option.none();
+
+      expect(option.toString()).toBe('None()');
     });
   });
 });

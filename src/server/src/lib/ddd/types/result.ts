@@ -46,6 +46,23 @@ export class Result<T, E = BaseError> {
   }
 
   /**
+   * Wraps a function call, capturing any thrown exception as `Result.fail()`.
+   * @param f - The function to try.
+   * @param onError - The function to invoke on error state.
+   * @returns A `Result.ok()` on success, `Result.fail()` otherwise.
+   */
+  public static fromThrowable<T, E>(
+    f: () => T,
+    onError: (error: unknown) => E,
+  ): Result<T, E> {
+    try {
+      return Result.ok(f());
+    } catch (error) {
+      return Result.fail(onError(error));
+    }
+  }
+
+  /**
    * Combine multiple results into a single result.
    * - If any result failed, returns the first failure.
    * - Otherwise, returns success.
@@ -117,6 +134,18 @@ export class Result<T, E = BaseError> {
   }
 
   /**
+   * Applies a synchronous transformation function to the error of the
+   * result, returning a new failed result. If the current result is
+   * successful, the same successful result is returned.
+   * @template U - The type of the value in the new result.
+   * @param f - A function that transforms the error into a new value.
+   * @returns A new `Result<T, U>` containing the transformed error, or the current success.
+   */
+  public mapError<U>(f: (error: E) => U): Result<T, U> {
+    return this.isFailure ? Result.fail(f(this.error)) : Result.ok(this.value);
+  }
+
+  /**
    * Create a failed result.
    * @param error - Error payload.
    * @returns Failure result.
@@ -168,8 +197,8 @@ export class Result<T, E = BaseError> {
 
   /**
    * Folds (reduces) the Result into a single value by providing handlers for both Value and Error.
-   * @param onFailure - The function to handle the Error case.
-   * @param onSuccess - The function to handle the Value case.
+   * @param onFailure - The function to handle the Failure case.
+   * @param onSuccess - The function to handle the Success case.
    * @returns The result of applying the appropriate handler.
    */
   public fold<U>(onFailure: (error: E) => U, onSuccess: (value: T) => U): U {
@@ -190,5 +219,41 @@ export class Result<T, E = BaseError> {
    */
   public get isSuccess(): boolean {
     return this._isSuccess;
+  }
+
+  /**
+   * Retrieves current value if `Result` is successful, fallback otherwise.
+   * @param fallback The fallback value.
+   * @returns the contained value or the provided fallback.
+   */
+  public getOrElse(fallback: T): T {
+    return this.isSuccess ? this.value : fallback;
+  }
+
+  /**
+   * Retrieves current value if `Result` is successful, invokes fallback otherwise.
+   * @param getFallback The fallback function to invoke.
+   * @returns the contained value or the provided fallback.
+   */
+  public getOrElseLazy(getFallback: () => T): T {
+    return this.isSuccess ? this.value : getFallback();
+  }
+
+  /**
+   * Serializes current `Result` for logging purpose.
+   *@returns A formatted string.
+   */
+  public toString(): string {
+    return this.isSuccess
+      ? `Success(${JSON.stringify(this.value)})`
+      : `Failure(${JSON.stringify(this.error)})`;
+  }
+
+  /**
+   * Adds better Node.js debugging support.
+   * @returns sirialized `Result` values.
+   */
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.toString();
   }
 }

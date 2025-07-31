@@ -118,7 +118,7 @@ export abstract class Controller<
     onSomeStatus = 200,
   ): [number, unknown] {
     return option.isSome()
-      ? [onSomeStatus, option.unwrap()]
+      ? [onSomeStatus, option.get()]
       : this.handleError('Not found', 404);
   }
 
