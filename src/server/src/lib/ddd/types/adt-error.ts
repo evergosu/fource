@@ -1,4 +1,4 @@
-import { Exception } from '../shared/exception';
+import { Exception } from '../issues/exception';
 
 /**
  * Exception representing an invariant violation

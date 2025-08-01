@@ -1,4 +1,4 @@
-import type { Failure } from '../shared/failure';
+import type { Failure } from '../issues/failure';
 
 import { DataTypeInvariantViolationException } from './adt-error';
 

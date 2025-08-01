@@ -9,5 +9,5 @@ export * from './application/application-error';
 export * from './domain/identifiers/identifier-errors';
 export * from './domain/domain-error';
 
-export * from './shared/exception';
-export * from './shared/failure';
+export * from './issues//exception';
+export * from './issues/failure';

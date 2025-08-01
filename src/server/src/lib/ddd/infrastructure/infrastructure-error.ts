@@ -1,5 +1,5 @@
-import { Exception } from '../shared/exception';
-import { Failure } from '../shared/failure';
+import { Exception } from '../issues/exception';
+import { Failure } from '../issues/failure';
 
 /**
  * Base class for all infrastructure-specific `Failures`.
