@@ -1,6 +1,6 @@
-import type { BaseError } from '../shared/base-error';
+import type { Failure } from '../shared/failure';
 
-import { DataTypeInvariantViolationError } from './adt-error';
+import { DataTypeInvariantViolationException } from './adt-error';
 
 /**
  * A functional object representing the result of an operation,
@@ -9,9 +9,9 @@ import { DataTypeInvariantViolationError } from './adt-error';
  * This class enforces correct usage via private constructor and static factory methods.
  * Commonly used in Domain-Driven Design, Functional Programming, and Error Handling patterns.
  * @template T - Type of the value when operation succeeds.
- * @template E - Type of the error when operation fails (defaults to `string` or `DomainError`).
+ * @template E - Type of the error when operation fails (defaults to `Failure`).
  */
-export class Result<T, E = BaseError> {
+export class Result<T, E = Failure> {
   private readonly _error: undefined | E;
   private readonly _value: undefined | T;
   private readonly _isSuccess: boolean;
@@ -27,13 +27,13 @@ export class Result<T, E = BaseError> {
    */
   private constructor(isSuccess: boolean, error?: E, value?: T) {
     if (isSuccess && error !== undefined) {
-      throw new DataTypeInvariantViolationError(
+      throw new DataTypeInvariantViolationException(
         'Cannot contain an error in the successful result',
       );
     }
 
     if (!isSuccess && error === undefined) {
-      throw new DataTypeInvariantViolationError(
+      throw new DataTypeInvariantViolationException(
         'Must contain an error in the failed result',
       );
     }
@@ -167,11 +167,11 @@ export class Result<T, E = BaseError> {
    * Retrieve the error value.
    * Throws if called on a success result.
    * @returns Error payload.
-   * @throws {DataTypeInvariantViolationError} if result is successful.
+   * @throws {DataTypeInvariantViolationException} if result is successful.
    */
   public get error(): E {
     if (this._isSuccess) {
-      throw new DataTypeInvariantViolationError(
+      throw new DataTypeInvariantViolationException(
         'Cannot get the error of a successful result',
       );
     }
@@ -183,11 +183,11 @@ export class Result<T, E = BaseError> {
    * Retrieve the success value.
    * Throws if called on a failure result.
    * @returns Success payload.
-   * @throws {DataTypeInvariantViolationError} if result is a failure.
+   * @throws {DataTypeInvariantViolationException} if result is a failure.
    */
   public get value(): T {
     if (!this._isSuccess) {
-      throw new DataTypeInvariantViolationError(
+      throw new DataTypeInvariantViolationException(
         'Cannot get the value of a failed result',
       );
     }

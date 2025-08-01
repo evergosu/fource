@@ -1,19 +1,42 @@
-import { InfrastructureError } from './infrastructure-error';
+import {
+  InfrastructureException,
+  InfrastructureFailure,
+} from './infrastructure-error';
 
-describe('infrastructure error', () => {
-  it('should create infrastructure error with correct message and name', () => {
-    const message = 'Test error occurred';
+describe('infrastructure errors', () => {
+  describe('failure', () => {
+    it('should create infrastructure failure with correct message and name', () => {
+      const message = 'Test failure occurred';
 
-    class TestError extends InfrastructureError {
-      constructor() {
-        super(message);
+      class TestFailure extends InfrastructureFailure {
+        constructor() {
+          super(message);
+        }
       }
-    }
 
-    const error = new TestError();
+      const failure = new TestFailure();
 
-    expect(error).toBeInstanceOf(InfrastructureError);
-    expect(error.message).toBe(message);
-    expect(error.name).toBe('TestInfrastructureError');
+      expect(failure).toBeInstanceOf(InfrastructureFailure);
+      expect(failure.message).toBe(message);
+      expect(failure.name).toBe('TestInfrastructureFailure');
+    });
+  });
+
+  describe('exception', () => {
+    it('should create Infrastructure exception with correct message and name', () => {
+      const message = 'Test exception occurred';
+
+      class TestException extends InfrastructureException {
+        constructor() {
+          super(message);
+        }
+      }
+
+      const exception = new TestException();
+
+      expect(exception).toBeInstanceOf(InfrastructureException);
+      expect(exception.message).toBe(message);
+      expect(exception.name).toBe('TestInfrastructureException');
+    });
   });
 });

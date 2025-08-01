@@ -1,7 +1,7 @@
-import type { InfrastructureError } from '../../infrastructure/infrastructure-error';
+import type { InfrastructureFailure } from '../../infrastructure/infrastructure-error';
 import type { UseCase as UC } from '../../application/use-case/use-case';
 import type { Mapper as M } from '../../infrastructure/mapper/mapper';
-import type { DomainError } from '../../domain/domain-error';
+import type { DomainFailure } from '../../domain/domain-error';
 import type { Entity } from '../../domain/entity';
 import type { Result } from '../../types/result';
 import type { Either } from '../../types/either';
@@ -98,7 +98,7 @@ export abstract class Controller<
    * @returns A tuple of [status code, payload].
    */
   protected handleEither<
-    L extends InfrastructureError | DomainError | string,
+    L extends InfrastructureFailure | DomainFailure | string,
     R,
   >(either: Either<L, R>, onRightStatus = 200): [number, unknown] {
     return either.fold(
@@ -130,7 +130,7 @@ export abstract class Controller<
    * @returns A tuple of [status code, payload].
    */
   protected handleError(
-    error: InfrastructureError | DomainError | string,
+    error: InfrastructureFailure | DomainFailure | string,
     statusCode?: number,
   ): [number, unknown] {
     const message = typeof error === 'string' ? error : error.message;

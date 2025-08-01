@@ -1,19 +1,39 @@
-import { ApplicationError } from './application-error';
+import { ApplicationException, ApplicationFailure } from './application-error';
 
-describe('application error', () => {
-  it('should create application error with correct message and name', () => {
-    const message = 'Test error occurred';
+describe('application errors', () => {
+  describe('failure', () => {
+    it('should create application failure with correct message and name', () => {
+      const message = 'Test failure occurred';
 
-    class TestError extends ApplicationError {
-      constructor() {
-        super(message);
+      class TestFailure extends ApplicationFailure {
+        constructor() {
+          super(message);
+        }
       }
-    }
 
-    const error = new TestError();
+      const failure = new TestFailure();
 
-    expect(error).toBeInstanceOf(ApplicationError);
-    expect(error.message).toBe(message);
-    expect(error.name).toBe('TestApplicationError');
+      expect(failure).toBeInstanceOf(ApplicationFailure);
+      expect(failure.message).toBe(message);
+      expect(failure.name).toBe('TestApplicationFailure');
+    });
+  });
+
+  describe('exception', () => {
+    it('should create application exception with correct message and name', () => {
+      const message = 'Test exception occurred';
+
+      class TestException extends ApplicationException {
+        constructor() {
+          super(message);
+        }
+      }
+
+      const exception = new TestException();
+
+      expect(exception).toBeInstanceOf(ApplicationException);
+      expect(exception.message).toBe(message);
+      expect(exception.name).toBe('TestApplicationException');
+    });
   });
 });

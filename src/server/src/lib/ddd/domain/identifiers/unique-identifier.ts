@@ -1,8 +1,8 @@
 import { v7 } from 'uuid';
 
 import {
-  StringOrNumberIdentifierError,
-  BlankIdentifierError,
+  StringOrNumberIdentifierFailure,
+  BlankIdentifierFailure,
 } from './identifier-errors';
 import { Identifier } from './identifier';
 
@@ -29,17 +29,23 @@ export class UniqueIdentifier extends Identifier<string | number> {
   /**
    * Internal constructor. Use `UniqueIdentifier.create()` instead.
    * @param id - Optional identifier value.
-   * @throws {BlankIdentifierError} if string value is empty.
-   * @throws {StringOrNumberIdentifierError} if value is not string or number.
+   * @throws {BlankIdentifierFailure} if string value is empty.
+   * @throws {StringOrNumberIdentifierFailure} if value is not string or number.
    */
   private constructor(id?: string | number) {
     if (id !== undefined) {
       if (typeof id === 'string' && id.trim() === '') {
-        throw new BlankIdentifierError();
+        //TODO: return Result.
+        const { message, name } = new BlankIdentifierFailure();
+
+        throw new Error(message, { cause: name });
       }
 
       if (typeof id !== 'string' && typeof id !== 'number') {
-        throw new StringOrNumberIdentifierError();
+        //TODO: return Result.
+        const { message, name } = new StringOrNumberIdentifierFailure();
+
+        throw new Error(message, { cause: name });
       }
     }
 

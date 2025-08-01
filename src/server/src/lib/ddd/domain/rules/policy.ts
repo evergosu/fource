@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-parameters */
 import type { AggregateRoot } from '../aggregate-root';
-import type { DomainError } from '../domain-error';
+import type { DomainFailure } from '../domain-error';
 
 import { Result } from '../../types/result';
 
@@ -25,5 +25,5 @@ export abstract class Policy<
   public abstract apply(
     target: Target,
     context?: Context,
-  ): Result<void, DomainError>;
+  ): Result<void, DomainFailure>;
 }

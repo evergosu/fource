@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationError } from './adt-error';
+import { DataTypeInvariantViolationException } from './adt-error';
 
 /**
  * Represents a disjoint union of two possible values: a value of type `R` (Right) or a value of type `L` (Left).
@@ -37,7 +37,7 @@ export class Either<L, R> {
    * @param value - The error value.
    * @returns An `Either` in the `Left` state.
    */
-  static left<L, R = never>(value: L): Either<L, R> {
+  static left<L = void, R = never>(value?: L): Either<L, R> {
     return new Either<L, R>(value, undefined, false);
   }
 
@@ -81,7 +81,7 @@ export class Either<L, R> {
    */
   public getRight(): R {
     if (this.isLeft()) {
-      throw new DataTypeInvariantViolationError(
+      throw new DataTypeInvariantViolationException(
         'Cannot get a right value from the left side',
       );
     }
@@ -96,7 +96,7 @@ export class Either<L, R> {
    */
   public getLeft(): L {
     if (this.isRight()) {
-      throw new DataTypeInvariantViolationError(
+      throw new DataTypeInvariantViolationException(
         'Cannot get a left value from the right side',
       );
     }

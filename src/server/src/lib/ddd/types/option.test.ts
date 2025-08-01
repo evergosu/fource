@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationError } from './adt-error';
+import { DataTypeInvariantViolationException } from './adt-error';
 import { Option } from './option';
 
 describe('option', () => {
@@ -12,13 +12,15 @@ describe('option', () => {
 
     it('should throw if Some is passed null or undefined', () => {
       // eslint-disable-next-line unicorn/no-null
-      expect(() => Option.some(null)).toThrow(DataTypeInvariantViolationError);
+      expect(() => Option.some(null)).toThrow(
+        DataTypeInvariantViolationException,
+      );
       // eslint-disable-next-line unicorn/no-useless-undefined
       expect(() => Option.some(undefined)).toThrow(
-        DataTypeInvariantViolationError,
+        DataTypeInvariantViolationException,
       );
       // @ts-expect-error - it is fine to expect errors in tests.
-      expect(() => Option.some()).toThrow(DataTypeInvariantViolationError);
+      expect(() => Option.some()).toThrow(DataTypeInvariantViolationException);
     });
   });
 
@@ -58,7 +60,7 @@ describe('option', () => {
     it('should throw if unwrap None value', () => {
       const option = Option.none<number>();
 
-      expect(() => option.get()).toThrow(DataTypeInvariantViolationError);
+      expect(() => option.get()).toThrow(DataTypeInvariantViolationException);
     });
   });
 

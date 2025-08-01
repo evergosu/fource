@@ -1,4 +1,4 @@
-import { EmptyIdentifierError } from './identifier-errors';
+import { EmptyIdentifierFailure } from './identifier-errors';
 
 /**
  * A strongly-typed identifier wrapper that encapsulates a raw value
@@ -12,11 +12,14 @@ export class Identifier<T> {
   /**
    * Creates unique identifier from provided value.
    * @param value The value to use as identifier.
-   * @throws {EmptyIdentifierError} error if no value provided.
+   * @throws {EmptyIdentifierFailure} error if no value provided.
    */
   constructor(private value: T) {
     if (!value) {
-      throw new EmptyIdentifierError();
+      //TODO: return Result.
+      const { message, name } = new EmptyIdentifierFailure();
+
+      throw new Error(message, { cause: name });
     }
 
     this.value = value;

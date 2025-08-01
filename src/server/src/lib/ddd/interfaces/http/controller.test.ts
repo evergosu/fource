@@ -36,8 +36,8 @@ class SuccessController extends Controller<
   protected async implement(request: Request): Promise<Result<TestDTO>> {
     return this.mapper
       .toDomain(request.body)
-      .flatMapAsync(r => this.useCase.execute(r))
-      .then(r => r.flatMap(this.mapper.toDTO.bind(this)));
+      .flatMapAsync(a => this.useCase.execute(a))
+      .then(b => b.flatMap(c => this.mapper.toDTO(c)));
   }
 
   protected send(response: Response, status: number, payload: unknown): void {

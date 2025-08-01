@@ -1,16 +1,23 @@
-import { ApplicationError } from '../application-error';
+import { ApplicationException } from '../application-error';
 
 /**
- * Error indicating that an unexpected error has happened
+ * Exception indicating that an unexpected error has happened
  * during execution of current use case.
- * @example throw new UseCaseExecutionError('CreateUserUseCase');
  */
-export class UseCaseExecutionError extends ApplicationError {
+export class UseCaseExecutionException extends ApplicationException {
   /**
-   * Creates usecase error with provided error message.
+   * Creates usecase exception with provided error message.
    * @param useCaseName The name of the usecase.
+   * @param error optional error, caused the exception.
    */
-  constructor(public readonly useCaseName: string) {
-    super(`Unknown error during ${useCaseName} execution`);
+  constructor(
+    public readonly useCaseName: string,
+    error?: unknown,
+  ) {
+    super(
+      error instanceof Error
+        ? `Unknown exception during ${useCaseName} execution, caused by: ${error.message}`
+        : `Unknown exception during ${useCaseName} execution`,
+    );
   }
 }

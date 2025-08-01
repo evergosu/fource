@@ -1,19 +1,19 @@
-import { DomainError } from './domain-error';
+import { DomainFailure } from './domain-error';
 
-describe('domain error', () => {
-  it('should create domain error with correct message and name', () => {
-    const message = 'Test error occurred';
+describe('domain failure', () => {
+  it('should create domain failure with correct message and name', () => {
+    const message = 'Test failure occurred';
 
-    class TestError extends DomainError {
+    class TestFailure extends DomainFailure {
       constructor() {
         super(message);
       }
     }
 
-    const error = new TestError();
+    const failure = new TestFailure();
 
-    expect(error).toBeInstanceOf(DomainError);
-    expect(error.message).toBe(message);
-    expect(error.name).toBe('TestDomainError');
+    expect(failure).toBeInstanceOf(DomainFailure);
+    expect(failure.message).toBe(message);
+    expect(failure.name).toBe('TestDomainFailure');
   });
 });

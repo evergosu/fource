@@ -1,6 +1,6 @@
 import {
-  StringOrNumberIdentifierError,
-  BlankIdentifierError,
+  StringOrNumberIdentifierFailure,
+  BlankIdentifierFailure,
 } from './identifier-errors';
 import { UniqueIdentifier } from './unique-identifier';
 
@@ -30,21 +30,27 @@ describe('unique identifier', () => {
   });
 
   it('should throw for empty string', () => {
+    const { message, name } = new BlankIdentifierFailure();
+
     expect(() => UniqueIdentifier.create('')).toThrow(
-      new BlankIdentifierError(),
+      new Error(message, { cause: name }),
     );
   });
 
   it('should throw for null', () => {
+    const { message, name } = new StringOrNumberIdentifierFailure();
+
     // eslint-disable-next-line unicorn/no-null
     expect(() => UniqueIdentifier.create(null as unknown as string)).toThrow(
-      new StringOrNumberIdentifierError(),
+      new Error(message, { cause: name }),
     );
   });
 
   it('should throw for objects', () => {
+    const { message, name } = new StringOrNumberIdentifierFailure();
+
     expect(() => UniqueIdentifier.create({} as unknown as string)).toThrow(
-      new StringOrNumberIdentifierError(),
+      new Error(message, { cause: name }),
     );
   });
 

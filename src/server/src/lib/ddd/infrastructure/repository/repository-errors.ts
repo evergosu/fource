@@ -1,13 +1,13 @@
 import type { UniqueIdentifier } from '../../domain/identifiers/unique-identifier';
 
-import { InfrastructureError } from '../infrastructure-error';
+import { InfrastructureFailure } from '../infrastructure-error';
 
 /**
- * Error representing an aggregate not found in the repository.
+ * Failure representing an aggregate not found in the repository.
  */
-export class AggregateNotFoundError extends InfrastructureError {
+export class AggregateNotFoundFailure extends InfrastructureFailure {
   /**
-   * Creates domain error with optional identifier of the aggregate.
+   * Creates infrastructure failure with optional identifier of the aggregate.
    * @param id - The identifier of the aggregate root.
    */
   constructor(public readonly id?: UniqueIdentifier) {

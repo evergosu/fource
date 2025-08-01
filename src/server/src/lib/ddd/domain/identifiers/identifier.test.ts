@@ -1,4 +1,4 @@
-import { EmptyIdentifierError } from './identifier-errors';
+import { EmptyIdentifierFailure } from './identifier-errors';
 import { Identifier } from './identifier';
 
 describe('identifier', () => {
@@ -9,12 +9,20 @@ describe('identifier', () => {
   });
 
   it('should throw an error when created with null', () => {
+    const { message, name } = new EmptyIdentifierFailure();
+
     // eslint-disable-next-line unicorn/no-null
-    expect(() => new Identifier(null)).toThrow(new EmptyIdentifierError());
+    expect(() => new Identifier(null)).toThrow(
+      new Error(message, { cause: name }),
+    );
   });
 
   it('should throw an error when created with undefined', () => {
-    expect(() => new Identifier(undefined)).toThrow(new EmptyIdentifierError());
+    const { message, name } = new EmptyIdentifierFailure();
+
+    expect(() => new Identifier(undefined)).toThrow(
+      new Error(message, { cause: name }),
+    );
   });
 
   describe('.equals()', () => {

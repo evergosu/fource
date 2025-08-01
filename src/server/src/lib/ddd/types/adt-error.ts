@@ -1,7 +1,7 @@
-import { BaseError } from '../shared/base-error';
+import { Exception } from '../shared/exception';
 
 /**
- * Error representing an invariant violation
+ * Exception representing an invariant violation
  * while accessing algebraic data type.
  */
-export class DataTypeInvariantViolationError extends BaseError {}
+export class DataTypeInvariantViolationException extends Exception {}

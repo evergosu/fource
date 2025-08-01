@@ -1,12 +1,12 @@
-import { DomainError } from '../domain-error';
+import { DomainFailure } from '../domain-error';
 
 /**
- * Error indicating that an identifier can not be
+ * Failure indicating that an identifier can not be
  * created from provided null-ish value.
  */
-export class EmptyIdentifierError extends DomainError {
+export class EmptyIdentifierFailure extends DomainFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates domain failure with provided error message.
    */
   constructor() {
     super('Can not create identifier from null or undefined value');
@@ -14,12 +14,12 @@ export class EmptyIdentifierError extends DomainError {
 }
 
 /**
- * Error indicating that an identifier can not be
+ * Failure indicating that an identifier can not be
  * created from provided value with empty string.
  */
-export class BlankIdentifierError extends DomainError {
+export class BlankIdentifierFailure extends DomainFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates domain failure with provided error message.
    */
   constructor() {
     super('Can not create identifier from empty string value');
@@ -27,12 +27,12 @@ export class BlankIdentifierError extends DomainError {
 }
 
 /**
- * Error indicating that an identifier can not be
+ * Failure indicating that an identifier can not be
  * created from provided value that is not string or number.
  */
-export class StringOrNumberIdentifierError extends DomainError {
+export class StringOrNumberIdentifierFailure extends DomainFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates domain failure with provided error message.
    */
   constructor() {
     super('Can not create identifier from a value of invalid type');

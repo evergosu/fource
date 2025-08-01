@@ -1,13 +1,13 @@
 import {
-  MaximumLengthExceededError,
-  MinimumLengthNotMetError,
-  NullOrUndefinedError,
-  InvalidFormatError,
-  InvalidEmailError,
-  BlankStringError,
-  DateInPastError,
-  OutOfRangeError,
-  StringError,
+  MaximumLengthExceededFailure,
+  MinimumLengthNotMetFailure,
+  NullOrUndefinedFailure,
+  InvalidFormatFailure,
+  InvalidEmailFailure,
+  BlankStringFailure,
+  DateInPastFailure,
+  OutOfRangeFailure,
+  StringFailure,
 } from './guard-errors';
 import { Guard } from './guard';
 
@@ -58,7 +58,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(NullOrUndefinedError);
+      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
     });
 
     it('should fail on undefined', () => {
@@ -66,7 +66,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(NullOrUndefinedError);
+      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
     });
 
     it('should pass on value', () => {
@@ -82,7 +82,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(StringError);
+      expect(result.error).toBeInstanceOf(StringFailure);
     });
 
     it('should pass on regular string', () => {
@@ -104,7 +104,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(StringError);
+      expect(result.error).toBeInstanceOf(StringFailure);
     });
 
     it('should fail on empty string', () => {
@@ -112,7 +112,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(BlankStringError);
+      expect(result.error).toBeInstanceOf(BlankStringFailure);
     });
 
     it('should fail on string with only whitespaces', () => {
@@ -120,7 +120,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(BlankStringError);
+      expect(result.error).toBeInstanceOf(BlankStringFailure);
     });
 
     it('should pass on value', () => {
@@ -136,7 +136,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(StringError);
+      expect(result.error).toBeInstanceOf(StringFailure);
     });
 
     it('should fail on short string', () => {
@@ -144,7 +144,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(MinimumLengthNotMetError);
+      expect(result.error).toBeInstanceOf(MinimumLengthNotMetFailure);
     });
 
     it('should pass on long string', () => {
@@ -160,7 +160,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(StringError);
+      expect(result.error).toBeInstanceOf(StringFailure);
     });
 
     it('should fail on long string', () => {
@@ -168,7 +168,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(MaximumLengthExceededError);
+      expect(result.error).toBeInstanceOf(MaximumLengthExceededFailure);
     });
 
     it('should pass on short string', () => {
@@ -184,7 +184,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(StringError);
+      expect(result.error).toBeInstanceOf(StringFailure);
     });
 
     it('should fail on regex mismatch', () => {
@@ -192,7 +192,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(InvalidFormatError);
+      expect(result.error).toBeInstanceOf(InvalidFormatFailure);
     });
 
     it('should pass on regex match', () => {
@@ -208,7 +208,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(StringError);
+      expect(result.error).toBeInstanceOf(StringFailure);
     });
 
     it('should fail on invalid email', () => {
@@ -216,7 +216,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(InvalidEmailError);
+      expect(result.error).toBeInstanceOf(InvalidEmailFailure);
     });
 
     it('should pass on valid email', () => {
@@ -232,7 +232,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(DateInPastError);
+      expect(result.error).toBeInstanceOf(DateInPastFailure);
     });
 
     it('should fail on past date', () => {
@@ -240,7 +240,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(DateInPastError);
+      expect(result.error).toBeInstanceOf(DateInPastFailure);
     });
 
     it('should pass on future date', () => {
@@ -262,7 +262,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(OutOfRangeError);
+      expect(result.error).toBeInstanceOf(OutOfRangeFailure);
     });
 
     it('should fail if value is less then minimum', () => {
@@ -270,7 +270,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(OutOfRangeError);
+      expect(result.error).toBeInstanceOf(OutOfRangeFailure);
     });
 
     it('should fail if value is more then maximum', () => {
@@ -278,7 +278,7 @@ describe('guard', () => {
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(OutOfRangeError);
+      expect(result.error).toBeInstanceOf(OutOfRangeFailure);
     });
 
     it('should pass if value is in range', () => {

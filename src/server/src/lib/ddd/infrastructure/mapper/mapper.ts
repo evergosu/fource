@@ -1,5 +1,5 @@
-import type { InfrastructureError } from '../infrastructure-error';
-import type { DomainError } from '../../domain/domain-error';
+import type { InfrastructureFailure } from '../infrastructure-error';
+import type { DomainFailure } from '../../domain/domain-error';
 import type { Entity } from '../../domain/entity';
 
 import { combineResults } from '../../types/combinators';
@@ -22,11 +22,11 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
    * Convert a plain DTO into a domain entity.
    * @param raw - The raw DTO object.
    * @returns A `Result` with domain entity reconstructed from the DTO,
-   * `InfrastructureError` or `DomainError` otherwise.
+   * `InfrastructureFailure` or `DomainFailure` otherwise.
    */
   public abstract toDomain(
     raw: unknown,
-  ): Result<Domain, InfrastructureError | DomainError>;
+  ): Result<Domain, InfrastructureFailure | DomainFailure>;
 
   /**
    * Convert an array of domain entities to DTOs.
@@ -41,11 +41,11 @@ export abstract class Mapper<Domain extends Entity<unknown>, DTO> {
    * Convert an array of DTOs to domain entities.
    * @param raws - Array of DTOs.
    * @returns A `Result` with an array of domain entities reconstructed from the DTOs,
-   * `InfrastructureError` or `DomainError` otherwise.
+   * `InfrastructureFailure` or `DomainFailure` otherwise.
    */
   public toDomainList(
     raws: DTO[],
-  ): Result<Domain[], (InfrastructureError | DomainError)[]> {
+  ): Result<Domain[], (InfrastructureFailure | DomainFailure)[]> {
     return combineResults(raws.map(raw => this.toDomain(raw)));
   }
 }

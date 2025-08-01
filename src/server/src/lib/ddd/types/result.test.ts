@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationError } from './adt-error';
+import { DataTypeInvariantViolationException } from './adt-error';
 import { Result } from './result';
 
 describe('result', () => {
@@ -27,7 +27,9 @@ describe('result', () => {
     it('should throw when accessing error on success result', () => {
       const result = Result.ok(value);
 
-      expect(() => result.error).toThrowError(DataTypeInvariantViolationError);
+      expect(() => result.error).toThrowError(
+        DataTypeInvariantViolationException,
+      );
     });
   });
 
@@ -60,7 +62,9 @@ describe('result', () => {
     it('should throw when accessing value on failure result', () => {
       const result = Result.fail(error);
 
-      expect(() => result.value).toThrowError(DataTypeInvariantViolationError);
+      expect(() => result.value).toThrowError(
+        DataTypeInvariantViolationException,
+      );
     });
   });
 

@@ -1,12 +1,12 @@
-import { InfrastructureError } from '../infrastructure-error';
+import { InfrastructureFailure } from '../infrastructure-error';
 
 /**
- * Error representing an invalid state during
+ * Failure representing an invalid state during
  * data transfer object convertation.
  */
-export class InvalidDataTransferObjectError extends InfrastructureError {
+export class InvalidDataTransferObjectFailure extends InfrastructureFailure {
   /**
-   * Creates domain error with optional identifier of the aggregate.
+   * Creates infrastructure failure with optional identifier of the aggregate.
    * @param mapperName - The identifier of the aggregate root.
    */
   constructor(public readonly mapperName?: string) {

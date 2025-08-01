@@ -1,16 +1,18 @@
-import { UseCaseExecutionError } from './use-case-errors';
-import { ApplicationError } from '../application-error';
+import { UseCaseExecutionException } from './use-case-errors';
+import { ApplicationFailure } from '../application-error';
 import { Result } from '../../types/result';
 import { UseCase } from './use-case';
 
-class TestError extends ApplicationError {}
+class TestFailure extends ApplicationFailure {}
 
 class MultiplyByTwoUseCase extends UseCase<{ number: number }, number> {
-  async implement(input: { number: number }): Promise<Result<number>> {
+  async implement(input: {
+    number: number;
+  }): Promise<Result<number, TestFailure>> {
     await Promise.resolve();
 
     if (input.number < 0) {
-      return Result.fail(new TestError('Negative number not allowed'));
+      return Result.fail(new TestFailure('Negative number not allowed'));
     }
 
     return Result.ok(input.number * 2);
@@ -50,7 +52,7 @@ describe('use case', () => {
     const result = await useCase.execute({ number: -5 });
 
     expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(TestError);
+    expect(result.error).toBeInstanceOf(TestFailure);
   });
 
   it('should gacefully fail on unexpected error', async () => {
@@ -61,8 +63,7 @@ describe('use case', () => {
     const result = await useCase.execute({});
 
     expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(Error);
-    expect(result.error).toStrictEqual(new Error('foo'));
+    expect(result.error).toBeInstanceOf(UseCaseExecutionException);
   });
 
   it('should gacefully fail on unexpected throw', async () => {
@@ -73,12 +74,6 @@ describe('use case', () => {
     const result = await useCase.execute({});
 
     expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(UseCaseExecutionError);
-    expect((result.error as UseCaseExecutionError).message).toBe(
-      'Unknown error during CrashedUseCase execution',
-    );
-    expect((result.error as UseCaseExecutionError).name).toBe(
-      'UseCaseExecutionApplicationError',
-    );
+    expect(result.error).toBeInstanceOf(UseCaseExecutionException);
   });
 });

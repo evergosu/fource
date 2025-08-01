@@ -1,5 +1,5 @@
 import { AggregateRoot } from '../aggregate-root';
-import { DomainError } from '../domain-error';
+import { DomainFailure } from '../domain-error';
 import { Result } from '../../types/result';
 import { Policy } from './policy';
 
@@ -9,14 +9,14 @@ class TestEntity extends AggregateRoot<{ isFoo: boolean }> {
   }
 }
 
-class PolicyViolated extends DomainError {
+class PolicyViolated extends DomainFailure {
   constructor() {
     super('Policy condition was not met');
   }
 }
 
 class PassPolicy extends Policy<TestEntity> {
-  apply(target: TestEntity): Result<void, DomainError> {
+  apply(target: TestEntity): Result<void, DomainFailure> {
     target.properties.isFoo = true;
 
     return Result.ok();
@@ -24,7 +24,7 @@ class PassPolicy extends Policy<TestEntity> {
 }
 
 class FailPolicy extends Policy<TestEntity> {
-  apply(target: TestEntity): Result<void, DomainError> {
+  apply(target: TestEntity): Result<void, DomainFailure> {
     target.properties.isFoo = false;
 
     return Result.fail(new PolicyViolated());

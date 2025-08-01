@@ -2,13 +2,13 @@
 
 import { UseCase } from '../../application/use-case/use-case';
 import { Mapper } from '../../infrastructure/mapper/mapper';
-import { DomainError } from '../../domain/domain-error';
+import { DomainFailure } from '../../domain/domain-error';
 import { Entity } from '../../domain/entity';
 import { Result } from '../../types/result';
 
 export const message = 'Test error occurred';
 
-export class TestError extends DomainError {
+export class TestError extends DomainFailure {
   constructor() {
     super(message);
   }

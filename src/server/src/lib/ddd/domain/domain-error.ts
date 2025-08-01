@@ -1,11 +1,12 @@
-import { BaseError } from '../shared/base-error';
+import { Exception } from '../shared/exception';
+import { Failure } from '../shared/failure';
 
 /**
- * Base class for all domain-specific errors.
- *
- * Domain errors represent business rule violations, invariant failures,
- * or invalid states discovered during domain model validation.
- *
- * All domain errors are safe for clients to consume, loggable, and can be localized.
+ * Base class for all domain-specific `Failures`.
  */
-export abstract class DomainError extends BaseError {}
+export abstract class DomainFailure extends Failure {}
+
+/**
+ * Base class for all domain-specific `Exceptions`.
+ */
+export abstract class DomainException extends Exception {}

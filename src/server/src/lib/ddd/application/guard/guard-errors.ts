@@ -1,14 +1,12 @@
-import { ApplicationError } from '../application-error';
+import { ApplicationFailure } from '../application-error';
 
 /**
- * Error indicating that a required value is null or undefined.
- * @example throw new NullOrUndefinedError('username')
+ * Failure indicating that a required value is null or undefined.
  */
-export class NullOrUndefinedError extends ApplicationError {
+export class NullOrUndefinedFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value that was null or undefined.
-   * @example throw new NullOrUndefinedError('username');
    */
   constructor(public readonly value: string) {
     super(`${value} is null or undefined`);
@@ -16,12 +14,11 @@ export class NullOrUndefinedError extends ApplicationError {
 }
 
 /**
- * Error indicating that a value is not a string.
- * @example throw new StringError(42);
+ * Failure indicating that a value is not a string.
  */
-export class StringError extends ApplicationError {
+export class StringFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value being validated.
    */
   constructor(public readonly value: string) {
@@ -30,13 +27,12 @@ export class StringError extends ApplicationError {
 }
 
 /**
- * Error indicating that a string
+ * Failure indicating that a string
  * is blank or contains only whitespaces.
- * @example throw new BlankStringError('username');
  */
-export class BlankStringError extends ApplicationError {
+export class BlankStringFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value being validated.
    */
   constructor(public readonly value: string) {
@@ -45,12 +41,11 @@ export class BlankStringError extends ApplicationError {
 }
 
 /**
- * Error indicating that a string exceeded its allowed maximum length.
- * @example throw new MaximumLengthExceededError('username', 50);
+ * Failure indicating that a string exceeded its allowed maximum length.
  */
-export class MaximumLengthExceededError extends ApplicationError {
+export class MaximumLengthExceededFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value being validated.
    * @param maximumLength The maximum allowed length.
    */
@@ -63,12 +58,11 @@ export class MaximumLengthExceededError extends ApplicationError {
 }
 
 /**
- * Error indicating that a string failed to meet the minimum required length.
- * @example throw new MinimumLengthNotMetError('password', 8);
+ * Failure indicating that a string failed to meet the minimum required length.
  */
-export class MinimumLengthNotMetError extends ApplicationError {
+export class MinimumLengthNotMetFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value being validated.
    * @param minimumLength The minimum required length.
    */
@@ -81,13 +75,12 @@ export class MinimumLengthNotMetError extends ApplicationError {
 }
 
 /**
- * Error indicating that a string failed to match a required format or pattern.
+ * Failure indicating that a string failed to match a required format or pattern.
  * Typically used for validating format constraints via regular expressions.
- * @example throw new InvalidFormatError('phoneNumber');
  */
-export class InvalidFormatError extends ApplicationError {
+export class InvalidFormatFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value that failed format validation.
    */
   constructor(public readonly value: string) {
@@ -96,12 +89,11 @@ export class InvalidFormatError extends ApplicationError {
 }
 
 /**
- * Error indicating that a string is not a valid email address.
- * @example throw new InvalidEmailError('email');
+ * Failure indicating that a string is not a valid email address.
  */
-export class InvalidEmailError extends ApplicationError {
+export class InvalidEmailFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the email value being validated.
    */
   constructor(public readonly value: string) {
@@ -110,12 +102,11 @@ export class InvalidEmailError extends ApplicationError {
 }
 
 /**
- * Error indicating that a date value occurs in the past when future or present dates are required.
- * @example throw new DateInPastError('expirationDate');
+ * Failure indicating that a date value occurs in the past when future or present dates are required.
  */
-export class DateInPastError extends ApplicationError {
+export class DateInPastFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the date value being validated.
    */
   constructor(public readonly value: string) {
@@ -124,12 +115,11 @@ export class DateInPastError extends ApplicationError {
 }
 
 /**
- * Error indicating that a numeric value falls outside the permitted inclusive range.
- * @example throw new OutOfRangeError('age', 18, 65);
+ * Failure indicating that a numeric value falls outside the permitted inclusive range.
  */
-export class OutOfRangeError extends ApplicationError {
+export class OutOfRangeFailure extends ApplicationFailure {
   /**
-   * Creates domain error with provided error message.
+   * Creates application failure with provided error message.
    * @param value The name of the value being validated.
    * @param minimum The minimum inclusive boundary.
    * @param maximum The maximum inclusive boundary.

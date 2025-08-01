@@ -1,18 +1,56 @@
+import { DataTypeInvariantViolationException } from './adt-error';
 import { Either } from './either';
 
 describe('either', () => {
-  it('should create Right correctly', () => {
-    const right = Either.right(42);
+  describe('.right()', () => {
+    it('should create Right either with value', () => {
+      const right = Either.right(42);
 
-    expect(right.isRight()).toBe(true);
-    expect(right.getRight()).toBe(42);
+      expect(right.isRight()).toBe(true);
+      expect(right.getRight()).toBe(42);
+    });
+
+    it('should create Right either without value (void)', () => {
+      const right = Either.right();
+
+      expect(right.isRight()).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
+      expect(right.getRight()).toBeUndefined();
+    });
+
+    it('should throw when accessing Left on Right either', () => {
+      const right = Either.right(42);
+
+      expect(() => right.getLeft()).toThrowError(
+        DataTypeInvariantViolationException,
+      );
+    });
   });
 
-  it('should create Left correctly', () => {
-    const left = Either.left('error');
+  describe('.left()', () => {
+    it('should create Left either with value', () => {
+      const left = Either.left(42);
 
-    expect(left.isLeft()).toBe(true);
-    expect(left.getLeft()).toBe('error');
+      expect(left.isLeft()).toBe(true);
+      expect(left.getLeft()).toBe(42);
+    });
+
+    it('should create Left either without value (void)', () => {
+      const left = Either.left();
+
+      expect(left.isLeft()).toBe(true);
+
+      // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
+      expect(left.getLeft()).toBeUndefined();
+    });
+
+    it('should throw when accessing Right on Left either', () => {
+      const left = Either.left(42);
+
+      expect(() => left.getRight()).toThrowError(
+        DataTypeInvariantViolationException,
+      );
+    });
   });
 
   describe('.map()', () => {

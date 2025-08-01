@@ -1,8 +1,8 @@
-import type { InfrastructureError } from '../infrastructure-error';
-import type { DomainError } from '../../domain/domain-error';
+import type { InfrastructureFailure } from '../infrastructure-error';
+import type { DomainFailure } from '../../domain/domain-error';
 
 import { UniqueIdentifier } from '../../domain/identifiers/unique-identifier';
-import { InvalidDataTransferObjectError } from './mapper-errors';
+import { InvalidDataTransferObjectFailure } from './mapper-errors';
 import { Entity } from '../../domain/entity';
 import { Result } from '../../types/result';
 import { Mapper } from './mapper';
@@ -15,10 +15,10 @@ interface TestDTO {
 class Test extends Entity<TestDTO> {}
 
 class TestMapper extends Mapper<Test, TestDTO> {
-  toDomain(raw: TestDTO): Result<Test, InfrastructureError | DomainError> {
+  toDomain(raw: TestDTO): Result<Test, InfrastructureFailure | DomainFailure> {
     if (raw.number === 69) {
       return Result.fail(
-        new InvalidDataTransferObjectError(this.constructor.name),
+        new InvalidDataTransferObjectFailure(this.constructor.name),
       );
     }
 
@@ -89,7 +89,7 @@ describe('mapper', () => {
       const result = mapper.toDomain(dtoWithErrors);
 
       expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(InvalidDataTransferObjectError);
+      expect(result.error).toBeInstanceOf(InvalidDataTransferObjectFailure);
       expect(result.error.message).toContain('TestMapper');
     });
   });
@@ -107,7 +107,7 @@ describe('mapper', () => {
 
       expect(result.isFailure).toBe(true);
       expect(result.error).toEqual(
-        expect.arrayContaining([expect.any(InvalidDataTransferObjectError)]),
+        expect.arrayContaining([expect.any(InvalidDataTransferObjectFailure)]),
       );
       expect(result.error.at(0)?.message).toContain('TestMapper');
     });

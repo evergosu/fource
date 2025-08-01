@@ -1,4 +1,6 @@
-import { UseCaseExecutionError } from './use-case-errors';
+import type { Failure } from '../../shared/failure';
+
+import { UseCaseExecutionException } from './use-case-errors';
 import { Result } from '../../types/result';
 
 /**
@@ -14,16 +16,16 @@ export abstract class UseCase<Input, Output> {
   /**
    * Wraps domain errors and calls business logic in `implement`.
    * @param input - The input parameters required for execution.
-   * @returns A Promise of a Result containing either the expected output or an error.
+   * @returns A Promise of a Result containing either the expected output or an exception.
    */
-  public async execute(input: Input): Promise<Result<Output>> {
+  public async execute(
+    input: Input,
+  ): Promise<Result<Output, UseCaseExecutionException | Failure>> {
     try {
       return await this.implement(input);
     } catch (error) {
       return Result.fail(
-        error instanceof Error
-          ? error
-          : new UseCaseExecutionError(this.constructor.name),
+        new UseCaseExecutionException(this.constructor.name, error),
       );
     }
   }
@@ -32,6 +34,7 @@ export abstract class UseCase<Input, Output> {
    * Actual implementation of the use case business logic.
    * Should not contain try/catch — all errors bubble to `execute()`.
    * @param input - The input parameters required for execution.
+   * @template E - Inferred errors to collect.
    */
   protected abstract implement(input: Input): Promise<Result<Output>>;
 }
@@ -48,6 +51,7 @@ export abstract class CommandUseCase<Input, Output = void> extends UseCase<
    * Actual implementation of the use case business logic.
    * Should not contain try/catch — all errors bubble to `execute()`.
    * @param input - The input parameters required for execution.
+   * @template E - Inferred errors to collect.
    */
   protected abstract override implement(input: Input): Promise<Result<Output>>;
 }
@@ -64,6 +68,7 @@ export abstract class QueryUseCase<Input, Output> extends UseCase<
    * Actual implementation of the use case business logic.
    * Should not contain try/catch — all errors bubble to `execute()`.
    * @param input - The input parameters required for execution.
+   * @template E - Inferred errors to collect.
    */
   protected abstract override implement(input: Input): Promise<Result<Output>>;
 }

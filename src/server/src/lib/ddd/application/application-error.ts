@@ -1,6 +1,12 @@
-import { BaseError } from '../shared/base-error';
+import { Exception } from '../shared/exception';
+import { Failure } from '../shared/failure';
 
 /**
- * Base class for all application-specific errors.
+ * Base class for all application-specific `Failures`.
  */
-export abstract class ApplicationError extends BaseError {}
+export abstract class ApplicationFailure extends Failure {}
+
+/**
+ * Base class for all application-specific `Exceptions`.
+ */
+export abstract class ApplicationException extends Exception {}
