@@ -251,7 +251,7 @@ export class Result<T, E = BaseError> {
 
   /**
    * Adds better Node.js debugging support.
-   * @returns sirialized `Result` values.
+   * @returns serialized `Result` values.
    */
   [Symbol.for('nodejs.util.inspect.custom')](): string {
     return this.toString();

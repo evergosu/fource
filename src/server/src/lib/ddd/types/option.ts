@@ -105,7 +105,7 @@ export abstract class Option<T> {
 
   /**
    * Adds better Node.js debugging support.
-   * @returns sirialized `Option` values.
+   * @returns serialized `Option` values.
    */
   [Symbol.for('nodejs.util.inspect.custom')](): string {
     return this.toString();

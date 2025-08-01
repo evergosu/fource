@@ -227,7 +227,7 @@ export class Either<L, R> {
 
   /**
    * Adds better Node.js debugging support.
-   * @returns sirialized `Either` values.
+   * @returns serialized `Either` values.
    */
   [Symbol.for('nodejs.util.inspect.custom')](): string {
     return this.toString();
