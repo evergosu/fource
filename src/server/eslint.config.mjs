@@ -51,7 +51,7 @@ export default config(
           publicOnly: true,
         },
       ],
-      'jsdoc/require-returns-description': 'error',
+      'jsdoc/require-returns-description': 'off',
       'jsdoc/require-param-description': 'error',
       'jsdoc/require-description': 'error',
 
@@ -64,6 +64,7 @@ export default config(
       // 🧹 Clean up unnecessary tags/types (TS handles it).
       'jsdoc/require-returns-type': 'off',
       'jsdoc/require-param-type': 'off',
+      'jsdoc/require-returns': 'off',
       'jsdoc/no-types': 'warn',
     },
     plugins: {
