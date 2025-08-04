@@ -24,8 +24,10 @@ export abstract class Entity<T> {
     id?: UniqueIdentifier,
     shouldFreeze = true,
   ) {
-    this._id = id ?? UniqueIdentifier.create();
+    this._id = id ?? UniqueIdentifier.create().value;
+
     this.properties = properties;
+
     if (shouldFreeze) {
       Object.freeze(this);
     }

@@ -6,59 +6,66 @@ import { UniqueIdentifier } from './unique-identifier';
 
 describe('unique identifier', () => {
   it('should generate a valid UUIDv7 when no value is provided', () => {
-    const id = UniqueIdentifier.create();
+    const result = UniqueIdentifier.create();
 
-    expect(typeof id.toValue()).toBe('string');
+    expect(typeof result.value.toValue()).toBe('string');
 
-    expect(id.toValue()).toMatch(/^[\da-f-]{36}$/);
+    expect(result.value.toValue()).toMatch(/^[\da-f-]{36}$/);
   });
 
   it('should accept a valid string identifier', () => {
     const value = 'foo';
 
-    const id = UniqueIdentifier.create(value);
+    const result = UniqueIdentifier.create(value);
 
-    expect(id.toValue()).toBe(value);
+    expect(result.value.toValue()).toBe(value);
   });
 
   it('should accept a valid numeric identifier', () => {
     const value = 42;
 
-    const id = UniqueIdentifier.create(value);
+    const result = UniqueIdentifier.create(value);
 
-    expect(id.toValue()).toBe(value);
+    expect(result.value.toValue()).toBe(value);
   });
 
-  it('should throw for empty string', () => {
-    const { message, name } = new BlankIdentifierFailure();
+  it('should return failure for empty string', () => {
+    const result = UniqueIdentifier.create('');
 
-    expect(() => UniqueIdentifier.create('')).toThrow(
-      new Error(message, { cause: name }),
-    );
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(BlankIdentifierFailure);
   });
 
-  it('should throw for null', () => {
-    const { message, name } = new StringOrNumberIdentifierFailure();
-
+  it('should return failure for null', () => {
     // eslint-disable-next-line unicorn/no-null
-    expect(() => UniqueIdentifier.create(null as unknown as string)).toThrow(
-      new Error(message, { cause: name }),
-    );
+    const result = UniqueIdentifier.create(null as unknown as string);
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(StringOrNumberIdentifierFailure);
   });
 
-  it('should throw for objects', () => {
-    const { message, name } = new StringOrNumberIdentifierFailure();
+  it('should return failure for objects', () => {
+    const result = UniqueIdentifier.create({} as unknown as string);
 
-    expect(() => UniqueIdentifier.create({} as unknown as string)).toThrow(
-      new Error(message, { cause: name }),
-    );
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(StringOrNumberIdentifierFailure);
   });
 
-  it('should consider two instances equal if values match', () => {
-    const idOne = UniqueIdentifier.create('foo');
+  describe('.equals()', () => {
+    it('should consider two instances equal if values match', () => {
+      const resultOne = UniqueIdentifier.create('foo');
 
-    const idTwo = UniqueIdentifier.create('foo');
+      const resultTwo = UniqueIdentifier.create('foo');
 
-    expect(idOne.equals(idTwo)).toBe(true);
+      expect(resultOne.value.equals(resultTwo.value)).toBe(true);
+    });
+  });
+
+  describe('.toString()', () => {
+    it('should return string representation of the value', () => {
+      const result = UniqueIdentifier.create(123);
+
+      expect(result.value.toString()).toBe('123');
+    });
   });
 });

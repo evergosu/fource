@@ -1,4 +1,5 @@
 import { EmptyIdentifierFailure } from './identifier-errors';
+import { Result } from '../../types/result';
 
 /**
  * A strongly-typed identifier wrapper that encapsulates a raw value
@@ -10,42 +11,49 @@ import { EmptyIdentifierFailure } from './identifier-errors';
  */
 export class Identifier<T> {
   /**
+   * Internal constructor, use `.create()` factory method instead.
    * Creates unique identifier from provided value.
    * @param value The value to use as identifier.
-   * @throws {EmptyIdentifierFailure} error if no value provided.
    */
-  constructor(private value: T) {
-    if (!value) {
-      //TODO: return Result.
-      const { message, name } = new EmptyIdentifierFailure();
-
-      throw new Error(message, { cause: name });
-    }
-
+  private constructor(private value: T) {
     this.value = value;
 
     Object.freeze(this);
   }
 
   /**
-   * Checks whether this `Identifier` is equal to another.
-   * @param id - The `Identifier` to compare against.
-   * @returns `true` if the other `Identifier` is of the same type and has the same value.
+   * Factory method for safely creating an `Identifier` instance.
+   * @param value - Optional identifier value.
+   * @returns Successful `Result` with a valid `Identifier` instance,
+   * failed `Result` with an `EmptyIdentifierFailure` otherwise.
    */
-  equals(id?: Identifier<T>): boolean {
-    if (!id) {
-      return false;
+  static create<T>(value?: T): Result<Identifier<T>, EmptyIdentifierFailure> {
+    if (!value) {
+      return Result.fail(new EmptyIdentifierFailure());
     }
 
-    if (!(id instanceof this.constructor)) {
-      return false;
-    }
-
-    return id.toValue() === this.value;
+    return Result.ok(new Identifier(value));
   }
 
   /**
-   * Provides a `string` representation of the `identifier`'s value.
+   * Checks whether this `Identifier` is equal to another.
+   * @param identifier - The `Identifier` to compare against.
+   * @returns `true` if the other `Identifier` is of the same type and has the same value.
+   */
+  equals(identifier?: Identifier<T>): boolean {
+    if (!identifier) {
+      return false;
+    }
+
+    if (!(identifier instanceof this.constructor)) {
+      return false;
+    }
+
+    return identifier.toValue() === this.value;
+  }
+
+  /**
+   * Provides a `string` representation of the `Identifier`'s value.
    * @returns The value converted to a `string`.
    */
   toString(): string {

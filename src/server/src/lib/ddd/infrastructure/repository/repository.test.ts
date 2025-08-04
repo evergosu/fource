@@ -110,11 +110,11 @@ describe('repository', () => {
   it('should return AggregateNotFoundError if ID not found', async () => {
     const unknownId = UniqueIdentifier.create();
 
-    const result = await repository.findById(unknownId);
+    const result = await repository.findById(unknownId.value);
 
     expect(result.isFailure).toBe(true);
     expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
-    expect(result.error.message).toContain(unknownId);
+    expect(result.error.message).toContain(unknownId.value);
   });
 
   it('should retrieve all aggregates', async () => {
@@ -180,10 +180,10 @@ describe('repository', () => {
     const unknownId = UniqueIdentifier.create();
 
     // eslint-disable-next-line drizzle/enforce-delete-with-where
-    const result = await repository.delete(unknownId);
+    const result = await repository.delete(unknownId.value);
 
     expect(result.isFailure).toBe(true);
     expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
-    expect(result.error.message).toContain(unknownId);
+    expect(result.error.message).toContain(unknownId.value);
   });
 });

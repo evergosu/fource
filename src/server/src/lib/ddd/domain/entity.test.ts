@@ -35,7 +35,7 @@ describe('entity', () => {
   });
 
   it('should create an entity with a provided unique identifier', () => {
-    const id = UniqueIdentifier.create('foo');
+    const id = UniqueIdentifier.create('foo').value;
 
     const user = new UserEntity(johnProperties, id);
 
@@ -56,7 +56,7 @@ describe('entity', () => {
     });
 
     it('should return true when comparing two entities with the same ID', () => {
-      const id = UniqueIdentifier.create('foo');
+      const id = UniqueIdentifier.create('foo').value;
 
       const john = new UserEntity(johnProperties, id);
 

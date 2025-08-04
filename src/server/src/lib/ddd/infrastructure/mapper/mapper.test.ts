@@ -25,7 +25,7 @@ class TestMapper extends Mapper<Test, TestDTO> {
     return Result.ok(
       new Test(
         { number: raw.number, string: raw.string },
-        UniqueIdentifier.create(raw.string),
+        UniqueIdentifier.create(raw.string).value,
       ),
     );
   }
@@ -49,12 +49,12 @@ describe('mapper', () => {
 
   const domainOne = new Test(
     { string: 'foo', number: 42 },
-    UniqueIdentifier.create(dtoOne.string),
+    UniqueIdentifier.create(dtoOne.string).value,
   );
 
   const domainTwo = new Test(
     { string: 'bar', number: 34 },
-    UniqueIdentifier.create(dtoTwo.string),
+    UniqueIdentifier.create(dtoTwo.string).value,
   );
 
   const domains = [domainOne, domainTwo];

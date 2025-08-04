@@ -3,7 +3,9 @@ import { v7 } from 'uuid';
 import {
   StringOrNumberIdentifierFailure,
   BlankIdentifierFailure,
+  EmptyIdentifierFailure,
 } from './identifier-errors';
+import { Result } from '../../types/result';
 import { Identifier } from './identifier';
 
 /**
@@ -25,39 +27,67 @@ import { Identifier } from './identifier';
  * const id2 = UniqueIdentifier.create('abc-123'); // provide string ID
  * const id3 = UniqueIdentifier.create(123); // provide numeric ID
  */
-export class UniqueIdentifier extends Identifier<string | number> {
+export class UniqueIdentifier {
   /**
    * Internal constructor. Use `UniqueIdentifier.create()` instead.
-   * @param id - Optional identifier value.
-   * @throws {BlankIdentifierFailure} if string value is empty.
-   * @throws {StringOrNumberIdentifierFailure} if value is not string or number.
+   * @param identifier - The underlying `Identifier` instance.
    */
-  private constructor(id?: string | number) {
-    if (id !== undefined) {
-      if (typeof id === 'string' && id.trim() === '') {
-        //TODO: return Result.
-        const { message, name } = new BlankIdentifierFailure();
+  private constructor(
+    private readonly identifier: Identifier<string | number>,
+  ) {}
 
-        throw new Error(message, { cause: name });
-      }
-
-      if (typeof id !== 'string' && typeof id !== 'number') {
-        //TODO: return Result.
-        const { message, name } = new StringOrNumberIdentifierFailure();
-
-        throw new Error(message, { cause: name });
-      }
+  /**
+   * Factory method for safely creating an `UniqueIdentifier` instance.
+   * Provides `UUIDv7` if called without arguments.
+   * @param value - Optional identifier value.
+   * @returns Successful `Result` with a valid `UniqueIdentifier` instance,
+   * failed `Result` with an
+   * `StringOrNumberIdentifierFailure | EmptyIdentifierFailure | BlankIdentifierFailure`
+   * otherwise.
+   */
+  static create(
+    value: string | number = v7(),
+  ): Result<
+    UniqueIdentifier,
+    | StringOrNumberIdentifierFailure
+    | EmptyIdentifierFailure
+    | BlankIdentifierFailure
+  > {
+    if (typeof value === 'string' && value.trim() === '') {
+      return Result.fail(new BlankIdentifierFailure());
     }
 
-    super(id ?? v7());
+    if (typeof value !== 'string' && typeof value !== 'number') {
+      return Result.fail(new StringOrNumberIdentifierFailure());
+    }
+
+    return Identifier.create(value).map(
+      identifier => new UniqueIdentifier(identifier),
+    );
   }
 
   /**
-   * Factory method for safely creating a `UniqueIdentifier` instance.
-   * @param id - Optional identifier value.
-   * @returns A valid `UniqueIdentifier` instance.
+   * Checks whether this `UniqueIdentifier` is equal to another.
+   * @param identifier - The `UniqueIdentifier` to compare against.
+   * @returns `true` if the other `UniqueIdentifier` is of the same type and has the same value.
    */
-  static create(id?: string | number): UniqueIdentifier {
-    return new UniqueIdentifier(id);
+  equals(identifier?: UniqueIdentifier): boolean {
+    return this.identifier.equals(identifier?.identifier);
+  }
+
+  /**
+   * Provides a `string` representation of the `UniqueIdentifier`'s value.
+   * @returns The value converted to a `string`.
+   */
+  toString(): string {
+    return this.identifier.toString();
+  }
+
+  /**
+   * Provides the `raw` value of the `UniqueIdentifier`.
+   * @returns The underlying value of the `UniqueIdentifier`.
+   */
+  toValue(): string | number {
+    return this.identifier.toValue();
   }
 }

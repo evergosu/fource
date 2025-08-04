@@ -3,69 +3,57 @@ import { Identifier } from './identifier';
 
 describe('identifier', () => {
   it('should create an Identifier with a valid primitive value', () => {
-    const id = new Identifier('abc123');
+    const result = Identifier.create('abc123');
 
-    expect(id.toValue()).toBe('abc123');
+    expect(result.isSuccess).toBe(true);
+    expect(result.value).toBeInstanceOf(Identifier);
+    expect(result.value.toValue()).toBe('abc123');
   });
 
-  it('should throw an error when created with null', () => {
-    const { message, name } = new EmptyIdentifierFailure();
-
+  it('should return failure when created with null', () => {
     // eslint-disable-next-line unicorn/no-null
-    expect(() => new Identifier(null)).toThrow(
-      new Error(message, { cause: name }),
-    );
+    const result = Identifier.create(null);
+
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(EmptyIdentifierFailure);
   });
 
-  it('should throw an error when created with undefined', () => {
-    const { message, name } = new EmptyIdentifierFailure();
+  it('should return failure when created with undefined', () => {
+    const result = Identifier.create();
 
-    expect(() => new Identifier(undefined)).toThrow(
-      new Error(message, { cause: name }),
-    );
+    expect(result.isFailure).toBe(true);
+    expect(result.error).toBeInstanceOf(EmptyIdentifierFailure);
   });
 
   describe('.equals()', () => {
     it('should return true for equality with same value and type', () => {
-      const idOne = new Identifier('foo');
+      const resultOne = Identifier.create('foo');
 
-      const idTwo = new Identifier('foo');
+      const resultTwo = Identifier.create('foo');
 
-      expect(idOne.equals(idTwo)).toBe(true);
+      expect(resultOne.value.equals(resultTwo.value)).toBe(true);
     });
 
     it('should return false for equality with different values', () => {
-      const idOne = new Identifier(1);
+      const resultOne = Identifier.create(1);
 
-      const idTwo = new Identifier(2);
+      const resultTwo = Identifier.create(2);
 
-      expect(idOne.equals(idTwo)).toBe(false);
+      expect(resultOne.value.equals(resultTwo.value)).toBe(false);
     });
 
     it('should return false for equality with undefined', () => {
-      const id = new Identifier('foo');
+      const result = Identifier.create('foo');
 
-      expect(id.equals()).toBe(false);
-    });
-
-    it('should return false when comparing identifiers of different subclasses', () => {
-      class FooId extends Identifier<string> {}
-
-      class BarId extends Identifier<string> {}
-
-      const fooId = new FooId('foo');
-
-      const barId = new BarId('bar');
-
-      expect(fooId.equals(barId)).toBe(false);
+      expect(result.value.equals()).toBe(false);
     });
   });
 
   describe('.toString()', () => {
     it('should return string representation of the value', () => {
-      const id = new Identifier(123);
+      const result = Identifier.create(123);
 
-      expect(id.toString()).toBe('123');
+      expect(result.value.toString()).toBe('123');
     });
   });
 });
