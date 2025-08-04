@@ -1,8 +1,8 @@
 import { Logger } from 'library/tools/logger';
 
-import { createPostgresContext } from '../database/clients/postgresql';
-import { getEnvironment } from '../lib/environment';
-import { startServer } from '../server/express';
+import { createPostgresContext } from '../../database/clients/postgresql';
+import { getEnvironment } from '../../lib/environment';
+import { startServer } from '../../server/express';
 
 const environment = getEnvironment();
 
