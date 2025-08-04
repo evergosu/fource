@@ -1,4 +1,4 @@
-import { NoStoriesError, Stories } from './story';
+import { NoStoriesError, Stories } from './story-repository';
 
 describe('should work with @database', () => {
   it('should return the next story', async ({ database }) => {

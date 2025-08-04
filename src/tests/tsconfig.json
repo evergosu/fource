@@ -29,13 +29,13 @@
     "typeRoots": [
       "./node_modules",
       "./node_modules/@types",
-      "./src/lib/types"
+      "./src/library/types"
     ],
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "./src/lib/types/*.d.ts"
+    "./src/library/types/*.d.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

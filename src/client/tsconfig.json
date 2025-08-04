@@ -31,7 +31,7 @@
     "typeRoots": [
       "./node_modules",
       "./node_modules/@types",
-      "./src/lib/types"
+      "./src/library/types"
     ],
     "allowJs": true,
     "noEmit": true
@@ -43,7 +43,7 @@
     "./vitest.setup.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "./src/lib/types/environment.d.ts"
+    "./src/library/types/environment.d.ts"
   ],
   "exclude": [
     "node_modules",

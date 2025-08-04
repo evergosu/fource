@@ -8,7 +8,7 @@ function resolvePath(metaUrl, relativePath) {
   return path.resolve(path.dirname(url.fileURLToPath(metaUrl)), relativePath);
 }
 
-// src/lib/environment.ts
+// src/library/environment.ts
 import dotenv from "dotenv";
 import env from "env-var";
 var NODE_ENV = env.get("NODE_ENV").default("production").asEnum(["production", "development", "test"]);

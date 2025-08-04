@@ -23,7 +23,7 @@
     "typeRoots": [
       "./node_modules",
       "./node_modules/@types",
-      "./src/lib/environment.d.ts"
+      "./src/library/environment.d.ts"
     ],
     "composite": true,
     "outDir": "..",
@@ -32,7 +32,7 @@
   },
   "include": [
     "./config/next.config.ts",
-    "./src/lib/environment.ts",
+    "./src/library/environment.ts",
     "../library/src/resolve-path.ts"
   ],
   "exclude": ["node_modules", "dist"]

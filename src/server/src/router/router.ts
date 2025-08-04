@@ -2,7 +2,7 @@ import type { DatabaseContext } from 'server/database/clients/client';
 
 import express, { type Response, type Request, type Router } from 'express';
 
-import { NoStoriesError, Stories } from '../application/story/story';
+import { NoStoriesError, Stories } from '../application/story/story-repository';
 import { asyncHandler } from './async-handler';
 
 /**
