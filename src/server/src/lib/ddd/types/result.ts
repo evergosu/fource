@@ -1,6 +1,6 @@
 import type { Failure } from '../issues/failure';
 
-import { DataTypeInvariantViolationException } from './adt-error';
+import { DataTypeInvariantViolationException } from './type-error';
 
 /**
  * A functional object representing the result of an operation,

@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationException } from './adt-error';
+import { DataTypeInvariantViolationException } from './type-error';
 
 /**
  * Represents a disjoint union of two possible values: a value of type `R` (Right) or a value of type `L` (Left).

@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationException } from './adt-error';
+import { DataTypeInvariantViolationException } from './type-error';
 import { Either } from './either';
 
 describe('either', () => {

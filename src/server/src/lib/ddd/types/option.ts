@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationException } from './adt-error';
+import { DataTypeInvariantViolationException } from './type-error';
 
 /**
  * Represents an optional value: every Option is either Some and contains a value, or None, and does not.

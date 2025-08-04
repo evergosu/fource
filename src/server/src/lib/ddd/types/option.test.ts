@@ -1,4 +1,4 @@
-import { DataTypeInvariantViolationException } from './adt-error';
+import { DataTypeInvariantViolationException } from './type-error';
 import { Option } from './option';
 
 describe('option', () => {
