@@ -2,7 +2,7 @@ import type { Logger } from 'library/tools/logger';
 
 import { migrate as pgliteMigrate } from 'drizzle-orm/pglite/migrator';
 import { PgliteDatabase, drizzle } from 'drizzle-orm/pglite';
-import { getEnvironment } from 'server/lib/environment';
+import { getEnvironment } from 'server/library/environment';
 import { resolvePath } from 'library/resolve-path';
 import { PGlite } from '@electric-sql/pglite';
 import { sql } from 'drizzle-orm';

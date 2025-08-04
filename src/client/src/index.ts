@@ -1,6 +1,6 @@
 import { Logger } from 'library/tools/logger';
 
-import { getEnvironment } from './lib/environment';
+import { getEnvironment } from './library/environment';
 import { startServer } from './server/express';
 
 const environment = getEnvironment();

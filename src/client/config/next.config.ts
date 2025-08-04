@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next';
 
-import { getEnvironment } from '../src/lib/environment.js';
+import { getEnvironment } from '../src/library/environment.js';
 
 const environment = getEnvironment();
 

@@ -1,7 +1,7 @@
 import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
-import { getEnvironment } from 'server/lib/environment';
+import { getEnvironment } from 'server/library/environment';
 import express from 'express';
 
 import type { DatabaseContext } from '../database/clients/client';

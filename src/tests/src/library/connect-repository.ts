@@ -1,4 +1,4 @@
-import type { Repository } from 'server/story/story';
+import type { Repository } from 'server/application/story/story';
 import type { TestContext } from 'vitest';
 
 export function connectRepository<T extends Repository>(

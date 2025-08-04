@@ -1,6 +1,6 @@
+import { NoStoriesError, Stories } from 'server/application/story/story';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { connectRepository } from 'tests/lib/connect-repository';
-import { NoStoriesError, Stories } from 'server/story/story';
+import { connectRepository } from 'tests/library/connect-repository';
 import { render, screen } from '@testing-library/react';
 import { STEPS } from 'tests/steps';
 import Page from 'client/app/page';

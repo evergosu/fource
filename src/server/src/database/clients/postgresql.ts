@@ -1,5 +1,5 @@
 import { migrate as postgresMigrate } from 'drizzle-orm/node-postgres/migrator';
-import { getEnvironment } from 'server/lib/environment';
+import { getEnvironment } from 'server/library/environment';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { resolvePath } from 'library/resolve-path';
 import { Logger } from 'library/tools/logger';

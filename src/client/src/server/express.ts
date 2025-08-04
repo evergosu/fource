@@ -10,8 +10,8 @@ import { rateLimitByEnvironment } from './middlewares/rate-limit';
 import { createErrorHandler } from './middlewares/error-handler';
 import { helmetByEnvironment } from './middlewares/helmet';
 import { morganByEnvironment } from './middlewares/morgan';
+import { getEnvironment } from '../library/environment';
 import { createApiProxy } from './middlewares/proxy';
-import { getEnvironment } from '../lib/environment';
 
 export interface ServerContext {
   shutdown: (reason: string) => ReturnType<typeof shutdown>;

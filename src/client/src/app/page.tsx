@@ -1,4 +1,4 @@
-import { relativeFetch } from 'client/lib/fetch';
+import { relativeFetch } from 'client/library/fetch';
 
 import { Story } from './story/story';
 

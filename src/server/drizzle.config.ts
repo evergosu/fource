@@ -1,6 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
 
-import { getEnvironment } from './src/lib/environment';
+import { getEnvironment } from './src/library/environment';
 
 export default defineConfig({
   dbCredentials: {

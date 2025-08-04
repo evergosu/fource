@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 
-import { getEnvironment } from 'client/lib/environment';
+import { getEnvironment } from 'client/library/environment';
 import morgan from 'morgan';
 
 const environment = getEnvironment();
