@@ -69,9 +69,14 @@ export class Result<T, E = Failure> {
    *
    * Useful for validating multiple independent operations.
    * @param results - Array of results to combine.
-   * @returns Combined result.
+   * @returns Combined `Result` with inferred errors union.
    */
-  public static combine<E>(results: Result<unknown, E>[]): Result<void, E> {
+  static combine<
+    T extends readonly Result<unknown, Errors>[],
+    Errors = {
+      [K in keyof T]: T[K] extends Result<unknown, infer V> ? V : never;
+    }[number],
+  >(results: [...T]): Result<void, Errors> {
     for (const result of results) {
       if (result.isFailure) {
         return Result.fail(result.error);
