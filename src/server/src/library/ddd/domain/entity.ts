@@ -12,7 +12,6 @@ export abstract class Entity<T> {
    * The unique identity of this entity.
    */
   protected readonly _id: UniqueIdentifier;
-
   /**
    * Constructs a new `Entity` instance.
    * @param properties - The entity's domain properties.
@@ -20,13 +19,11 @@ export abstract class Entity<T> {
    * @param shouldFreeze - An optional freeze of an entity to ensure that object is not extensible.
    */
   constructor(
-    public readonly properties: T,
+    protected readonly properties: T,
     id?: UniqueIdentifier,
     shouldFreeze = true,
   ) {
     this._id = id ?? UniqueIdentifier.create().value;
-
-    this.properties = properties;
 
     if (shouldFreeze) {
       Object.freeze(this);

@@ -7,6 +7,14 @@ class TestEntity extends AggregateRoot<{ isFoo: boolean }> {
   constructor() {
     super({ isFoo: true });
   }
+
+  public set isFoo(boolean: boolean) {
+    this.properties.isFoo = boolean;
+  }
+
+  public get isFoo() {
+    return this.properties.isFoo;
+  }
 }
 
 class PolicyViolated extends DomainFailure {
@@ -17,7 +25,7 @@ class PolicyViolated extends DomainFailure {
 
 class PassPolicy extends Policy<TestEntity> {
   apply(target: TestEntity): Result<void, DomainFailure> {
-    target.properties.isFoo = true;
+    target.isFoo = true;
 
     return Result.ok();
   }
@@ -25,7 +33,7 @@ class PassPolicy extends Policy<TestEntity> {
 
 class FailPolicy extends Policy<TestEntity> {
   apply(target: TestEntity): Result<void, DomainFailure> {
-    target.properties.isFoo = false;
+    target.isFoo = false;
 
     return Result.fail(new PolicyViolated());
   }
@@ -40,7 +48,7 @@ describe('Policy', () => {
     const result = policy.apply(target);
 
     expect(result.isSuccess).toBe(true);
-    expect(target.properties.isFoo).toBe(true);
+    expect(target.isFoo).toBe(true);
   });
 
   it('should return failure result when policy is violated', () => {
@@ -52,6 +60,6 @@ describe('Policy', () => {
 
     expect(result.isFailure).toBe(true);
     expect(result.error).toBeInstanceOf(PolicyViolated);
-    expect(target.properties.isFoo).toBe(false);
+    expect(target.isFoo).toBe(false);
   });
 });

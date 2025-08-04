@@ -8,7 +8,15 @@ describe('entity', () => {
     name: string;
   }
 
-  class UserEntity extends Entity<UserProperties> {}
+  class UserEntity extends Entity<UserProperties> {
+    get email() {
+      return this.properties.email;
+    }
+
+    get name() {
+      return this.properties.name;
+    }
+  }
 
   const johnProperties: UserProperties = {
     email: 'john@gmail.com',
@@ -24,8 +32,8 @@ describe('entity', () => {
   const jane = new UserEntity(janeProperties);
 
   it('should create an entity with properties and a generated ID', () => {
-    expect(john.properties.name).toBe(johnProperties.name);
-    expect(john.properties.email).toBe(johnProperties.email);
+    expect(john.name).toBe(johnProperties.name);
+    expect(john.email).toBe(johnProperties.email);
     expect(john.id).toBeInstanceOf(UniqueIdentifier);
     expect(typeof john.id.toValue()).toBe('string');
   });

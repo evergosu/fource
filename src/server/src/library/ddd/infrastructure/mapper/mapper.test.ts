@@ -12,7 +12,15 @@ interface TestDTO {
   number: number;
 }
 
-class Test extends Entity<TestDTO> {}
+class Test extends Entity<TestDTO> {
+  public get string() {
+    return this.properties.string;
+  }
+
+  public get number() {
+    return this.properties.number;
+  }
+}
 
 class TestMapper extends Mapper<Test, TestDTO> {
   toDomain(raw: TestDTO): Result<Test, InfrastructureFailure | DomainFailure> {
@@ -32,8 +40,8 @@ class TestMapper extends Mapper<Test, TestDTO> {
 
   toDTO(domain: Test): Result<TestDTO> {
     return Result.ok({
-      string: domain.properties.string,
-      number: domain.properties.number,
+      string: domain.string,
+      number: domain.number,
     });
   }
 }

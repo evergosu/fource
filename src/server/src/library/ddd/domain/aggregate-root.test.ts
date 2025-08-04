@@ -16,6 +16,10 @@ class Post extends AggregateRoot<Properties> {
   public create(): void {
     this.addDomainEvent(new PostCreatedEvent(this.id));
   }
+
+  public get title() {
+    return this.properties.title;
+  }
 }
 
 describe('aggregate root', () => {
@@ -28,7 +32,7 @@ describe('aggregate root', () => {
 
     expect(post.id).toBeInstanceOf(UniqueIdentifier);
 
-    expect(post.properties.title).toBe('foo');
+    expect(post.title).toBe('foo');
   });
 
   it('should track domain events', () => {
