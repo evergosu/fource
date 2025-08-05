@@ -15,7 +15,7 @@ export abstract class ValueObject<T extends Properties> {
    * Constructs a new `ValueObject` instance.
    * @param properties - The structural properties that define the `ValueObject`.
    */
-  constructor(public readonly properties: T) {
+  constructor(protected readonly properties: T) {
     this.properties = deepFreeze({ ...properties });
   }
 

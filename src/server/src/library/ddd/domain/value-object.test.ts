@@ -4,7 +4,23 @@ class Address extends ValueObject<{
   coordinates: { lat: number; lng: number };
   street: string;
   city: string;
-}> {}
+}> {
+  get coordinates(): { lat: number; lng: number } {
+    return this.properties.coordinates;
+  }
+
+  get street(): string {
+    return this.properties.street;
+  }
+
+  get city(): string {
+    return this.properties.city;
+  }
+
+  set city(city) {
+    this.properties.city = city;
+  }
+}
 
 describe('value object', () => {
   const gotham = new Address({
@@ -15,11 +31,11 @@ describe('value object', () => {
 
   it('should deeply freeze properties', () => {
     expect(() => {
-      gotham.properties.city = 'Metropolis';
+      gotham.city = 'Metropolis';
     }).toThrow();
 
     expect(() => {
-      gotham.properties.coordinates.lat = 42;
+      gotham.coordinates.lat = 42;
     }).toThrow();
   });
 
