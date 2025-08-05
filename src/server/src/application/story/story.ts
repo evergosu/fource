@@ -1,5 +1,3 @@
-import type { NullOrUndefinedFailure } from 'server/library/ddd/errors';
-
 import {
   UniqueIdentifier,
   AggregateRoot,
@@ -7,14 +5,16 @@ import {
   Guard,
 } from 'server/library/ddd/primitives';
 
+import { StoryTitle } from './story-title';
+
 /**
  * Properties required to create or rehydrate a Story.
  */
 interface Properties {
   authorIdentifier: UniqueIdentifier;
+  title: StoryTitle;
   createdAt: Date;
   expiresAt: Date;
-  title: string;
   body: string;
 }
 
@@ -27,51 +27,69 @@ export class Story extends AggregateRoot<Properties> {
   /**
    * Private constructor. Use `.create()` factory method instead.
    * @param properties An inner properties of an aggregate.
+   * @param identifier An optional `UniqueIdentifier` of an `AggregateRoot` to rehydrate from.
    */
-  private constructor(properties: Properties) {
-    super(properties);
+  private constructor(properties: Properties, identifier?: UniqueIdentifier) {
+    super(properties, identifier);
   }
   /**
    * Factory method to create a new story.
-   * @param properties - The `StoryProperties` excluding domain ID.
-   * @returns `Result` wrapping the new `Story` or a `NullOrUndefinedFailure`.
+   * @param raw - An raw object to reconstruct `Story` from.
+   * @param raw.title - A short title of the `Story`.
+   * @param raw.body - A main content of the `Story`.
+   * @param raw.authorIdentifier - An `Identifier` of the `Author` who created the `Story`.
+   * @param identifier - An optional `Identifier` of the `Story` to operate on.
+   * @returns `Result` wrapping the new `Story` or a:
+   * - `MaximumLengthExceededFailure`
+   * - `MinimumLengthNotMetFailure`
+   * - `NullOrUndefinedFailure`
+   * - `StringFailure`
    */
   public static create(
-    properties: Omit<Properties, 'createdAt' | 'expiresAt'>,
-  ): Result<Story, NullOrUndefinedFailure> {
+    raw: {
+      authorIdentifier: UniqueIdentifier;
+      title: StoryTitle['title'];
+      body: Properties['body'];
+    },
+    identifier?: UniqueIdentifier,
+  ) {
     const now = new Date();
 
     const expiry = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +24h
 
-    const guard = Guard.for(properties);
+    const guard = Guard.for(raw);
+
+    const title = StoryTitle.create(raw.title);
 
     const result = Result.combine([
-      guard.againstNullOrUndefined('title'),
+      title,
       guard.againstNullOrUndefined('body'),
       guard.againstNullOrUndefined('authorIdentifier'),
     ]);
 
     return result.map(
       () =>
-        new Story({
-          ...properties,
-          expiresAt: expiry,
-          createdAt: now,
-        }),
+        new Story(
+          {
+            ...raw,
+            title: title.value,
+            expiresAt: expiry,
+            createdAt: now,
+          },
+          identifier,
+        ),
     );
   }
 
   /**
    * A short title of the `Story`.
-   * @returns The public property.
    */
-  get title(): string {
+  get title(): StoryTitle {
     return this.properties.title;
   }
 
   /**
    * A main content of the `Story`.
-   * @returns The public property.
    */
   get body(): string {
     return this.properties.body;
@@ -79,7 +97,6 @@ export class Story extends AggregateRoot<Properties> {
 
   /**
    * An `Identifier` of the `Author` who created the `Story`.
-   * @returns The public property.
    */
   get authorIdentifier(): UniqueIdentifier {
     return this.properties.authorIdentifier;
@@ -87,7 +104,6 @@ export class Story extends AggregateRoot<Properties> {
 
   /**
    * `Timestamp` when the `Story` was created.
-   * @returns The public property.
    */
   get createdAt(): Date {
     return this.properties.createdAt;
@@ -95,7 +111,6 @@ export class Story extends AggregateRoot<Properties> {
 
   /**
    * `Timestamp` when the `Story` should expire (typically 24h after creation).
-   * @returns The public property.
    */
   get expiresAt(): Date {
     return this.properties.expiresAt;

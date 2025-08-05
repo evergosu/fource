@@ -1,24 +1,29 @@
 import { NullOrUndefinedFailure } from 'server/library/ddd/errors';
 import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
+import { StoryTitle } from './story-title';
 import { Story } from './story';
 
 describe('story', () => {
   it('should create a story successfully with valid input', () => {
-    const authorIdentifier = UniqueIdentifier.create().value;
+    const storyAuthorIdentifier = UniqueIdentifier.create();
+
+    const storyTitle = StoryTitle.create('Test Story');
 
     const result = Story.create({
+      authorIdentifier: storyAuthorIdentifier.value,
       body: 'This is the body of Test Story.',
-      title: 'Test Story',
-      authorIdentifier,
+      title: storyTitle.value.title,
     });
 
     const story = result.value;
 
     expect(result.isSuccess).toBe(true);
-    expect(story.title).toBe('Test Story');
+    expect(story.title.title).toBe('Test Story');
     expect(story.body).toBe('This is the body of Test Story.');
-    expect(story.authorIdentifier.equals(authorIdentifier)).toBe(true);
+    expect(story.authorIdentifier.equals(storyAuthorIdentifier.value)).toBe(
+      true,
+    );
     expect(story.createdAt).toBeInstanceOf(Date);
     expect(story.expiresAt.getTime()).toBeGreaterThan(
       story.createdAt.getTime(),
