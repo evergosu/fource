@@ -37,6 +37,21 @@ export class UniqueIdentifier {
   ) {}
 
   /**
+   * Type-safe overload for default `UniqueIdentifier`.
+   */
+  static create(): Result<UniqueIdentifier, never>;
+  /**
+   * Type-safe overload for rehydrated `UniqueIdentifier`.
+   */
+  static create(
+    value: string | number,
+  ): Result<
+    UniqueIdentifier,
+    | StringOrNumberIdentifierFailure
+    | EmptyIdentifierFailure
+    | BlankIdentifierFailure
+  >;
+  /**
    * Factory method for safely creating an `UniqueIdentifier` instance.
    * Provides `UUIDv7` if called without arguments.
    * @param value - Optional identifier value.
