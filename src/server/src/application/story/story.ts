@@ -6,6 +6,7 @@ import {
 } from 'server/library/ddd/primitives';
 
 import { StoryTitle } from './story-title';
+import { StoryBody } from './story-body';
 
 /**
  * Properties required to create or rehydrate a Story.
@@ -15,7 +16,7 @@ interface Properties {
   title: StoryTitle;
   createdAt: Date;
   expiresAt: Date;
-  body: string;
+  body: StoryBody;
 }
 
 /**
@@ -49,7 +50,7 @@ export class Story extends AggregateRoot<Properties> {
     raw: {
       authorIdentifier: UniqueIdentifier;
       title: StoryTitle['title'];
-      body: Properties['body'];
+      body: StoryBody['body'];
     },
     identifier?: UniqueIdentifier,
   ) {
@@ -60,10 +61,11 @@ export class Story extends AggregateRoot<Properties> {
     const guard = Guard.for(raw);
 
     const title = StoryTitle.create(raw.title);
+    const body = StoryBody.create(raw.body);
 
     const result = Result.combine([
       title,
-      guard.againstNullOrUndefined('body'),
+      body,
       guard.againstNullOrUndefined('authorIdentifier'),
     ]);
 
@@ -74,6 +76,7 @@ export class Story extends AggregateRoot<Properties> {
             ...raw,
             title: title.value,
             expiresAt: expiry,
+            body: body.value,
             createdAt: now,
           },
           identifier,
@@ -91,7 +94,7 @@ export class Story extends AggregateRoot<Properties> {
   /**
    * A main content of the `Story`.
    */
-  get body(): string {
+  get body(): StoryBody {
     return this.properties.body;
   }
 
