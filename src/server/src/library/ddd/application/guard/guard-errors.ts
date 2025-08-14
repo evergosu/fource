@@ -154,6 +154,19 @@ export class DateInPastFailure extends ApplicationFailure {
 }
 
 /**
+ * Failure indicating that a date value occurs in the future when past or present dates are required.
+ */
+export class DateInFutureFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the date value being validated.
+   */
+  constructor(public readonly value: string) {
+    super(`${value} cannot be in the future`);
+  }
+}
+
+/**
  * Failure indicating that a numeric value falls outside the permitted inclusive range.
  */
 export class OutOfRangeFailure extends ApplicationFailure {

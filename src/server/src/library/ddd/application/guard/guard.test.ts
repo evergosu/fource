@@ -4,6 +4,7 @@ import {
   NullOrUndefinedFailure,
   InvalidFormatFailure,
   InvalidEmailFailure,
+  DateInFutureFailure,
   BlankStringFailure,
   DateInPastFailure,
   OutOfRangeFailure,
@@ -313,6 +314,36 @@ describe('guard', () => {
 
     it('should pass on now date', () => {
       const result = guard.againstDateInPast('dateNow');
+
+      expect(result.isSuccess).toBe(true);
+    });
+  });
+
+  describe('Guard.againstDateInFuture()', () => {
+    it('should fail on not a date', () => {
+      const result = guard.againstDateInFuture('number');
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateFailure);
+    });
+
+    it('should fail on future date', () => {
+      const result = guard.againstDateInFuture('dateInFuture');
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateInFutureFailure);
+    });
+
+    it('should pass on past date', () => {
+      const result = guard.againstDateInFuture('dateInPast');
+
+      expect(result.isSuccess).toBe(true);
+    });
+
+    it('should pass on now date', () => {
+      const result = guard.againstDateInFuture('dateNow');
 
       expect(result.isSuccess).toBe(true);
     });

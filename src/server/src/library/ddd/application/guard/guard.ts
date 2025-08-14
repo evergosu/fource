@@ -4,6 +4,7 @@ import {
   NullOrUndefinedFailure,
   InvalidFormatFailure,
   InvalidEmailFailure,
+  DateInFutureFailure,
   BlankStringFailure,
   DateInPastFailure,
   OutOfRangeFailure,
@@ -288,6 +289,29 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
+   * Validates that a value is `not in the future` (compared to now).
+   * @param value - The value to check.
+   * @param name - Name of the field for failure message.
+   * @returns `Result.ok()` if valid; `Result.fail(DateInFutureFailure | DateFailure)` otherwise.
+   */
+  public static againstDateInFuture(
+    value: unknown,
+    name: string,
+  ): Result<void, DateInFutureFailure | DateFailure> {
+    const result = Guard.againstNotDate(value, name);
+
+    if (result.isFailure) {
+      return result;
+    }
+
+    if ((value as Date).getTime() > Date.now()) {
+      return Result.fail(new DateInFutureFailure(name));
+    }
+
+    return Result.ok();
+  }
+
+  /**
    * Validates that a `number` is `within` a specified inclusive `range`.
    * @param value - The value to check.
    * @param minimum - Minimum allowed value.
@@ -462,6 +486,20 @@ export class Guard<T extends Record<string, unknown> = never> {
     const value = this.object[field];
 
     return Guard.againstDateInPast(value, field.toString());
+  }
+
+  /**
+   * Validates that a property of the instance object
+   * is a `Date` and `not` in the `future`.
+   * @param field - Property key to validate.
+   * @returns `Result.ok()` if valid; `Result.fail(DateInFutureFailure | DateFailure)` otherwise.
+   */
+  public againstDateInFuture(
+    field: keyof T,
+  ): Result<void, DateInFutureFailure | DateFailure> {
+    const value = this.object[field];
+
+    return Guard.againstDateInFuture(value, field.toString());
   }
 
   /**
