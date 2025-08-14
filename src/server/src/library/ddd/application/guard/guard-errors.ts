@@ -14,6 +14,19 @@ export class NullOrUndefinedFailure extends ApplicationFailure {
 }
 
 /**
+ * Failure indicating that a value is not a number.
+ */
+export class NumberFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the value being validated.
+   */
+  constructor(public readonly value: string) {
+    super(`${value} is not a number`);
+  }
+}
+
+/**
  * Failure indicating that a value is not a string.
  */
 export class StringFailure extends ApplicationFailure {
@@ -98,6 +111,32 @@ export class InvalidEmailFailure extends ApplicationFailure {
    */
   constructor(public readonly value: string) {
     super(`${value} must be a valid email`);
+  }
+}
+
+/**
+ * Failure indicating that a value is not a valid Date object.
+ */
+export class DateFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the value being validated.
+   */
+  constructor(public readonly value: string) {
+    super(`${value} is not a valid Date object`);
+  }
+}
+
+/**
+ * Failure indicating that a value is not a valid ISO 8601 string.
+ */
+export class ISODateFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the value being validated.
+   */
+  constructor(public readonly value: string) {
+    super(`${value} is not a valid ISO 8601 string`);
   }
 }
 

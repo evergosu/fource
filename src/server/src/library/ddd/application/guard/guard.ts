@@ -7,7 +7,10 @@ import {
   BlankStringFailure,
   DateInPastFailure,
   OutOfRangeFailure,
+  ISODateFailure,
   StringFailure,
+  NumberFailure,
+  DateFailure,
 } from './guard-errors';
 import { Result } from '../../types/result';
 
@@ -50,6 +53,23 @@ export class Guard<T extends Record<string, unknown> = never> {
   ): Result<void, NullOrUndefinedFailure> {
     if (value === null || value === undefined) {
       return Result.fail(new NullOrUndefinedFailure(name));
+    }
+
+    return Result.ok();
+  }
+
+  /**
+   * Validates that value is a `number`.
+   * @param value - The value to check.
+   * @param name - Name of the field for failure message.
+   * @returns `Result.ok()` if valid; `Result.fail(NumberFailure)` otherwise.
+   */
+  public static againstNotNumber(
+    value: unknown,
+    name: string,
+  ): Result<void, NumberFailure> {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return Result.fail(new NumberFailure(name));
     }
 
     return Result.ok();
@@ -201,20 +221,66 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
-   * Validates that a `Date` is `not in the past` (compared to now).
+   * Validates that a `Date` is a valid javascript `Date` object.
    * @param value - The value to check.
    * @param name - Name of the field for failure message.
-   * @returns `Result.ok()` if valid; `Result.fail(DateInPastFailure)` otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(DateFailure)` otherwise.
+   */
+  public static againstNotDate(
+    value: unknown,
+    name: string,
+  ): Result<void, DateFailure> {
+    if (!(value instanceof Date) || Number.isNaN(value.getTime())) {
+      return Result.fail(new DateFailure(name));
+    }
+
+    return Result.ok();
+  }
+
+  /**
+   * Validates that a value is a valid ISO 8601 date string.
+   * @param value - The value to check.
+   * @param name - Name of the field for failure message.
+   * @returns `Result.ok()` if valid; `Result.fail(ISODateFailure | StringFailure)` otherwise.
+   */
+  public static againstISODateString(
+    value: unknown,
+    name: string,
+  ): Result<void, ISODateFailure | StringFailure> {
+    const result = Guard.againstNotString(value, name);
+
+    if (result.isFailure) {
+      return result;
+    }
+
+    // ISO 8601 regex (YYYY-MM-DDTHH:mm:ss.sssZ or YYYY-MM-DD).
+    const iso8601Regex =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+    if (!iso8601Regex.test(value as string)) {
+      return Result.fail(new ISODateFailure(name));
+    }
+
+    return Result.ok();
+  }
+
+  /**
+   * Validates that a value is `not in the past` (compared to now).
+   * @param value - The value to check.
+   * @param name - Name of the field for failure message.
+   * @returns `Result.ok()` if valid; `Result.fail(DateInPastFailure | DateFailure)` otherwise.
    */
   public static againstDateInPast(
     value: unknown,
     name: string,
-  ): Result<void, DateInPastFailure> {
-    if (
-      !(value instanceof Date) ||
-      Number.isNaN(value.getTime()) ||
-      value.getTime() < Date.now()
-    ) {
+  ): Result<void, DateInPastFailure | DateFailure> {
+    const result = Guard.againstNotDate(value, name);
+
+    if (result.isFailure) {
+      return result;
+    }
+
+    if ((value as Date).getTime() < Date.now()) {
       return Result.fail(new DateInPastFailure(name));
     }
 
@@ -259,6 +325,18 @@ export class Guard<T extends Record<string, unknown> = never> {
     const value = this.object[field];
 
     return Guard.againstNullOrUndefined(value, field.toString());
+  }
+
+  /**
+   * Validates that a property of the instance object
+   * is a `number`.
+   * @param field - Field name for reporting.
+   * @returns `Result.ok()` if valid; `Result.fail(NumberFailure)` otherwise.
+   */
+  public againstNotNumber(field: keyof T): Result<void, NumberFailure> {
+    const value = this.object[field];
+
+    return Guard.againstNotNumber(value, field.toString());
   }
 
   /**
@@ -349,11 +427,38 @@ export class Guard<T extends Record<string, unknown> = never> {
 
   /**
    * Validates that a property of the instance object
+   * is a valid javascript `Date` object.
+   * @param field - Property key to validate.
+   * @returns `Result.ok()` if valid; `Result.fail(DateFailure)` otherwise.
+   */
+  public againstNotDate(field: keyof T): Result<void, DateFailure> {
+    const value = this.object[field];
+
+    return Guard.againstNotDate(value, field.toString());
+  }
+
+  /**
+   * Validates that a value is a valid ISO 8601 date string.
+   * @param field - Property key to validate.
+   * @returns `Result.ok()` if valid; `Result.fail(ISODateFailure | StringFailure)` otherwise.
+   */
+  public againstISODateString(
+    field: keyof T,
+  ): Result<void, ISODateFailure | StringFailure> {
+    const value = this.object[field];
+
+    return Guard.againstISODateString(value, field.toString());
+  }
+
+  /**
+   * Validates that a property of the instance object
    * is a `Date` and `not` in the `past`.
    * @param field - Property key to validate.
-   * @returns `Result.ok()` if valid; `Result.fail(DateInPastFailure)` otherwise.
+   * @returns `Result.ok()` if valid; `Result.fail(DateInPastFailure | DateFailure)` otherwise.
    */
-  public againstDateInPast(field: keyof T): Result<void, DateInPastFailure> {
+  public againstDateInPast(
+    field: keyof T,
+  ): Result<void, DateInPastFailure | DateFailure> {
     const value = this.object[field];
 
     return Guard.againstDateInPast(value, field.toString());

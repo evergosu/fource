@@ -7,12 +7,17 @@ import {
   BlankStringFailure,
   DateInPastFailure,
   OutOfRangeFailure,
+  ISODateFailure,
   StringFailure,
+  NumberFailure,
+  DateFailure,
 } from './guard-errors';
 import { Guard } from './guard';
 
 describe('guard', () => {
-  const dateNow = new Date('2025-01-01T00:00:00Z');
+  const dateISOString = '2025-01-01T00:00:00Z';
+
+  const dateNow = new Date(dateISOString);
 
   const dateInFuture = new Date(dateNow.getTime() + 1);
 
@@ -28,6 +33,7 @@ describe('guard', () => {
     stringMixed: '42foo',
     stringNumber: '42',
     stringEmpty: '',
+    dateISOString,
     string: 'foo',
     dateInFuture,
     dateInPast,
@@ -71,6 +77,22 @@ describe('guard', () => {
 
     it('should pass on value', () => {
       const result = guard.againstNullOrUndefined('string');
+
+      expect(result.isSuccess).toBe(true);
+    });
+  });
+
+  describe('Guard.againstNotNumber()', () => {
+    it('should fail on not a number', () => {
+      const result = guard.againstNotNumber('string');
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(NumberFailure);
+    });
+
+    it('should pass on regular number', () => {
+      const result = guard.againstNotNumber('number');
 
       expect(result.isSuccess).toBe(true);
     });
@@ -226,13 +248,53 @@ describe('guard', () => {
     });
   });
 
+  describe('Guard.againstNotDate()', () => {
+    it('should fail on not a Date', () => {
+      const result = guard.againstNotDate('number');
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateFailure);
+    });
+
+    it('should pass on valid date object', () => {
+      const result = guard.againstNotDate('dateNow');
+
+      expect(result.isSuccess).toBe(true);
+    });
+  });
+
+  describe('Guard.againstISODateString()', () => {
+    it('should fail on not a string', () => {
+      const result = guard.againstISODateString('number');
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(StringFailure);
+    });
+
+    it('should fail on not an ISO date string', () => {
+      const result = guard.againstISODateString('string');
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(ISODateFailure);
+    });
+
+    it('should pass on a valid ISO 8601 date string', () => {
+      const result = guard.againstISODateString('dateISOString');
+
+      expect(result.isSuccess).toBe(true);
+    });
+  });
+
   describe('Guard.againstDateInPast()', () => {
     it('should fail on not a date', () => {
       const result = guard.againstDateInPast('number');
 
       expect(result.isFailure).toBe(true);
 
-      expect(result.error).toBeInstanceOf(DateInPastFailure);
+      expect(result.error).toBeInstanceOf(DateFailure);
     });
 
     it('should fail on past date', () => {
