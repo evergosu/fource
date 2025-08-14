@@ -9,18 +9,18 @@ import { Guard } from '../../application/guard/guard';
 import { ValueObject } from './value-object';
 import { Result } from '../../types/result';
 
-type Properties = Record<'value', Date>;
+type Properties = Record<'date', Date>;
 
 /**
  * Shape of subclass static side expected by base factory helpers.
  * Subclasses must implement a static `create(date)` factory.
  */
-interface TimeStatic<U extends Time<U>> {
+interface TimeStatic<U extends Time<U>, F = never> {
   /**
    * Construct an instance of the concrete subclass from a Date.
    * Subclass must implement this and typically call the protected constructor.
    */
-  create(date: Date): U;
+  create(date: Date): Result<U, F>;
 }
 
 /**
@@ -36,7 +36,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param date - The `Date` object to construct `Time`.
    */
   protected constructor(date: Date) {
-    super({ value: date });
+    super({ date });
   }
 
   /** ----------------- STATIC METHODS ----------------- */
@@ -45,72 +45,86 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * Create a Time instance from a Date object.
    * @param date - JavaScript Date instance.
    */
-  public static fromDate<U extends Time<U>>(
-    this: TimeStatic<U>,
+  public static fromDate<U extends Time<U>, F>(
+    this: TimeStatic<U, F>,
     date: Date,
-  ): Result<U, NullOrUndefinedFailure | DateFailure> {
+  ): Result<U, FromDateFailures | F> {
     const result = Result.combine([
       Guard.againstNullOrUndefined(date, 'date'),
       Guard.againstNotDate(date, 'date'),
     ]);
 
-    return result.map(() => this.create(new Date(date.getTime())));
+    if (result.isFailure) {
+      return Result.fail<U, FromDateFailures | F>(result.error);
+    }
+
+    return this.create(new Date(date.getTime()));
   }
 
   /**
    * Create a Time instance from an ISO 8601 string.
    * @param isoString - ISO date string.
    */
-  public static fromISOString<U extends Time<U>>(
-    this: TimeStatic<U>,
+  public static fromISOString<U extends Time<U>, F>(
+    this: TimeStatic<U, F>,
     isoString: string,
-  ): Result<U, NullOrUndefinedFailure | ISODateFailure | StringFailure> {
+  ): Result<U, FromISOStringFailures | F> {
     const result = Result.combine([
       Guard.againstNullOrUndefined(isoString, 'date'),
       Guard.againstISODateString(isoString, 'date'),
     ]);
 
-    return result.map(() => this.create(new Date(isoString)));
+    if (result.isFailure) {
+      return Result.fail<U, FromISOStringFailures | F>(result.error);
+    }
+
+    return this.create(new Date(isoString));
   }
 
   /**
    * Create a Time instance from a Unix timestamp in milliseconds.
    * @param ms - Unix time in milliseconds.
    */
-  public static fromUnixMilliSeconds<U extends Time<U>>(
-    this: TimeStatic<U>,
+  public static fromUnixMilliSeconds<U extends Time<U>, F>(
+    this: TimeStatic<U, F>,
     ms: number,
-  ): Result<U, NullOrUndefinedFailure | NumberFailure> {
+  ): Result<U, FromUnixMsFailures | F> {
     const result = Result.combine([
       Guard.againstNullOrUndefined(ms, 'date'),
       Guard.againstNotNumber(ms, 'date'),
     ]);
 
-    return result.map(() => this.create(new Date(ms)));
+    if (result.isFailure) {
+      return Result.fail<U, FromUnixMsFailures | F>(result.error);
+    }
+
+    return this.create(new Date(ms));
   }
 
   /**
    * Create a Time instance for the current system time.
    */
-  public static fromNow<U extends Time<U>>(this: TimeStatic<U>): Result<U> {
-    return Result.ok(this.create(new Date()));
+  public static fromNow<U extends Time<U>, F>(
+    this: TimeStatic<U, F>,
+  ): Result<U, F> {
+    return this.create(new Date());
   }
 
   /** ----------------- INSTANCE METHODS ----------------- */
 
   /** Get the underlying Date. */
   public toDate(): Date {
-    return new Date(this.properties.value.getTime());
+    return new Date(this.properties.date.getTime());
   }
 
   /** Get the time as ISO string. */
   public toISOString(): string {
-    return this.properties.value.toISOString();
+    return this.properties.date.toISOString();
   }
 
   /** Get the time as Unix timestamp in milliseconds. */
   public toUnixMilliSeconds(): number {
-    return this.properties.value.getTime();
+    return this.properties.date.getTime();
   }
 
   /**
@@ -146,22 +160,22 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * Add milliseconds and return a new instance.
    * @param ms a milliseconds to add to current time instance.
    */
-  public addMilliSeconds(ms: number): this {
+  public addMilliSeconds<F>(ms: number): Result<this, F> {
     const ctor = this.constructor as unknown as TimeStatic<this>;
 
     // Safe because subclass's `create` returns the correct concrete type.
-    return ctor.create(new Date(this.properties.value.getTime() + ms));
+    return ctor.create(new Date(this.properties.date.getTime() + ms));
   }
 
   /**
    * Subtract milliseconds and return a new instance.
    * @param ms a milliseconds to substract from current time instance.
    */
-  public subtractMilliSeconds(ms: number): this {
+  public subtractMilliSeconds<F>(ms: number): Result<this, F> {
     const ctor = this.constructor as unknown as TimeStatic<this>;
 
     // Safe because subclass's `create` returns the correct concrete type.
-    return ctor.create(new Date(this.properties.value.getTime() - ms));
+    return ctor.create(new Date(this.properties.date.getTime() - ms));
   }
 
   /**
@@ -176,3 +190,12 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return this.toUnixMilliSeconds() === value.toUnixMilliSeconds();
   }
 }
+
+type FromUnixMsFailures = NullOrUndefinedFailure | NumberFailure;
+
+type FromDateFailures = NullOrUndefinedFailure | DateFailure;
+
+type FromISOStringFailures =
+  | NullOrUndefinedFailure
+  | ISODateFailure
+  | StringFailure;

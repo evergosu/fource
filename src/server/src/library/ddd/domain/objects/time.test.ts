@@ -1,8 +1,20 @@
+import { DomainFailure } from '../../errors';
+import { Result } from '../../types/result';
 import { Time } from './time';
 
+class TestFailure extends DomainFailure {
+  constructor() {
+    super('test error message');
+  }
+}
+
 class TestTime extends Time<TestTime> {
-  static create(date: Date): TestTime {
-    return new TestTime(date);
+  static create(date: Date): Result<TestTime, TestFailure> {
+    if (date.getTime() === 999) {
+      return Result.fail(new TestFailure());
+    }
+
+    return Result.ok(new TestTime(date));
   }
 }
 
@@ -50,7 +62,7 @@ describe('time', () => {
     });
   });
 
-  describe('.fromUnixMillis()', () => {
+  describe('.fromUnixMilliSeconds()', () => {
     const ms = 1_735_689_600_000;
 
     it('should create from unix milliseconds', () => {
@@ -93,19 +105,19 @@ describe('time', () => {
     });
 
     it('should add milliseconds', () => {
-      const time = TestTime.fromUnixMilliSeconds(1000).value;
+      const result = TestTime.fromUnixMilliSeconds(1000).flatMap(t =>
+        t.addMilliSeconds(500),
+      );
 
-      const result = time.addMilliSeconds(500);
-
-      expect(result.toUnixMilliSeconds()).toBe(1500);
+      expect(result.value.toUnixMilliSeconds()).toBe(1500);
     });
 
     it('should subtract milliseconds', () => {
-      const time = TestTime.fromUnixMilliSeconds(1500).value;
+      const result = TestTime.fromUnixMilliSeconds(1500).flatMap(t =>
+        t.subtractMilliSeconds(500),
+      );
 
-      const result = time.subtractMilliSeconds(500);
-
-      expect(result.toUnixMilliSeconds()).toBe(1000);
+      expect(result.value.toUnixMilliSeconds()).toBe(1000);
     });
   });
 });
