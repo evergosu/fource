@@ -4,6 +4,7 @@ export * from './domain/objects/value-object';
 export * from './domain/rules/specification';
 export * from './domain/aggregate-root';
 export * from './domain/domain-events';
+export * from './domain/objects/time';
 export * from './domain/rules/policy';
 export * from './domain/entity';
 
