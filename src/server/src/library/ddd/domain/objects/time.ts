@@ -13,14 +13,15 @@ type Properties = Record<'date', Date>;
 
 /**
  * Shape of subclass static side expected by base factory helpers.
- * Subclasses must implement a static `create(date)` factory.
+ * Subclasses must implement a static `.internalCreate(date)` factory.
  */
-interface TimeStatic<U extends Time<U>, F = never> {
+interface SubClass<U extends Time<U>, F = never> {
   /**
    * Construct an instance of the concrete subclass from a Date.
    * Subclass must implement this and typically call the protected constructor.
+   * Note: kept public to infer widen `Result` types.
    */
-  create(date: Date): Result<U, F>;
+  internalCreate(date: Date): Result<U, F>;
 }
 
 /**
@@ -32,7 +33,7 @@ interface TimeStatic<U extends Time<U>, F = never> {
  */
 export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /**
-   * Private constructor to enforce the use of factory methods.
+   * Private constructor. Use `.from*()` factory methods instead.
    * @param date - The `Date` object to construct `Time`.
    */
   protected constructor(date: Date) {
@@ -46,7 +47,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param date - JavaScript Date instance.
    */
   public static fromDate<U extends Time<U>, F>(
-    this: TimeStatic<U, F>,
+    this: SubClass<U, F>,
     date: Date,
   ): Result<U, FromDateFailures | F> {
     const result = Result.combine([
@@ -58,7 +59,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       return Result.fail<U, FromDateFailures | F>(result.error);
     }
 
-    return this.create(new Date(date.getTime()));
+    return this.internalCreate(new Date(date.getTime()));
   }
 
   /**
@@ -66,7 +67,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param isoString - ISO date string.
    */
   public static fromISOString<U extends Time<U>, F>(
-    this: TimeStatic<U, F>,
+    this: SubClass<U, F>,
     isoString: string,
   ): Result<U, FromISOStringFailures | F> {
     const result = Result.combine([
@@ -78,7 +79,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       return Result.fail<U, FromISOStringFailures | F>(result.error);
     }
 
-    return this.create(new Date(isoString));
+    return this.internalCreate(new Date(isoString));
   }
 
   /**
@@ -86,7 +87,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms - Unix time in milliseconds.
    */
   public static fromUnixMilliSeconds<U extends Time<U>, F>(
-    this: TimeStatic<U, F>,
+    this: SubClass<U, F>,
     ms: number,
   ): Result<U, FromUnixMsFailures | F> {
     const result = Result.combine([
@@ -98,16 +99,16 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       return Result.fail<U, FromUnixMsFailures | F>(result.error);
     }
 
-    return this.create(new Date(ms));
+    return this.internalCreate(new Date(ms));
   }
 
   /**
    * Create a Time instance for the current system time.
    */
   public static fromNow<U extends Time<U>, F>(
-    this: TimeStatic<U, F>,
+    this: SubClass<U, F>,
   ): Result<U, F> {
-    return this.create(new Date());
+    return this.internalCreate(new Date());
   }
 
   /** ----------------- INSTANCE METHODS ----------------- */
@@ -161,10 +162,10 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms a milliseconds to add to current time instance.
    */
   public addMilliSeconds<F>(ms: number): Result<this, F> {
-    const ctor = this.constructor as unknown as TimeStatic<this>;
+    const ctor = this.constructor as unknown as SubClass<this>;
 
-    // Safe because subclass's `create` returns the correct concrete type.
-    return ctor.create(new Date(this.properties.date.getTime() + ms));
+    // Safe because subclass's `.internalCreate()` returns the correct concrete type.
+    return ctor.internalCreate(new Date(this.properties.date.getTime() + ms));
   }
 
   /**
@@ -172,10 +173,10 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms a milliseconds to substract from current time instance.
    */
   public subtractMilliSeconds<F>(ms: number): Result<this, F> {
-    const ctor = this.constructor as unknown as TimeStatic<this>;
+    const ctor = this.constructor as unknown as SubClass<this>;
 
-    // Safe because subclass's `create` returns the correct concrete type.
-    return ctor.create(new Date(this.properties.date.getTime() - ms));
+    // Safe because subclass's `.internalCreate()` returns the correct concrete type.
+    return ctor.internalCreate(new Date(this.properties.date.getTime() - ms));
   }
 
   /**
