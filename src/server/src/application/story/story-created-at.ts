@@ -18,7 +18,7 @@ export class StoryCreatedAt extends Time<StoryCreatedAt> {
    * - DateInFutureFailure
    * - DateFailure
    */
-  public static create(
+  public static internalCreate(
     date: Date,
   ): Result<StoryCreatedAt, DateInFutureFailure | DateFailure> {
     const guard = Guard.for({ date });

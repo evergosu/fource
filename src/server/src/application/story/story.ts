@@ -5,6 +5,7 @@ import {
   Guard,
 } from 'server/library/ddd/primitives';
 
+import { StoryCreatedAt } from './story-created-at';
 import { StoryTitle } from './story-title';
 import { StoryBody } from './story-body';
 
@@ -13,8 +14,8 @@ import { StoryBody } from './story-body';
  */
 interface Properties {
   authorIdentifier: UniqueIdentifier;
+  createdAt: StoryCreatedAt;
   title: StoryTitle;
-  createdAt: Date;
   expiresAt: Date;
   body: StoryBody;
 }
@@ -54,18 +55,20 @@ export class Story extends AggregateRoot<Properties> {
     },
     identifier?: UniqueIdentifier,
   ) {
-    const now = new Date();
-
-    const expiry = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +24h
-
     const guard = Guard.for(raw);
 
     const title = StoryTitle.create(raw.title);
     const body = StoryBody.create(raw.body);
+    const createdAt = StoryCreatedAt.fromNow();
+
+    const expiry = new Date(
+      createdAt.value.toUnixMilliSeconds() + 24 * 60 * 60 * 1000,
+    ); // +24h
 
     const result = Result.combine([
       title,
       body,
+      createdAt,
       guard.againstNullOrUndefined('authorIdentifier'),
     ]);
 
@@ -74,10 +77,10 @@ export class Story extends AggregateRoot<Properties> {
         new Story(
           {
             ...raw,
+            createdAt: createdAt.value,
             title: title.value,
             expiresAt: expiry,
             body: body.value,
-            createdAt: now,
           },
           identifier,
         ),
@@ -106,9 +109,9 @@ export class Story extends AggregateRoot<Properties> {
   }
 
   /**
-   * `Timestamp` when the `Story` was created.
+   * `Date` when the `Story` was created.
    */
-  get createdAt(): Date {
+  get createdAt(): StoryCreatedAt {
     return this.properties.createdAt;
   }
 

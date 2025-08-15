@@ -1,6 +1,7 @@
 import { NullOrUndefinedFailure } from 'server/library/ddd/errors';
 import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
+import { StoryCreatedAt } from './story-created-at';
 import { StoryTitle } from './story-title';
 import { StoryBody } from './story-body';
 import { Story } from './story';
@@ -26,9 +27,9 @@ describe('story', () => {
     expect(story.authorIdentifier.equals(storyAuthorIdentifier.value)).toBe(
       true,
     );
-    expect(story.createdAt).toBeInstanceOf(Date);
+    expect(story.createdAt).toBeInstanceOf(StoryCreatedAt);
     expect(story.expiresAt.getTime()).toBeGreaterThan(
-      story.createdAt.getTime(),
+      story.createdAt.toUnixMilliSeconds(),
     );
   });
 
