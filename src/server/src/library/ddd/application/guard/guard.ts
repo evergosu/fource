@@ -8,13 +8,15 @@ import {
   BlankStringFailure,
   DateInPastFailure,
   OutOfRangeFailure,
+  DateBeforeFailure,
+  DateAfterFailure,
   ISODateFailure,
   StringFailure,
   NumberFailure,
   DateFailure,
 } from './guard-errors';
 import { Result } from '../../types/result';
-
+// TODO: MOVE TO DOMAIN LAYER.
 /**
  * `Guard` class offering both static and instance validation methods.
  *
@@ -266,6 +268,66 @@ export class Guard<T extends Record<string, unknown> = never> {
   }
 
   /**
+   * Validates that a value is not `before another`.
+   * @param date - The value to check.
+   * @param target - The value to check against.
+   * @param name - Name of the field for failure message.
+   * @returns `Result.ok()` if valid; `Result.fail(DateBeforeFailure | DateFailure)` otherwise.
+   */
+  public static againstDateBefore(
+    date: unknown,
+    target: unknown,
+    name: string,
+  ): Result<void, DateBeforeFailure | DateFailure> {
+    const result = Result.combine([
+      Guard.againstNotDate(date, name),
+      Guard.againstNotDate(target, name),
+    ]);
+
+    if (result.isFailure) {
+      return result;
+    }
+
+    if ((date as Date).getTime() < (target as Date).getTime()) {
+      return Result.fail(
+        new DateBeforeFailure(name, (target as Date).toLocaleDateString()),
+      );
+    }
+
+    return Result.ok();
+  }
+
+  /**
+   * Validates that a value is not `after another`.
+   * @param date - The value to check.
+   * @param target - The value to check against.
+   * @param name - Name of the field for failure message.
+   * @returns `Result.ok()` if valid; `Result.fail(DateAfterFailure | DateFailure)` otherwise.
+   */
+  public static againstDateAfter(
+    date: unknown,
+    target: unknown,
+    name: string,
+  ): Result<void, DateAfterFailure | DateFailure> {
+    const result = Result.combine([
+      Guard.againstNotDate(date, name),
+      Guard.againstNotDate(target, name),
+    ]);
+
+    if (result.isFailure) {
+      return result;
+    }
+
+    if ((date as Date).getTime() > (target as Date).getTime()) {
+      return Result.fail(
+        new DateAfterFailure(name, (target as Date).toLocaleDateString()),
+      );
+    }
+
+    return Result.ok();
+  }
+
+  /**
    * Validates that a value is `not in the past` (compared to now).
    * @param value - The value to check.
    * @param name - Name of the field for failure message.
@@ -472,6 +534,38 @@ export class Guard<T extends Record<string, unknown> = never> {
     const value = this.object[field];
 
     return Guard.againstISODateString(value, field.toString());
+  }
+
+  /**
+   * Validates that a property of the instance object
+   * is a `Date` and is not `before` the `target` date.
+   * @param field - Property key to validate.
+   * @param target - The value to check against.
+   * @returns `Result.ok()` if valid; `Result.fail(DateBeforeFailure | DateFailure)` otherwise.
+   */
+  public againstDateBefore(
+    field: keyof T,
+    target: unknown,
+  ): Result<void, DateBeforeFailure | DateFailure> {
+    const value = this.object[field];
+
+    return Guard.againstDateBefore(value, target, field.toString());
+  }
+
+  /**
+   * Validates that a property of the instance object
+   * is a `Date` and is not `after` the `target` date.
+   * @param field - Property key to validate.
+   * @param target - The value to check against.
+   * @returns `Result.ok()` if valid; `Result.fail(DateAfterFailure | DateFailure)` otherwise.
+   */
+  public againstDateAfter(
+    field: keyof T,
+    target: unknown,
+  ): Result<void, DateAfterFailure | DateFailure> {
+    const value = this.object[field];
+
+    return Guard.againstDateAfter(value, target, field.toString());
   }
 
   /**

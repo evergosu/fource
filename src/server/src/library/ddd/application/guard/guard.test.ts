@@ -8,6 +8,8 @@ import {
   BlankStringFailure,
   DateInPastFailure,
   OutOfRangeFailure,
+  DateBeforeFailure,
+  DateAfterFailure,
   ISODateFailure,
   StringFailure,
   NumberFailure,
@@ -284,6 +286,54 @@ describe('guard', () => {
 
     it('should pass on a valid ISO 8601 date string', () => {
       const result = guard.againstISODateString('dateISOString');
+
+      expect(result.isSuccess).toBe(true);
+    });
+  });
+
+  describe('Guard.againstDateBefore()', () => {
+    it('should fail on not a date', () => {
+      const result = guard.againstDateBefore('number', object.dateInPast);
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateFailure);
+    });
+
+    it('should fail on date after', () => {
+      const result = guard.againstDateBefore('dateInPast', object.dateInFuture);
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateBeforeFailure);
+    });
+
+    it('should pass on date before', () => {
+      const result = guard.againstDateBefore('dateInFuture', object.dateInPast);
+
+      expect(result.isSuccess).toBe(true);
+    });
+  });
+
+  describe('Guard.againstDateAfter()', () => {
+    it('should fail on not a date', () => {
+      const result = guard.againstDateAfter('number', object.dateInPast);
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateFailure);
+    });
+
+    it('should fail on date before', () => {
+      const result = guard.againstDateAfter('dateInFuture', object.dateInPast);
+
+      expect(result.isFailure).toBe(true);
+
+      expect(result.error).toBeInstanceOf(DateAfterFailure);
+    });
+
+    it('should pass on date after', () => {
+      const result = guard.againstDateAfter('dateInPast', object.dateInFuture);
 
       expect(result.isSuccess).toBe(true);
     });

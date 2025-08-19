@@ -141,6 +141,40 @@ export class ISODateFailure extends ApplicationFailure {
 }
 
 /**
+ * Failure indicating that a date value occurs before required date.
+ */
+export class DateBeforeFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the date value being validated.
+   * @param date The name of the date value being targeted.
+   */
+  constructor(
+    public readonly value: string,
+    public readonly date: string,
+  ) {
+    super(`${value} cannot come before ${date}`);
+  }
+}
+
+/**
+ * Failure indicating that a date value occurs after required date.
+ */
+export class DateAfterFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the date value being validated.
+   * @param date The name of the date value being targeted.
+   */
+  constructor(
+    public readonly value: string,
+    public readonly date: string,
+  ) {
+    super(`${value} cannot come after ${date}`);
+  }
+}
+
+/**
  * Failure indicating that a date value occurs in the past when future or present dates are required.
  */
 export class DateInPastFailure extends ApplicationFailure {
