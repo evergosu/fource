@@ -13,7 +13,7 @@ import { Result, Guard, Time } from 'server/library/ddd/primitives';
 export class StoryCreatedAt extends Time<StoryCreatedAt> {
   /**
    * Creates a new `StoryCreatedAt` value object.
-   * @param date - The raw date object.
+   * @param date - The date object.
    * @returns `Result` wrapping the new `StoryCreatedAt` or a:
    * - DateInFutureFailure
    * - DateFailure
@@ -26,12 +26,5 @@ export class StoryCreatedAt extends Time<StoryCreatedAt> {
     const result = guard.againstDateInFuture('date');
 
     return result.map(() => new StoryCreatedAt(date));
-  }
-
-  /**
-   * The underlying value of the date.
-   */
-  get date(): Date {
-    return this.properties.date;
   }
 }
