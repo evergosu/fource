@@ -135,6 +135,22 @@ describe('result', () => {
     });
   });
 
+  describe('.fromBoolean()', () => {
+    it('should wrap boolean correctly on true', () => {
+      const result = Result.fromBoolean(true, new Error('foo'), 42);
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBe(42);
+    });
+
+    it('should wrap boolean correctly on false', () => {
+      const result = Result.fromBoolean(false, new Error('foo'), 42);
+
+      expect(result.isFailure).toBe(true);
+      expect(result.error.message).toBe('foo');
+    });
+  });
+
   describe('.fromThrowable()', () => {
     it('should wrap try-catch correctly on success', () => {
       const result = Result.fromThrowable(

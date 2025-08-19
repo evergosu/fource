@@ -46,6 +46,17 @@ export class Result<T, E = Failure> {
   }
 
   /**
+   * Creates a Result from a boolean condition.
+   * @param condition Boolean value that determines success or failure.
+   * @param fail Failure to return in case of failure.
+   * @param ok Value to return in case of success.
+   */
+  static fromBoolean<T, E>(condition: boolean, fail: E, ok?: T): Result<T, E> {
+    // eslint-disable-next-line sonarjs/no-selector-parameter
+    return condition ? Result.ok(ok) : Result.fail(fail);
+  }
+
+  /**
    * Wraps a function call, capturing any thrown exception as `Result.fail()`.
    * @param f - The function to try.
    * @param onError - The function to invoke on error state.
