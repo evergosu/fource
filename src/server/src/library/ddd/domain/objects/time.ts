@@ -21,7 +21,7 @@ interface SubClass<U extends Time<U>, F = never> {
    * Subclass must implement this and typically call the protected constructor.
    * Note: kept public to infer widen `Result` types.
    */
-  internalCreate(date: Date): Result<U, F>;
+  internalCreate(date: Date, validators?: unknown[]): Result<U, F>;
 }
 
 /**
@@ -45,10 +45,12 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /**
    * Create a Time instance from a Date object.
    * @param date - JavaScript Date instance.
+   * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromDate<U extends Time<U>, F>(
     this: SubClass<U, F>,
     date: Date,
+    validators?: unknown[],
   ): Result<U, FromDateFailures | F> {
     const result = Result.combine([
       Guard.againstNullOrUndefined(date, 'date'),
@@ -59,16 +61,18 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       return Result.fail<U, FromDateFailures | F>(result.error);
     }
 
-    return this.internalCreate(new Date(date.getTime()));
+    return this.internalCreate(new Date(date.getTime()), validators);
   }
 
   /**
    * Create a Time instance from an ISO 8601 string.
    * @param isoString - ISO date string.
+   * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromISOString<U extends Time<U>, F>(
     this: SubClass<U, F>,
     isoString: string,
+    validators?: unknown[],
   ): Result<U, FromISOStringFailures | F> {
     const result = Result.combine([
       Guard.againstNullOrUndefined(isoString, 'date'),
@@ -79,16 +83,18 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       return Result.fail<U, FromISOStringFailures | F>(result.error);
     }
 
-    return this.internalCreate(new Date(isoString));
+    return this.internalCreate(new Date(isoString), validators);
   }
 
   /**
    * Create a Time instance from a Unix timestamp in milliseconds.
    * @param ms - Unix time in milliseconds.
+   * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromUnixMilliSeconds<U extends Time<U>, F>(
     this: SubClass<U, F>,
     ms: number,
+    validators?: unknown[],
   ): Result<U, FromUnixMsFailures | F> {
     const result = Result.combine([
       Guard.againstNullOrUndefined(ms, 'date'),
@@ -99,16 +105,18 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       return Result.fail<U, FromUnixMsFailures | F>(result.error);
     }
 
-    return this.internalCreate(new Date(ms));
+    return this.internalCreate(new Date(ms), validators);
   }
 
   /**
    * Create a Time instance for the current system time.
+   * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromNow<U extends Time<U>, F>(
     this: SubClass<U, F>,
+    validators?: unknown[],
   ): Result<U, F> {
-    return this.internalCreate(new Date());
+    return this.internalCreate(new Date(), validators);
   }
 
   /** ----------------- INSTANCE METHODS ----------------- */
@@ -160,23 +168,37 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /**
    * Add milliseconds and return a new instance.
    * @param ms a milliseconds to add to current time instance.
+   * @param validators - Additional arguments for domain-specific validation.
    */
-  public addMilliSeconds<F>(ms: number): Result<this, F> {
-    const ctor = this.constructor as unknown as SubClass<this>;
+  public addMilliSeconds<F>(
+    ms: number,
+    validators?: unknown[],
+  ): Result<this, F> {
+    const ctor = this.constructor as unknown as SubClass<this, F>;
 
     // Safe because subclass's `.internalCreate()` returns the correct concrete type.
-    return ctor.internalCreate(new Date(this.properties.date.getTime() + ms));
+    return ctor.internalCreate(
+      new Date(this.properties.date.getTime() + ms),
+      validators,
+    );
   }
 
   /**
    * Subtract milliseconds and return a new instance.
    * @param ms a milliseconds to substract from current time instance.
+   * @param validators - Additional arguments for domain-specific validation.
    */
-  public subtractMilliSeconds<F>(ms: number): Result<this, F> {
-    const ctor = this.constructor as unknown as SubClass<this>;
+  public subtractMilliSeconds<F>(
+    ms: number,
+    validators?: unknown[],
+  ): Result<this, F> {
+    const ctor = this.constructor as unknown as SubClass<this, F>;
 
     // Safe because subclass's `.internalCreate()` returns the correct concrete type.
-    return ctor.internalCreate(new Date(this.properties.date.getTime() - ms));
+    return ctor.internalCreate(
+      new Date(this.properties.date.getTime() - ms),
+      validators,
+    );
   }
 
   /**
