@@ -13,19 +13,19 @@ type Properties = Record<'date', Date>;
 
 /**
  * Shape of subclass static side expected by base factory helpers.
- * Subclasses must implement a static `.internalCreate(date)` factory.
+ * Subclasses must implement a static `._internalCreate(date)` factory.
  */
 interface SubClass<U extends Time<U>, F = never> {
   /**
-   * Construct an instance of the concrete subclass from a Date.
+   * Construct an instance of the concrete subclass from a `Date`.
    * Subclass must implement this and typically call the protected constructor.
    * Note: kept public to infer widen `Result` types.
    */
-  internalCreate(date: Date, validators?: unknown[]): Result<U, F>;
+  _internalCreate(date: Date, validators?: unknown[]): Result<U, F>;
 }
 
 /**
- * A base immutable Value Object representing a precise point in time.
+ * A base immutable `Value Object` representing a precise point in time.
  *
  * This is intended to be subclassed for domain-specific concepts like
  * `StoryCreatedAt`, `StoryExpiresAt`, etc.
@@ -34,7 +34,7 @@ interface SubClass<U extends Time<U>, F = never> {
 export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /**
    * Private constructor. Use `.from*()` factory methods instead.
-   * @param date - The `Date` object to construct `Time`.
+   * @param date - The `Date` object to construct a `Time`.
    */
   protected constructor(date: Date) {
     super({ date });
@@ -43,8 +43,8 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /** ----------------- STATIC METHODS ----------------- */
 
   /**
-   * Create a Time instance from a Date object.
-   * @param date - JavaScript Date instance.
+   * Create a `Time` instance from a `Date` object.
+   * @param date - JavaScript `Date` instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromDate<U extends Time<U>, F>(
@@ -52,21 +52,17 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     date: Date,
     validators?: unknown[],
   ): Result<U, FromDateFailures | F> {
-    const result = Result.combine([
+    return Result.combine([
       Guard.againstNullOrUndefined(date, 'date'),
       Guard.againstNotDate(date, 'date'),
-    ]);
-
-    if (result.isFailure) {
-      return Result.fail<U, FromDateFailures | F>(result.error);
-    }
-
-    return this.internalCreate(new Date(date.getTime()), validators);
+    ]).flatMapWiden(() =>
+      this._internalCreate(new Date(date.getTime()), validators),
+    );
   }
 
   /**
-   * Create a Time instance from an ISO 8601 string.
-   * @param isoString - ISO date string.
+   * Create a `Time` instance from an `ISO 8601` string.
+   * @param isoString - `ISO` date string.
    * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromISOString<U extends Time<U>, F>(
@@ -74,21 +70,17 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     isoString: string,
     validators?: unknown[],
   ): Result<U, FromISOStringFailures | F> {
-    const result = Result.combine([
+    return Result.combine([
       Guard.againstNullOrUndefined(isoString, 'date'),
       Guard.againstISODateString(isoString, 'date'),
-    ]);
-
-    if (result.isFailure) {
-      return Result.fail<U, FromISOStringFailures | F>(result.error);
-    }
-
-    return this.internalCreate(new Date(isoString), validators);
+    ]).flatMapWiden(() =>
+      this._internalCreate(new Date(isoString), validators),
+    );
   }
 
   /**
-   * Create a Time instance from a Unix timestamp in milliseconds.
-   * @param ms - Unix time in milliseconds.
+   * Create a `Time` instance from a `Unix` timestamp in milliseconds.
+   * @param ms - `Unix` time in milliseconds.
    * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromUnixMilliSeconds<U extends Time<U>, F>(
@@ -96,42 +88,36 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     ms: number,
     validators?: unknown[],
   ): Result<U, FromUnixMsFailures | F> {
-    const result = Result.combine([
+    return Result.combine([
       Guard.againstNullOrUndefined(ms, 'date'),
       Guard.againstNotNumber(ms, 'date'),
-    ]);
-
-    if (result.isFailure) {
-      return Result.fail<U, FromUnixMsFailures | F>(result.error);
-    }
-
-    return this.internalCreate(new Date(ms), validators);
+    ]).flatMapWiden(() => this._internalCreate(new Date(ms), validators));
   }
 
   /**
-   * Create a Time instance for the current system time.
+   * Create a `Time` instance for the current system time.
    * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromNow<U extends Time<U>, F>(
     this: SubClass<U, F>,
     validators?: unknown[],
   ): Result<U, F> {
-    return this.internalCreate(new Date(), validators);
+    return this._internalCreate(new Date(), validators);
   }
 
   /** ----------------- INSTANCE METHODS ----------------- */
 
-  /** Get the underlying Date. */
+  /** Get the underlying `Date`. */
   public toDate(): Date {
     return new Date(this.properties.date.getTime());
   }
 
-  /** Get the time as ISO string. */
+  /** Get the time as `ISO` string. */
   public toISOString(): string {
     return this.properties.date.toISOString();
   }
 
-  /** Get the time as Unix timestamp in milliseconds. */
+  /** Get the time as `Unix` timestamp in milliseconds. */
   public toUnixMilliSeconds(): number {
     return this.properties.date.getTime();
   }
@@ -177,7 +163,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     const ctor = this.constructor as unknown as SubClass<this, F>;
 
     // Safe because subclass's `.internalCreate()` returns the correct concrete type.
-    return ctor.internalCreate(
+    return ctor._internalCreate(
       new Date(this.properties.date.getTime() + ms),
       validators,
     );
@@ -195,7 +181,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     const ctor = this.constructor as unknown as SubClass<this, F>;
 
     // Safe because subclass's `.internalCreate()` returns the correct concrete type.
-    return ctor.internalCreate(
+    return ctor._internalCreate(
       new Date(this.properties.date.getTime() - ms),
       validators,
     );
@@ -214,11 +200,11 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 }
 
-type FromUnixMsFailures = NullOrUndefinedFailure | NumberFailure;
+export type FromUnixMsFailures = NullOrUndefinedFailure | NumberFailure;
 
-type FromDateFailures = NullOrUndefinedFailure | DateFailure;
+export type FromDateFailures = NullOrUndefinedFailure | DateFailure;
 
-type FromISOStringFailures =
+export type FromISOStringFailures =
   | NullOrUndefinedFailure
   | ISODateFailure
   | StringFailure;

@@ -9,7 +9,7 @@ class TestFailure extends DomainFailure {
 }
 
 class TestTime extends Time<TestTime> {
-  public static internalCreate(date: Date): Result<TestTime, TestFailure> {
+  public static _internalCreate(date: Date): Result<TestTime, TestFailure> {
     if (date.getTime() === 999) {
       return Result.fail(new TestFailure());
     }
