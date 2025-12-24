@@ -9,9 +9,10 @@
     "build": "tsc && pnpm succeed:build",
     "build:production": "NODE_ENV=production pnpm lint && pnpm build && pnpm test:once",
     "lint": "pnpm lint:code && pnpm lint:gherkin && pnpm succeed:lint",
-    "lint:code": "tsc --noEmit --pretty -p tsconfig.json && eslint --fix",
+    "lint:tsc": "tsc --noEmit --pretty -p tsconfig.json",
+    "lint:code": "pnpm lint:tsc && eslint --fix",
     "lint:gherkin": "gherkin-lint -c ../../.gherkin-lintrc",
-    "pre-commit": "lint-staged && pnpm test:changed",
+    "pre-commit": "pnpm lint:tsc && lint-staged && pnpm test:changed",
     "start": "NODE_ENV=development tsc --watch",
     "succeed:build": ": '\u001b[1;32m✔ build succeed\u001b[0m'",
     "succeed:lint": ": '\u001b[1;32m✔ lint succeed\u001b[0m'",
@@ -21,7 +22,7 @@
     "test:once": "NODE_ENV=test pnpm lint:gherkin && vitest run && pnpm succeed:test"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "pnpm lint:code",
+    "*.{ts,tsx}": "eslint --fix",
     "*.feature": "pnpm lint:gherkin"
   },
   "dependencies": {

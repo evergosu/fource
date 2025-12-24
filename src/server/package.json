@@ -22,13 +22,14 @@
     "launch:daemon:database": "pnpm database:daemon & pnpm build:production && pnpm start:production:daemon",
     "launch:database": "pnpm database:start & pnpm build:production && pnpm start:production",
     "lint": "pnpm lint:code && pnpm lint:gherkin && pnpm succeed:lint",
-    "lint:code": "tsc --noEmit --pretty -p tsconfig.json && eslint --fix",
+    "lint:tsc": "tsc --noEmit --pretty -p tsconfig.json",
+    "lint:code": "pnpm lint:tsc && eslint --fix",
     "lint:gherkin": "gherkin-lint -c ../../.gherkin-lintrc",
     "logs:install": "[ \"$(pm2 id pm2-logrotate)\" = \"[0]\" ] || pm2 install pm2-logrotate",
     "logs:setup": "pm2 conf pm2-logrotate '{\"max_size\": \"10M\", \"retain\": 7, \"compress\": true, \"interval\": \"1d\"}'",
     "logs:start": "pm2 start pm2-logrotate",
     "logs:stop": "pm2 stop pm2-logrotate",
-    "pre-commit": "lint-staged && pnpm test:changed",
+    "pre-commit": "pnpm lint:tsc && lint-staged && pnpm test:changed",
     "start": "NODE_ENV=development tsx watch --clear-screen=false ./src/server/instances/node-postgresql.ts",
     "start:pglite": "NODE_ENV=development tsx watch --clear-screen=false ./src/server/instances/node-pglite.ts",
     "start:production": "NODE_ENV=production node ./dist/index.js",
@@ -44,7 +45,7 @@
     "test:once": "NODE_ENV=test pnpm lint:gherkin && vitest run && pnpm succeed:test"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "pnpm lint:code",
+    "*.{ts,tsx}": "eslint --fix",
     "*.feature": "pnpm lint:gherkin"
   },
   "dependencies": {

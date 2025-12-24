@@ -14,14 +14,15 @@
     "launch": "pnpm build:production && pnpm start:production",
     "launch:daemon": "pnpm build:production && pnpm start:production:daemon",
     "lint": "pnpm lint:code && pnpm lint:styles && pnpm lint:gherkin && pnpm succeed:lint",
-    "lint:code": "tsc --noEmit --pretty -p tsconfig.json && eslint --fix",
+    "lint:tsc": "tsc --noEmit --pretty -p tsconfig.json",
+    "lint:code": "pnpm lint:tsc && eslint --fix",
     "lint:gherkin": "gherkin-lint -c ../../.gherkin-lintrc",
     "lint:styles": "stylelint '**/*.css' --fix",
     "logs:install": "[ \"$(pm2 id pm2-logrotate)\" = \"[0]\" ] || pm2 install pm2-logrotate",
     "logs:setup": "pm2 conf pm2-logrotate '{\"max_size\": \"10M\", \"retain\": 7, \"compress\": true, \"interval\": \"1d\"}'",
     "logs:start": "pm2 start pm2-logrotate",
     "logs:stop": "pm2 stop pm2-logrotate",
-    "pre-commit": "lint-staged && pnpm test:changed",
+    "pre-commit": "pnpm lint:tsc && lint-staged && pnpm test:changed",
     "start": "pnpm build:config && NODE_ENV=development tsx watch --clear-screen=false ./src/index.ts",
     "start:production": "NODE_ENV=production node ./dist/index.js",
     "start:production:daemon": "pnpm logs:install && pnpm logs:setup && pnpm logs:start && pm2 start ecosystem.config.cjs && pnpm succeed:launch",
@@ -36,7 +37,7 @@
   },
   "lint-staged": {
     "*.css": "pnpm lint:styles",
-    "*.{ts,tsx}": "pnpm lint:code",
+    "*.{ts,tsx}": "eslint --fix",
     "*.feature": "pnpm lint:gherkin"
   },
   "dependencies": {
