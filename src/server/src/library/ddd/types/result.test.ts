@@ -180,8 +180,8 @@ describe('result', () => {
   describe('.fold()', () => {
     it('should fold success value correctly', () => {
       const result = Result.ok(7).fold(
-        () => 'failed',
         value => `success: ${value.toString()}`,
+        () => 'failed',
       );
 
       expect(result).toBe('success: 7');
@@ -189,8 +189,8 @@ describe('result', () => {
 
     it('should fold error value correctly', () => {
       const result = Result.fail('oops').fold(
-        error => `error: ${error}`,
         () => 'success',
+        error => `error: ${error}`,
       );
 
       expect(result).toBe('error: oops');

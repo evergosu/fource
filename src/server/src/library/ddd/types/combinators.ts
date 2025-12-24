@@ -22,8 +22,8 @@ export function combineResults<
 
   for (const result of results) {
     result.fold(
-      error => errors.push(error),
       value => values.push(value),
+      error => errors.push(error),
     );
   }
 

@@ -213,12 +213,12 @@ export class Result<T, E = Failure> {
 
   /**
    * Folds (reduces) the Result into a single value by providing handlers for both Value and Error.
-   * @param onFailure - The function to handle the Failure case.
    * @param onSuccess - The function to handle the Success case.
+   * @param onFailure - The function to handle the Failure case.
    * @returns The result of applying the appropriate handler.
    */
-  public fold<U>(onFailure: (error: E) => U, onSuccess: (value: T) => U): U {
-    return this.isFailure ? onFailure(this.error) : onSuccess(this.value);
+  public fold<U>(onSuccess: (value: T) => U, onFailure: (error: E) => U): U {
+    return this.isSuccess ? onSuccess(this.value) : onFailure(this.error);
   }
 
   /**
