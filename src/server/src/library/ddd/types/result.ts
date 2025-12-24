@@ -139,6 +139,22 @@ export class Result<T, E = Failure> {
   }
 
   /**
+   * Applies a synchronous transformation function that returns a `Result` to the successful value
+   * of the result. If the current result is a failure, the same failure is returned,
+   * if function returns another error type, widened error returned.
+   *
+   * This is useful for chaining operations that may return a result indicating failure.
+   * @template U - The type of the value in the new result.
+   * @param f - A function that transforms the successful value into a `Result<U, E>`.
+   * @returns A new `Result<U, E | E2>`, or the current failure.
+   */
+  public flatMapWiden<U, E2>(
+    f: (value: T) => Result<U, E2>,
+  ): Result<U, E2 | E> {
+    return this.isSuccess ? f(this.value) : Result.fail<E2 | E>(this.error);
+  }
+
+  /**
    * Applies a synchronous transformation function to the successful value of the result,
    * returning a new successful result. If the current result is a failure, the same failure is returned.
    * @template U - The type of the value in the new result.
