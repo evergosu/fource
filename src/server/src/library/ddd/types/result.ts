@@ -166,8 +166,8 @@ export class Result<T, E = Failure> {
    * @param error - Error payload.
    * @returns Failure result.
    */
-  public static fail<U = never, F = string>(error: F): Result<U, F> {
-    return new Result<U, F>(false, error);
+  public static fail<F = string>(error: F): Result<never, F> {
+    return new Result<never, F>(false, error);
   }
 
   /**

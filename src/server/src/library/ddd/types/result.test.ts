@@ -53,7 +53,7 @@ describe('result', () => {
         code: 'ERR001',
       };
 
-      const result = Result.fail<never, DomainError>(error);
+      const result = Result.fail<DomainError>(error);
 
       expect(result.isFailure).toBe(true);
       expect(result.error).toEqual(error);
