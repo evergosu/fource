@@ -6,7 +6,7 @@ import type {
 import { Result, Guard, Time } from 'server/library/ddd/primitives';
 
 /**
- * Value Object representing the creation time of a Story.
+ * `Value Object` representing the creation time of a `Story`.
  * Invariants:
  * - must not be in the future (UTC).
  */
@@ -18,13 +18,11 @@ export class StoryCreatedAt extends Time<StoryCreatedAt> {
    * - DateInFutureFailure
    * - DateFailure
    */
-  public static internalCreate(
+  public static _internalCreate(
     date: Date,
   ): Result<StoryCreatedAt, DateInFutureFailure | DateFailure> {
-    const guard = Guard.for({ date });
-
-    const result = guard.againstDateInFuture('date');
-
-    return result.map(() => new StoryCreatedAt(date));
+    return Guard.againstDateInFuture(date, 'date').map(
+      () => new StoryCreatedAt(date),
+    );
   }
 }
