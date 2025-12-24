@@ -5,24 +5,25 @@ import {
   Guard,
 } from 'server/library/ddd/primitives';
 
+import { StoryExpiresAt } from './story-expires-at';
 import { StoryCreatedAt } from './story-created-at';
 import { StoryTitle } from './story-title';
 import { StoryBody } from './story-body';
 
 /**
- * Properties required to create or rehydrate a Story.
+ * Properties required to create or rehydrate a `Story`.
  */
 interface Properties {
   authorIdentifier: UniqueIdentifier;
   createdAt: StoryCreatedAt;
+  expiresAt: StoryExpiresAt;
   title: StoryTitle;
-  expiresAt: Date;
   body: StoryBody;
 }
 
 /**
  * Represents a short-lived user-generated story in the platform.
- * Stories include metadata and content and are the root of emoji reactions,
+ * `Stories` include metadata and content and are the root of emoji reactions,
  * Fource actions, and moderation signals.
  */
 export class Story extends AggregateRoot<Properties> {
@@ -42,10 +43,13 @@ export class Story extends AggregateRoot<Properties> {
    * @param raw.authorIdentifier - An `Identifier` of the `Author` who created the `Story`.
    * @param identifier - An optional `Identifier` of the `Story` to operate on.
    * @returns `Result` wrapping the new `Story` or a:
-   * - `MaximumLengthExceededFailure`
-   * - `MinimumLengthNotMetFailure`
-   * - `NullOrUndefinedFailure`
-   * - `StringFailure`
+   * - DateFailure
+   * - DateInFutureFailure
+   * - MaximumLengthExceededFailure
+   * - MinimumLengthNotMetFailure
+   * - NullOrUndefinedFailure
+   * - StoryExpiresTimeNotMatchTTLFailure
+   * - StringFailure
    */
   public static create(
     raw: {
@@ -58,17 +62,20 @@ export class Story extends AggregateRoot<Properties> {
     const guard = Guard.for(raw);
 
     const title = StoryTitle.create(raw.title);
+
     const body = StoryBody.create(raw.body);
+
     const createdAt = StoryCreatedAt.fromNow();
 
-    const expiry = new Date(
-      createdAt.value.toUnixMilliSeconds() + 24 * 60 * 60 * 1000,
-    ); // +24h
+    const expiresAt = createdAt.flatMapWiden(t =>
+      StoryExpiresAt.fromCreatedAt(t),
+    );
 
     const result = Result.combine([
       title,
       body,
       createdAt,
+      expiresAt,
       guard.againstNullOrUndefined('authorIdentifier'),
     ]);
 
@@ -78,8 +85,8 @@ export class Story extends AggregateRoot<Properties> {
           {
             ...raw,
             createdAt: createdAt.value,
+            expiresAt: expiresAt.value,
             title: title.value,
-            expiresAt: expiry,
             body: body.value,
           },
           identifier,
@@ -116,9 +123,9 @@ export class Story extends AggregateRoot<Properties> {
   }
 
   /**
-   * `Timestamp` when the `Story` should expire (typically 24h after creation).
+   * `Date` when the `Story` should expire.
    */
-  get expiresAt(): Date {
+  get expiresAt(): StoryExpiresAt {
     return this.properties.expiresAt;
   }
 }

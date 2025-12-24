@@ -2,11 +2,21 @@ import { NullOrUndefinedFailure } from 'server/library/ddd/errors';
 import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
 import { StoryCreatedAt } from './story-created-at';
+import { StoryExpiresAt } from './story-expires-at';
 import { StoryTitle } from './story-title';
 import { StoryBody } from './story-body';
 import { Story } from './story';
 
 describe('story', () => {
+  beforeAll(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-09T12:34:56'));
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   it('should create a story successfully with valid input', () => {
     const storyAuthorIdentifier = UniqueIdentifier.create();
 
@@ -28,7 +38,8 @@ describe('story', () => {
       true,
     );
     expect(story.createdAt).toBeInstanceOf(StoryCreatedAt);
-    expect(story.expiresAt.getTime()).toBeGreaterThan(
+    expect(story.expiresAt).toBeInstanceOf(StoryExpiresAt);
+    expect(story.expiresAt.toUnixMilliSeconds()).toBeGreaterThan(
       story.createdAt.toUnixMilliSeconds(),
     );
   });
