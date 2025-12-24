@@ -238,6 +238,51 @@ export class Result<T, E = Failure> {
   }
 
   /**
+   * Applies transformations to both the `success` and `failure` cases of this `Result`.
+   *
+   * - If the result is successful (`ok`), applies the `onSuccess` function
+   * to the contained `value` and wraps it back into a new `ok`.
+   * - If the result is a failure (`error`), applies the `onFailure` function
+   * to the contained `error` and wraps it back into a new `error`.
+   *
+   * Unlike `Result.fold`, this method preserves the `Result` container type,
+   * allowing further monadic chaining and composition.
+   * @template T - The success type of the current result.
+   * @template E - The error type of the current result.
+   * @template U - The success type of the new result after applying `onSuccess`.
+   * @template E2 - The error type of the new result after applying `onFailure`.
+   * @param onSuccess - Function to transform the success value when this is `ok`.
+   * @param onFailure - Function to transform the error value when this is `error`.
+   * @returns A new `Result` containing either:
+   * - the transformed success value of type `U` if the original result was successful, or
+   * - the transformed error value of type `E2` if the original result was a failure.
+   * @example
+   * ```ts
+   * const success = Result.ok(42);
+   * const result = success.bimap(
+   *   v => v * 2,
+   *   e => `Error: ${e}`
+   * );
+   * // result is Ok(84)
+   *
+   * const failure = Result.fail("boom");
+   * const result = failure.bimap(
+   *   v => v * 2,
+   *   e => `Error: ${e}`
+   * );
+   * // result is Err("Error: boom")
+   * ```
+   */
+  public bimap<U, E2>(
+    onSuccess: (value: T) => U,
+    onFailure: (error: E) => E2,
+  ): Result<U, E2 | E> {
+    return this.isSuccess
+      ? Result.ok<U>(onSuccess(this.value))
+      : Result.fail<E2 | E>(onFailure(this.error));
+  }
+
+  /**
    * Whether the result represents failure.
    * @returns failure flag of the result.
    */
