@@ -188,7 +188,7 @@ export class Result<T, E = Failure> {
   public get error(): E {
     if (this._isSuccess) {
       throw new DataTypeInvariantViolationException(
-        'Cannot get the error of a successful result',
+        `Cannot get the error of a successful result with a value: ${String(this.value)}`,
       );
     }
 
@@ -204,7 +204,7 @@ export class Result<T, E = Failure> {
   public get value(): T {
     if (!this._isSuccess) {
       throw new DataTypeInvariantViolationException(
-        'Cannot get the value of a failed result',
+        `Cannot get the value of a failed result with an error: ${String(this.error)}`,
       );
     }
 
