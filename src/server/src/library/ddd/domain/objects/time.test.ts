@@ -18,8 +18,28 @@ class TestTime extends Time<TestTime> {
   }
 }
 
+class TestTimeWithValidators extends Time<TestTimeWithValidators> {
+  public static _internalCreate(
+    date: Date,
+    validators: [validate: () => 999],
+  ): Result<TestTimeWithValidators, TestFailure> {
+    const [validate] = validators;
+    if (date.getTime() === validate()) {
+      return Result.fail(new TestFailure());
+    }
+
+    return Result.ok(new TestTimeWithValidators(date));
+  }
+}
+
 describe('time', () => {
   const isoString = '2025-08-12T10:15:30.000Z';
+
+  it('should throw if validators has not been passed', () => {
+    expect(() =>
+      TestTimeWithValidators.fromISOString('2025-08-10T10:15:30.000Z'),
+    ).toThrow();
+  });
 
   describe('.fromDate()', () => {
     it('should create from valid Date object', () => {
