@@ -1,11 +1,13 @@
-import { UniqueIdentifier } from '../../domain/identifiers/unique-identifier';
-import { Specification } from '../../domain/rules/specification';
-import { AggregateNotFoundFailure } from './repository-errors';
-import { AggregateRoot } from '../../domain/aggregate-root';
-import { type Repository } from './repository';
-import { Result } from '../../types/result';
+import type { Repository } from './repository';
 
-class FakeAggregate extends AggregateRoot<{ isActive: boolean }> {
+import { UniqueIdentifier } from '../identifiers/unique-identifier';
+import { AggregateNotFoundFailure } from './repository-errors';
+import { Specification } from '../rules/specification';
+import { AggregateRoot } from '../aggregate-root';
+import { Result } from '../../primitives';
+
+// eslint-disable-next-line prettier/prettier
+class FakeAggregate extends AggregateRoot<{ isActive: boolean; }> {
   deactivate(): void {
     this.properties.isActive = false;
   }
@@ -47,7 +49,6 @@ class FakeRepository implements Repository<FakeAggregate> {
       return Result.fail(new AggregateNotFoundFailure(id));
     }
 
-    // eslint-disable-next-line drizzle/enforce-delete-with-where
     store.delete(id.toString());
 
     return Result.ok();
@@ -166,7 +167,6 @@ describe('repository', () => {
   it('should delete an aggregate by ID', async () => {
     await repository.save(aggregate);
 
-    // eslint-disable-next-line drizzle/enforce-delete-with-where
     const result = await repository.delete(aggregate.id);
 
     expect(result.isSuccess).toBe(true);
@@ -179,7 +179,6 @@ describe('repository', () => {
   it('should fail deletion if ID was not found', async () => {
     const unknownId = UniqueIdentifier.create();
 
-    // eslint-disable-next-line drizzle/enforce-delete-with-where
     const result = await repository.delete(unknownId.value);
 
     expect(result.isFailure).toBe(true);

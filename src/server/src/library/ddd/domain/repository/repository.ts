@@ -1,7 +1,10 @@
-import type { Specification } from '../../domain/rules/specification';
-import type { AggregateNotFoundFailure } from './repository-errors';
-import type { AggregateRoot } from '../../domain/aggregate-root';
-import type { Result } from '../../types/result';
+import type {
+  AggregateAlreadyExistsFailure,
+  AggregateNotFoundFailure,
+} from './repository-errors';
+import type { Specification } from '../rules/specification';
+import type { AggregateRoot } from '../aggregate-root';
+import type { Result } from '../../primitives';
 
 /**
  * Base interface for repositories in the domain layer.
@@ -35,7 +38,7 @@ export interface Repository<T extends AggregateRoot<unknown>> {
    * @param aggregate - The aggregate to persist.
    * @returns `Result.ok()` on success, or `Result.fail()` with an error.
    */
-  save(aggregate: T): Promise<Result<void, AggregateNotFoundFailure>>;
+  save(aggregate: T): Promise<Result<void, AggregateAlreadyExistsFailure>>;
 
   /**
    * Deletes the aggregate from the store.
