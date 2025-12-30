@@ -17,7 +17,9 @@ export class StoryAuthorId extends ValueObject<Properties> {
   /**
    * Creates a new `StoryAuthorId` value object.
    * @param authorId - The raw title string.
-   * @returns `Result` with a `StoryAuthorId` or an `ApplicationFailure`.
+   * @returns `Result` with:
+   * - `StoryAuthorId`
+   * - `ApplicationFailure`
    */
   public static create(authorId: string) {
     return Guard.againstNullOrUndefined(authorId, 'authorId')
