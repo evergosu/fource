@@ -20,6 +20,8 @@
     "app:stop": "pm2 stop $npm_package_name && pm2 stop pm2-logrotate",
     "build": "pnpm install --frozen-lockfile && pnpm --recursive --parallel --stream --aggregate-output build:production",
     "database:daemon": "pnpm --filter server database:daemon",
+    "database:generate": "pnpm --filter server database:generate",
+    "database:migrate": "pnpm --filter server database:migrate",
     "database:start": "pnpm --filter server database:start",
     "deps": "pnpm update -i",
     "lint": "pnpm --recursive --parallel --stream --aggregate-output lint",
