@@ -80,6 +80,12 @@ export default config(
   {
     rules: {
       ...drizzle.configs.recommended.rules,
+      'drizzle/enforce-delete-with-where': [
+        'error',
+        {
+          drizzleObjectName: 'database',
+        },
+      ],
     },
     plugins: {
       drizzle,
