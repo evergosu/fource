@@ -2,33 +2,42 @@ import {
   timestamp,
   pgTable,
   varchar,
-  serial,
   index,
+  check,
   uuid,
   text,
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const story = pgTable(
   'story',
   {
-    createdAt: timestamp('created_at', {
-      withTimezone: false,
-      mode: 'date',
-    }).notNull(),
     expiresAt: timestamp('expires_at', {
       withTimezone: false,
       mode: 'date',
-    }).notNull(),
+    })
+      .default(sql`now() + interval '24 hours'`)
+      .notNull(),
+    createdAt: timestamp('created_at', {
+      withTimezone: false,
+      mode: 'date',
+    })
+      .defaultNow()
+      .notNull(),
     title: varchar('title', { length: 255 }).notNull(),
-    id: serial('id').primaryKey().notNull(),
+    id: uuid('id').primaryKey().notNull(),
     authorId: uuid('author_id').notNull(),
     body: text('body').notNull(),
   },
   table => [
-    index('story_created_at_idx').on(table.createdAt),
-    index('story_expires_at_idx').on(table.expiresAt),
+    index('created_at_idx').on(table.createdAt),
+    index('expires_at_idx').on(table.expiresAt),
+    check(
+      'expiry_24h_check',
+      sql`EXTRACT(EPOCH FROM ${table.expiresAt} - ${table.createdAt}) = 86400`,
+    ),
   ],
 );
 
