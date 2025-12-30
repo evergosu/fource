@@ -34,6 +34,11 @@ export default config(
   regexp.configs['flat/recommended'],
   jsdoc.configs['flat/recommended-typescript-error'],
   promise.configs['flat/recommended'],
+  {
+    rules: {
+      semi: ['error', 'always'],
+    },
+  },
   prettier,
   {
     rules: {
