@@ -34,11 +34,18 @@ export interface Repository<T extends AggregateRoot<unknown>> {
   ): Promise<Result<T[], AggregateNotFoundFailure>>;
 
   /**
-   * Saves or updates the aggregate in the underlying store.
+   * Updates the aggregate in the underlying store.
    * @param aggregate - The aggregate to persist.
-   * @returns `Result.ok()` on success, or `Result.fail()` with an error.
+   * @returns Result wrapping success or an AggregateNotFoundError.
    */
-  save(aggregate: T): Promise<Result<void, AggregateAlreadyExistsFailure>>;
+  update(aggregate: T): Promise<Result<void, AggregateNotFoundFailure>>;
+
+  /**
+   * Create a new aggregate.
+   * @param aggregate - The aggregate to persist.
+   * @returns Result wrapping success or an AggregateAlreadyExistsFailure.
+   */
+  create(aggregate: T): Promise<Result<void, AggregateAlreadyExistsFailure>>;
 
   /**
    * Deletes the aggregate from the store.
