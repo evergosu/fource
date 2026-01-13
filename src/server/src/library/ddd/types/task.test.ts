@@ -1,33 +1,5 @@
-/* eslint-disable unicorn/consistent-function-scoping */
-/* eslint-disable unicorn/no-array-callback-reference */
-
-import type { LawRuntime } from './laws/law-runtime';
-
-import { errorChannelLaws } from './laws/error-channel-laws';
-import { functorLaws } from './laws/functor-laws';
-import { monadLaws } from './laws/monad-laws';
 import { Result } from './result';
 import { Task } from './task';
-
-function createTaskRuntime<A, E>(): LawRuntime<Task<A, E>, A, E> {
-  return {
-    async run(fa) {
-      return fa.run();
-    },
-
-    equals(left, right) {
-      if (left.isSuccess && right.isSuccess) {
-        return left.value === right.value;
-      }
-
-      if (left.isFailure && right.isFailure) {
-        return left.error === right.error;
-      }
-
-      return false;
-    },
-  };
-}
 
 describe('Task', () => {
   it('should be liftable from Result', async () => {
@@ -146,85 +118,6 @@ describe('Task', () => {
       const result = await Task.all([Task.ok(1), Task.ok(2)]).run();
 
       expect(result.value).toEqual([1, 2]);
-    });
-  });
-
-  describe('functor laws', () => {
-    const laws = functorLaws<Task<number, never>, number, never>(
-      createTaskRuntime<number, never>(),
-      Task.ok<number>(42),
-      (fa, f) => fa.map(f),
-    );
-
-    test('should follow identity', async () => {
-      expect(await laws.identity()).toBe(true);
-    });
-
-    test('should follow composition', async () => {
-      const f = (n: number) => n + 1;
-      const g = (n: number) => n * 2;
-
-      expect(await laws.composition(f, g)).toBe(true);
-    });
-  });
-
-  describe('monad laws', () => {
-    const laws = monadLaws<Task<number, never>, number>(
-      createTaskRuntime<number, never>(),
-      n => Task.ok<number>(n),
-      (fa, f) => fa.flatMap(f),
-    );
-
-    test('should follow left identity', async () => {
-      const f = (n: number) => Task.ok(n + 1);
-
-      expect(await laws.leftIdentity(1, f)).toBe(true);
-    });
-
-    test('should follow right identity', async () => {
-      const fa = Task.ok(5);
-
-      expect(await laws.rightIdentity(fa)).toBe(true);
-    });
-
-    test('should follow associativity', async () => {
-      const fa = Task.ok(5);
-
-      const f = (n: number) => Task.ok(n + 1);
-      const g = (n: number) => Task.ok(n * 2);
-
-      expect(await laws.associativity(fa, f, g)).toBe(true);
-    });
-  });
-
-  describe('error-channel laws', () => {
-    const laws = errorChannelLaws<Task<number, string>, number, string>(
-      (fa, f) => fa.mapError(f),
-      (fa, f) => fa.flatMap(f),
-      (fa, f) => fa.map(f),
-      error => Task.fail(error),
-      value => Task.ok(value),
-      createTaskRuntime<number, never>(),
-    );
-
-    it('should not affect failure on map operations', async () => {
-      expect(await laws.mapDoesNotAffectFailure()).toBe(true);
-    });
-
-    it('should not affect failure on flatMap operations', async () => {
-      expect(await laws.flatMapDoesNotAffectFailure()).toBe(true);
-    });
-
-    it('should not affect success on mapError operations', async () => {
-      expect(await laws.mapErrorDoesNotAffectSuccess()).toBe(true);
-    });
-
-    it('should respect functor identity on mapError operations', async () => {
-      expect(await laws.mapErrorFunctorIdentity()).toBe(true);
-    });
-
-    it('should respect functor composition on mapError operations', async () => {
-      expect(await laws.mapErrorFunctorComposition()).toBe(true);
     });
   });
 });

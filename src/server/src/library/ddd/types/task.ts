@@ -81,144 +81,6 @@ export class Task<A, E> {
     return this.effect();
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Constructors                                                       */
-  /* ------------------------------------------------------------------ */
-
-  /**
-   * ---
-   * Lifts an already computed {@link Result} into a {@link Task}.
-   * ---
-   * @param result - Existing `Result`
-   */
-  static fromResult<A, E>(result: Result<A, E>): Task<A, E> {
-    return new Task(() => Promise.resolve(result));
-  }
-
-  /**
-   * ---
-   * Creates a successful task.
-   * ---
-   * @param value - Success value
-   * @returns A task that always succeeds
-   */
-  static ok<A = void, E = never>(value?: A): Task<A, E> {
-    return new Task(() => Promise.resolve(Result.ok(value as A)));
-  }
-
-  /**
-   * ---
-   * Creates a failed task.
-   * ---
-   * @param error - Failure value
-   * @returns A task that always fails
-   */
-  static fail<E, A = never>(error: E): Task<A, E> {
-    // eslint-disable-next-line promise/no-promise-in-callback
-    return new Task(() => Promise.resolve(Result.fail(error)));
-  }
-
-  /**
-   * ---
-   * Lifts a Promise-producing effect into a {@link Task}.
-   * ---
-   * - captures **thrown exceptions**
-   * - failure type is **never by design**
-   * - no error interpretation happens here
-   * - this method is intended **only for infrastructure code**
-   * ---
-   * Why `never`? To support widen types.
-   *
-   * JavaScript promises can throw *anything*.
-   * Error translation must be explicit:
-   * ---
-   * @param effect Lazy async function
-   * ---
-   * ```ts
-   * Task.fromPromise(fetchUser).mapError(e => new InfraFailure(e))
-   * ```
-   */
-  static fromPromise<A, E = never>(effect: () => Promise<A>): Task<A, E> {
-    return new Task(async () => {
-      try {
-        return Result.ok(await effect());
-      } catch (error) {
-        return Result.fail(error as E);
-      }
-    });
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* Combinators                                                        */
-  /* ------------------------------------------------------------------ */
-
-  /**
-   * ---
-   * Transforms the successful value of this task.
-   * ---
-   * @param f - Mapping function
-   * @returns A new task with transformed success value
-   * ---
-   * ```ts
-   * Task.ok(2).map(x => x * 2);
-   * ```
-   */
-  map<B>(f: (value: A) => B): Task<B, E> {
-    return new Task(async () => {
-      const result = await this.run();
-      // eslint-disable-next-line unicorn/no-array-callback-reference
-      return result.map(f);
-    });
-  }
-
-  /**
-   * ---
-   * Transforms the failure value of this task.
-   * ---
-   * @param f - Error mapping function
-   * ---
-   * ```ts
-   * task.mapError(err => new InfraError(err));
-   * ```
-   */
-  mapError<F>(f: (error: E) => F): Task<A, F> {
-    return new Task(async () => {
-      const result = await this.run();
-      return result.mapError(f);
-    });
-  }
-
-  /**
-   * ---
-   * Sequentially composes two tasks.
-   * ---
-   * - executes this task
-   * - if it fails → short-circuits
-   * - if it succeeds → executes the next task
-   * ---
-   * @param f Function producing the next task
-   * ---
-   * Error types are **widened automatically**:
-   *
-   * ```ts
-   * Task<A, E>.flatMap(() => Task<B, F>)
-   * // => Task<B, E | F>
-   * ```
-   */
-  flatMap<B, F>(f: (value: A) => Task<B, F>): Task<B, E | F> {
-    return new Task(async (): Promise<Result<B, E | F>> => {
-      const result = await this.run();
-
-      if (result.isFailure) {
-        return Result.failWiden(result.error);
-      }
-
-      const next = await f(result.value).run();
-
-      return next.mapErrorWiden(x => x);
-    });
-  }
-
   /**
    * ---
    * Ensures that a predicate holds for the success value.
@@ -262,6 +124,149 @@ export class Task<A, E> {
       f(value);
 
       return Task.ok<A, E>(value);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Transforms                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
+   * Lifts an already computed {@link Result} into a {@link Task}.
+   * ---
+   * @param result - Existing `Result`
+   */
+  static fromResult<A, E>(result: Result<A, E>): Task<A, E> {
+    return new Task(() => Promise.resolve(result));
+  }
+
+  /**
+   * ---
+   * Lifts a Promise-producing effect into a {@link Task}.
+   * ---
+   * - captures **thrown exceptions**
+   * - failure type is **never by design**
+   * - no error interpretation happens here
+   * - this method is intended **only for infrastructure code**
+   * ---
+   * Why `never`? To support widen types.
+   *
+   * JavaScript promises can throw *anything*.
+   * Error translation must be explicit:
+   * ---
+   * @param effect Lazy async function
+   * ---
+   * ```ts
+   * Task.fromPromise(fetchUser).mapError(e => new InfraFailure(e))
+   * ```
+   */
+  static fromPromise<A, E = never>(effect: () => Promise<A>): Task<A, E> {
+    return new Task(async () => {
+      try {
+        return Result.ok(await effect());
+      } catch (error) {
+        return Result.fail(error as E);
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Constructors                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
+   * Creates a successful task.
+   * ---
+   * @param value - Success value
+   * @returns A task that always succeeds
+   */
+  static ok<A = void, E = never>(value?: A): Task<A, E> {
+    return new Task(() => Promise.resolve(Result.ok(value as A)));
+  }
+
+  /**
+   * ---
+   * Creates a failed task.
+   * ---
+   * @param error - Failure value
+   * @returns A task that always fails
+   */
+  static fail<E, A = never>(error: E): Task<A, E> {
+    // eslint-disable-next-line promise/no-promise-in-callback
+    return new Task(() => Promise.resolve(Result.fail(error)));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Combinators                                                        */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
+   * Transforms the successful value of this task.
+   * ---
+   * @param f - Mapping function
+   * @returns A new task with transformed success value
+   * ---
+   * ```ts
+   * Task.ok(2).map(x => x * 2);
+   * ```
+   */
+  map<B>(f: (value: A) => B): Task<B, E> {
+    return new Task(async () => {
+      const result = await this.run();
+      // eslint-disable-next-line unicorn/no-array-callback-reference
+      return result.map(f);
+    });
+  }
+
+  /**
+   * ---
+   * Transforms the failure value of this task.
+   * ---
+   * @param f - Error mapping function
+   * ---
+   * ```ts
+   * task.mapError(err => new InfraError(err));
+   * ```
+   */
+  mapError<F>(f: (error: E) => F): Task<A, F> {
+    return new Task(async () => {
+      const result = await this.run();
+
+      return result.mapError(f);
+    });
+  }
+
+  /**
+   * ---
+   * Sequentially composes two tasks.
+   * ---
+   * - executes this task
+   * - if it fails → short-circuits
+   * - if it succeeds → executes the next task
+   * ---
+   * @param f Function producing the next task
+   * ---
+   * Error types are **widened automatically**:
+   *
+   * ```ts
+   * Task<A, E>.flatMap(() => Task<B, F>)
+   * // => Task<B, E | F>
+   * ```
+   */
+  flatMap<B, F>(f: (value: A) => Task<B, F>): Task<B, E | F> {
+    return new Task(async (): Promise<Result<B, E | F>> => {
+      const result = await this.run();
+
+      if (result.isFailure) {
+        return Result.failWiden(result.error);
+      }
+
+      const next = await f(result.value).run();
+
+      return next.mapErrorWiden(x => x);
     });
   }
 

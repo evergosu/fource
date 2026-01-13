@@ -1,6 +1,7 @@
 import type { LawRuntime } from '../laws/law-runtime';
 
 /**
+ * ---
  * Verifies Functor laws for a container supporting `map`.
  * ---
  * Functor laws guarantee that `map`:

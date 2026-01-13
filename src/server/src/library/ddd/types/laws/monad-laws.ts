@@ -1,6 +1,7 @@
 import type { LawRuntime } from '../laws/law-runtime';
 
 /**
+ * ---
  * Verifies Monad laws for a container supporting `flatMap`.
  * ---
  * Monad laws guarantee that sequencing:
