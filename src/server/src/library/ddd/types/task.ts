@@ -272,6 +272,41 @@ export class Task<A, E> {
 
   /**
    * ---
+   * Exhaustively matches on the Task result.
+   * ---
+   * This is the **control flow combinator** for `Task`.
+   * It executes the effect and forces handling of both
+   * success and failure cases.
+   * ---
+   * After matching, the error channel is eliminated.
+   * ---
+   * @param cases - Handlers for both success and failure outcomes
+   * @param cases.fail - Handler for failure result
+   * @param cases.ok - Handler for success result
+   * ---
+   * @returns A Task that cannot fail
+   */
+  public match<U>(cases: {
+    fail: (error: E) => Task<U, never> | U;
+    ok: (value: A) => Task<U, never> | U;
+  }): Task<U, never> {
+    return new Task(async () => {
+      const result = await this.run();
+
+      const output = result.isSuccess()
+        ? cases.ok(result.value)
+        : cases.fail(result.error);
+
+      if (output instanceof Task) {
+        return output.run();
+      }
+
+      return Result.ok(output);
+    });
+  }
+
+  /**
+   * ---
    * Transforms the underlying {@link Result} directly.
    * ---
    * - logging

@@ -3,6 +3,7 @@ import type { LawRuntime } from './laws/law-runtime';
 /* eslint-disable unicorn/consistent-function-scoping */
 import { naturalTransformationLaws } from './laws/natural-transformation-laws';
 import { monadMorphismLaws } from './laws/monad-morphism-laws';
+import { effectfulFoldLaws } from './laws/effectful-fold-laws';
 import { errorChannelLaws } from './laws/error-channel-laws';
 import { functorLaws } from './laws/functor-laws';
 import { monadLaws } from './laws/monad-laws';
@@ -195,6 +196,58 @@ describe('category theory', () => {
 
     it('should respect functor composition on mapError operations', async () => {
       expect(await laws.mapErrorFunctorComposition()).toBe(true);
+    });
+  });
+
+  describe('effectful fold laws', () => {
+    it('should satisfy left consistency', () => {
+      const runtime = createTaskRuntime<string, string>();
+
+      const fa = Task.fail<string>('err') as Task<string, string>;
+
+      const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) =>
+        t.match({ fail, ok }),
+      );
+
+      expect(
+        laws.leftConsistency(
+          'err',
+          error => `error:${error}`,
+          n => `ok:${String(n)}`,
+        ),
+      ).toBe(true);
+    });
+
+    it('should satisfy right consistency', () => {
+      const runtime = createTaskRuntime<number, string>();
+      const fa = Task.ok<number>(5) as Task<number, string>;
+
+      const laws = effectfulFoldLaws(runtime, fa, (r, fail, ok) =>
+        r.match({ fail, ok }),
+      );
+
+      expect(
+        laws.rightConsistency(5, error => (error.length > 0 ? 5 : 6), Number),
+      ).toBe(true);
+    });
+
+    it('should satisfy naturality', () => {
+      const runtime = createTaskRuntime<number, string>();
+      const fa = Task.ok<number>(3) as Task<number, string>;
+
+      const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) =>
+        t.match({ fail, ok }),
+      );
+
+      expect(
+        laws.naturality(
+          error => error.length,
+          n => Number(n) + 1,
+          x => x * 2,
+          // eslint-disable-next-line sonarjs/no-nested-functions
+          (t, f) => t.map(x => f(x)),
+        ),
+      ).toBe(true);
     });
   });
 });
