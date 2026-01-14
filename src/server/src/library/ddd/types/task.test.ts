@@ -6,7 +6,7 @@ describe('Task', () => {
     const task = Result.ok(42).toTask();
     const result = await task.run();
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.value).toBe(42);
   });
 
@@ -17,7 +17,7 @@ describe('Task', () => {
 
     const result = await task.run();
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
   });
 
   describe('.run()', () => {
@@ -38,7 +38,7 @@ describe('Task', () => {
     it('should produce success', async () => {
       const result = await Task.ok(1).run();
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value).toBe(1);
     });
   });
@@ -47,7 +47,7 @@ describe('Task', () => {
     it('should produce failure', async () => {
       const result = await Task.fail('err').run();
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.error).toBe('err');
     });
   });
@@ -88,7 +88,7 @@ describe('Task', () => {
         .flatMap(() => Task.ok(1))
         .run();
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.error).toBe('error');
     });
   });
@@ -99,7 +99,7 @@ describe('Task', () => {
         .ensure(x => x === 1, 'fail')
         .run();
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value).toBe(1);
     });
 
@@ -108,7 +108,7 @@ describe('Task', () => {
         .ensure(x => x > 2, 'fail')
         .run();
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.error).toBe('fail');
     });
   });

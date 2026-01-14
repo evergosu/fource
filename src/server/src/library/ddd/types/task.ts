@@ -260,13 +260,13 @@ export class Task<A, E> {
     return new Task(async (): Promise<Result<B, E | F>> => {
       const result = await this.run();
 
-      if (result.isFailure) {
-        return Result.failWiden(result.error);
+      if (result.isFailure()) {
+        return Result.fail(result.error);
       }
 
       const next = await f(result.value).run();
 
-      return next.mapErrorWiden(x => x);
+      return next.mapError(x => x);
     });
   }
 
@@ -307,7 +307,7 @@ export class Task<A, E> {
       for (const task of tasks) {
         const result = await task.run();
 
-        if (result.isFailure) {
+        if (result.isFailure()) {
           return Result.fail(result.error);
         }
 

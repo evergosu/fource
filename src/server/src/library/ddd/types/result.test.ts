@@ -4,22 +4,22 @@ import { Result } from './result';
 describe('result', () => {
   const error = 'Something went wrong';
 
-  describe('.isSuccess()', () => {
+  describe('.isSuccess()()', () => {
     const value = 'test value';
 
     it('should create a success result with value', () => {
       const result = Result.ok(value);
 
-      expect(result.isSuccess).toBe(true);
-      expect(result.isFailure).toBe(false);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.isFailure()).toBe(false);
       expect(result.value).toBe(value);
     });
 
     it('should create a success result without value (void)', () => {
       const result = Result.ok();
 
-      expect(result.isSuccess).toBe(true);
-      expect(result.isFailure).toBe(false);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.isFailure()).toBe(false);
 
       expect(result.value).toBeUndefined();
     });
@@ -37,8 +37,8 @@ describe('result', () => {
     it('should create a failure result with string error', () => {
       const result = Result.fail(error);
 
-      expect(result.isSuccess).toBe(false);
-      expect(result.isFailure).toBe(true);
+      expect(result.isSuccess()).toBe(false);
+      expect(result.isFailure()).toBe(true);
       expect(result.error).toBe(error);
     });
 
@@ -55,7 +55,7 @@ describe('result', () => {
 
       const result = Result.fail<DomainError>(error);
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.error).toEqual(error);
     });
 
@@ -74,14 +74,14 @@ describe('result', () => {
     it('should return value on successful result', () => {
       const result = Result.ok(value);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.getOrElse('foo')).toBe(value);
     });
 
     it('should return fallback on failed result', () => {
       const result = Result.fail(value);
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getOrElse('foo' as never)).toBe('foo');
     });
   });
@@ -92,14 +92,14 @@ describe('result', () => {
     it('should return value on successful result', () => {
       const result = Result.ok(value);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.getOrElseLazy(() => 'foo')).toBe(value);
     });
 
     it('should return fallback on failed result', () => {
       const result = Result.fail(value);
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getOrElseLazy((() => 'foo') as never)).toBe('foo');
     });
   });
@@ -112,7 +112,7 @@ describe('result', () => {
 
       const combined = Result.combine([resultOne, resultTwo, resultThree]);
 
-      expect(combined.isSuccess).toBe(true);
+      expect(combined.isSuccess()).toBe(true);
 
       expect(combined.value).toBe(undefined);
     });
@@ -130,7 +130,7 @@ describe('result', () => {
         resultFour,
       ]);
 
-      expect(combined.isFailure).toBe(true);
+      expect(combined.isFailure()).toBe(true);
       expect(combined.error).toBe('Failed at step 2');
     });
   });
@@ -139,14 +139,30 @@ describe('result', () => {
     it('should wrap boolean correctly on true', () => {
       const result = Result.fromBoolean(true, new Error('foo'), 42);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value).toBe(42);
     });
 
     it('should wrap boolean correctly on false', () => {
       const result = Result.fromBoolean(false, new Error('foo'), 42);
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
+      expect(result.error.message).toBe('foo');
+    });
+  });
+
+  describe('.fromNullable()', () => {
+    it('should wrap nullable correctly on existing type', () => {
+      const result = Result.fromNullable('foobar', new Error('foo'));
+
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe('foobar');
+    });
+
+    it('should wrap nullable correctly on nullable', () => {
+      const result = Result.fromNullable(false, new Error('foo'));
+
+      expect(result.isFailure()).toBe(true);
       expect(result.error.message).toBe('foo');
     });
   });
@@ -158,7 +174,7 @@ describe('result', () => {
         error => (error as Error).message,
       );
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value).toBe(42);
     });
 
@@ -172,26 +188,26 @@ describe('result', () => {
         error => (error as Error).message,
       );
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.error).toBe(error);
     });
   });
 
-  describe('.fold()', () => {
-    it('should fold success value correctly', () => {
-      const result = Result.ok(7).fold(
-        value => `success: ${value.toString()}`,
-        () => 'failed',
-      );
+  describe('.match()', () => {
+    it('should match success value correctly', () => {
+      const result = (Result.ok(7) as Result<number, string>).match({
+        fail: value => `success: ${value.toString()}`,
+        ok: () => 'failed',
+      });
 
       expect(result).toBe('success: 7');
     });
 
-    it('should fold error value correctly', () => {
-      const result = Result.fail('oops').fold(
-        () => 'success',
-        error => `error: ${error}`,
-      );
+    it('should match error value correctly', () => {
+      const result = Result.fail('oops').match({
+        fail: error => `error: ${error}`,
+        ok: () => 'success',
+      });
 
       expect(result).toBe('error: oops');
     });
@@ -203,7 +219,7 @@ describe('result', () => {
 
       const mapped = result.map(n => n * 3);
 
-      expect(mapped.isSuccess).toBe(true);
+      expect(mapped.isSuccess()).toBe(true);
       expect(mapped.value).toBe(6);
     });
 
@@ -212,7 +228,7 @@ describe('result', () => {
 
       const mapped = result.map((n: number) => n * 3);
 
-      expect(mapped.isFailure).toBe(true);
+      expect(mapped.isFailure()).toBe(true);
       expect(mapped.error).toBe('error');
     });
   });
@@ -221,14 +237,14 @@ describe('result', () => {
     it('should mapError correctly', () => {
       const left = Result.fail('fail').mapError(error => error.toUpperCase());
 
-      expect(left.isFailure).toBe(true);
+      expect(left.isFailure()).toBe(true);
       expect(left.error).toBe('FAIL');
     });
 
     it('should not map success value', () => {
       const right = Result.ok(14).mapError(x => x * 3);
 
-      expect(right.isSuccess).toBe(true);
+      expect(right.isSuccess()).toBe(true);
       expect(right.value).toBe(14);
     });
   });
@@ -239,7 +255,7 @@ describe('result', () => {
 
       const flatMapped = result.flatMap(n => Result.ok(n * 5));
 
-      expect(flatMapped.isSuccess).toBe(true);
+      expect(flatMapped.isSuccess()).toBe(true);
       expect(flatMapped.value).toBe(10);
     });
 
@@ -248,7 +264,7 @@ describe('result', () => {
 
       const flatMapped = result.flatMap((n: number) => Result.ok(n * 5));
 
-      expect(flatMapped.isFailure).toBe(true);
+      expect(flatMapped.isFailure()).toBe(true);
       expect(flatMapped.error).toBe('fail');
     });
 
@@ -257,66 +273,8 @@ describe('result', () => {
 
       const flatMapped = result.flatMap(() => Result.fail('inner fail'));
 
-      expect(flatMapped.isFailure).toBe(true);
+      expect(flatMapped.isFailure()).toBe(true);
       expect(flatMapped.error).toBe('inner fail');
-    });
-  });
-
-  describe('.mapAsync()', () => {
-    it('should asynchronously transform value if success', async () => {
-      const result = Result.ok(3);
-
-      const mapped = await result.mapAsync(
-        async n => await Promise.resolve(n + 7),
-      );
-
-      expect(mapped.isSuccess).toBe(true);
-      expect(mapped.value).toBe(10);
-    });
-
-    it('should return same failure if result is failure', async () => {
-      const result = Result.fail('async error');
-
-      const mapped = await result.mapAsync(
-        async (n: number) => await Promise.resolve(n + 1),
-      );
-
-      expect(mapped.isFailure).toBe(true);
-      expect(mapped.error).toBe('async error');
-    });
-  });
-
-  describe('.flatMapAsync()', () => {
-    it('should asynchronously transform value into a result if success', async () => {
-      const result = Result.ok(4);
-
-      const flatMapped = await result.flatMapAsync(
-        async n => await Promise.resolve(Result.ok(n * 2)),
-      );
-
-      expect(flatMapped.isSuccess).toBe(true);
-      expect(flatMapped.value).toBe(8);
-    });
-
-    it('should return same failure if result is failure', async () => {
-      const result = Result.fail('initial failure');
-      const flatMapped = await result.flatMapAsync(
-        async (n: number) => await Promise.resolve(Result.ok(n * 2)),
-      );
-
-      expect(flatMapped.isFailure).toBe(true);
-      expect(flatMapped.error).toBe('initial failure');
-    });
-
-    it('should propagate inner async failure result', async () => {
-      const result: Result<number, string> = Result.ok(100);
-
-      const flatMapped = await result.flatMapAsync(
-        async () => await Promise.resolve(Result.fail('inner failure')),
-      );
-
-      expect(flatMapped.isFailure).toBe(true);
-      expect(flatMapped.error).toBe('inner failure');
     });
   });
 

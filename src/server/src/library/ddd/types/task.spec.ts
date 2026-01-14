@@ -9,18 +9,21 @@ import { monadLaws } from './laws/monad-laws';
 import { Result } from './result';
 import { Task } from './task';
 
-function createTaskRuntime<A, E>(): LawRuntime<Task<A, E>, A, E> {
+/**
+ * Test runtime for category law execution.
+ */
+export function createTaskRuntime<A, E>(): LawRuntime<Task<A, E>, A, E> {
   return {
     async run(fa) {
       return fa.run();
     },
 
     equals(left, right) {
-      if (left.isSuccess && right.isSuccess) {
+      if (left.isSuccess() && right.isSuccess()) {
         return left.value === right.value;
       }
 
-      if (left.isFailure && right.isFailure) {
+      if (left.isFailure() && right.isFailure()) {
         return left.error === right.error;
       }
 
@@ -37,11 +40,11 @@ describe('category theory', () => {
       (fa, f) => fa.map(x => f(x)),
     );
 
-    it('should follow identity', async () => {
+    it('should satisfy identity', async () => {
       expect(await laws.identity()).toBe(true);
     });
 
-    it('should follow composition', async () => {
+    it('should satisfy composition', async () => {
       const f = (n: number) => n + 1;
       const g = (n: number) => n * 2;
 
@@ -61,7 +64,7 @@ describe('category theory', () => {
     const lift = <A>(fa: Result<A, string>): Task<A, string> =>
       Task.fromResult(fa);
 
-    it('should follow naturality on success', async () => {
+    it('should satisfy naturality on success', async () => {
       const laws = naturalTransformationLaws(
         runtimeTask,
         Result.ok(1) as Result<number, string>,
@@ -73,7 +76,7 @@ describe('category theory', () => {
       expect(await laws.naturality(x => x + 1)).toBe(true);
     });
 
-    it('should follow naturality on failure', async () => {
+    it('should satisfy naturality on failure', async () => {
       const laws = naturalTransformationLaws(
         runtimeTask,
         Result.fail('err') as Result<number, string>,
@@ -142,19 +145,19 @@ describe('category theory', () => {
       (fa, f) => fa.flatMap(x => f(x)),
     );
 
-    it('should follow left identity', async () => {
+    it('should satisfy left identity', async () => {
       const f = (n: number) => Task.ok(n + 1);
 
       expect(await laws.leftIdentity(1, f)).toBe(true);
     });
 
-    it('should follow right identity', async () => {
+    it('should satisfy right identity', async () => {
       const fa = Task.ok(5);
 
       expect(await laws.rightIdentity(fa)).toBe(true);
     });
 
-    it('should follow associativity', async () => {
+    it('should satisfy associativity', async () => {
       const fa = Task.ok(5);
 
       const f = (n: number) => Task.ok(n + 1);
