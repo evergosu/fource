@@ -11,6 +11,11 @@ type ResultState<T, E> =
   // eslint-disable-next-line prettier/prettier
   | { readonly tag: 'success'; readonly value: T; };
 
+
+export type ResultFailure<R> = R extends Result<unknown, infer F> ? F : never;
+
+export type ResultSuccess<R> = R extends Result<infer S, unknown> ? S : never;
+
 /**
  * ---
  * A functional object representing the result of an operation,
