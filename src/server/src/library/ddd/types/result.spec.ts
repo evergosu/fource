@@ -7,6 +7,7 @@ import { bifunctorLaws } from './laws/bifunctor-laws';
 import { naturalTransformationLaws } from './laws/natural-transformation-laws';
 import { monadMorphismLaws } from './laws/monad-morphism-laws';
 import { errorChannelLaws } from './laws/error-channel-laws';
+import { applicativeLaws } from './laws/applicative-laws';
 import { functorLaws } from './laws/functor-laws';
 import { createTaskRuntime } from './task.spec';
 import { monadLaws } from './laws/monad-laws';
@@ -96,6 +97,47 @@ describe('category theory', () => {
           error => error.toUpperCase(),
         ),
       ).toBe(true);
+    });
+  });
+
+  describe('applicative laws', () => {
+    const runtime = createResultRuntime<number, string>();
+
+    const laws = applicativeLaws<
+      number,
+      number,
+      number,
+      string,
+      Result<unknown, string>
+    >(
+      runtime,
+      n => Result.ok(n),
+      (ff, fa) => ff.ap(fa),
+      Result.ok(4),
+    );
+
+    it('should satisfy identity', async () => {
+      expect(await laws.identity()).toBe(true);
+    });
+
+    it('should satisfy homomorphism', async () => {
+      expect(await laws.homomorphism(x => x + 1, 2)).toBe(true);
+    });
+
+    it('should satisfy interchange', async () => {
+      expect(
+        await laws.interchange(
+          Result.ok((x: number) => x * 2),
+          3,
+        ),
+      ).toBe(true);
+    });
+
+    it('should satisfy composition', async () => {
+      const fg = Result.ok((x: number) => x + 1);
+      const ff = Result.ok((x: number) => x * 2);
+
+      expect(await laws.composition(fg, ff)).toBe(true);
     });
   });
 

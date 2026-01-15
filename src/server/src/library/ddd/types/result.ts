@@ -213,6 +213,39 @@ export class Result<T, E = Failure> {
   }
 
   /* ------------------------------------------------------------------ */
+  /* Applicative                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
+   * Applies a wrapped function to a wrapped value.
+   * ---
+   * Enables Applicative-style composition.
+   * ---
+   * Laws:
+   * - identity
+   * - homomorphism
+   * - interchange
+   * - composition
+   * ---
+   * @param fa - container to apply.
+   */
+  public ap<U, E2>(
+    this: Result<(value: T) => U, E>,
+    fa: Result<T, E2>,
+  ): Result<U, E2 | E> {
+    if (this.isFailure()) {
+      return Result.fail(this.error);
+    }
+
+    if (fa.isFailure()) {
+      return Result.fail(fa.error);
+    }
+
+    return Result.ok(this.value(fa.value));
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Transforms                                                       */
   /* ------------------------------------------------------------------ */
 
