@@ -5,8 +5,10 @@ import { naturalTransformationLaws } from './laws/natural-transformation-laws';
 import { monadMorphismLaws } from './laws/monad-morphism-laws';
 import { effectfulFoldLaws } from './laws/effectful-fold-laws';
 import { errorChannelLaws } from './laws/error-channel-laws';
+import { applicativeLaws } from './laws/applicative-laws';
 import { functorLaws } from './laws/functor-laws';
 import { monadLaws } from './laws/monad-laws';
+import { deepCompare } from '../primitives';
 import { Result } from './result';
 import { Task } from './task';
 
@@ -21,11 +23,11 @@ export function createTaskRuntime<A, E>(): LawRuntime<Task<A, E>, A, E> {
 
     equals(left, right) {
       if (left.isSuccess() && right.isSuccess()) {
-        return left.value === right.value;
+        return deepCompare(left.value, right.value);
       }
 
       if (left.isFailure() && right.isFailure()) {
-        return left.error === right.error;
+        return deepCompare(left.error, right.error);
       }
 
       return false;
@@ -50,6 +52,47 @@ describe('category theory', () => {
       const g = (n: number) => n * 2;
 
       expect(await laws.composition(f, g)).toBe(true);
+    });
+  });
+
+  describe('applicative laws', () => {
+    const runtime = createTaskRuntime<number, string>();
+
+    const laws = applicativeLaws<
+      number,
+      number,
+      number,
+      string,
+      Task<unknown, string>
+    >(
+      runtime,
+      n => Task.ok(n),
+      (ff, fa) => ff.ap(fa),
+      Task.ok(4),
+    );
+
+    it('should satisfy identity', async () => {
+      expect(await laws.identity()).toBe(true);
+    });
+
+    it('should satisfy homomorphism', async () => {
+      expect(await laws.homomorphism(x => x + 1, 2)).toBe(true);
+    });
+
+    it('should satisfy interchange', async () => {
+      expect(
+        await laws.interchange(
+          Task.ok((x: number) => x * 2),
+          3,
+        ),
+      ).toBe(true);
+    });
+
+    it('should satisfy composition', async () => {
+      const fg = Task.ok((x: number) => x + 1);
+      const ff = Task.ok((x: number) => x * 2);
+
+      expect(await laws.composition(fg, ff)).toBe(true);
     });
   });
 

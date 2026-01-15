@@ -128,6 +128,45 @@ export class Task<A, E> {
   }
 
   /* ------------------------------------------------------------------ */
+  /* Applicative                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
+   * Applies a wrapped function to a wrapped value.
+   * ---
+   * Enables Applicative-style composition.
+   * Runs this task and the argument task in parallel.
+   * Fails fast.
+   * ---
+   * Laws:
+   * - identity
+   * - homomorphism
+   * - interchange
+   * - composition
+   * ---
+   * @param fa - container to apply.
+   */
+  public ap<B, F>(
+    this: Task<(value: A) => B, E>,
+    fa: Task<A, F>,
+  ): Task<B, E | F> {
+    return new Task(async () => {
+      const [rf, ra] = await Promise.all([this.run(), fa.run()]);
+
+      if (rf.isFailure()) {
+        return Result.fail(rf.error);
+      }
+
+      if (ra.isFailure()) {
+        return Result.fail(ra.error);
+      }
+
+      return Result.ok(rf.value(ra.value));
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Transforms                                                       */
   /* ------------------------------------------------------------------ */
 
@@ -231,7 +270,7 @@ export class Task<A, E> {
    * task.mapError(err => new InfraError(err));
    * ```
    */
-  mapError<F>(f: (error: E) => F): Task<A, F> {
+  mapError<F>(f: (error: E) => F): Task<A, E | F> {
     return new Task(async () => {
       const result = await this.run();
 
