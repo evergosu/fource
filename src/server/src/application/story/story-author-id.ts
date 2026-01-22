@@ -7,6 +7,7 @@ import {
 type Properties = Record<'authorId', string>;
 
 /**
+ * ---
  * Represents a validated, non-empty author identifier of the `Story`.
  */
 export class StoryAuthorId extends ValueObject<Properties> {
@@ -15,7 +16,9 @@ export class StoryAuthorId extends ValueObject<Properties> {
   }
 
   /**
+   * ---
    * Creates a new `StoryAuthorId` value object.
+   * ---
    * @param authorId - The raw title string.
    * @returns `Result` with:
    * - `StoryAuthorId`
@@ -23,11 +26,12 @@ export class StoryAuthorId extends ValueObject<Properties> {
    */
   public static create(authorId: string) {
     return Guard.againstNullOrUndefined(authorId, 'authorId')
-      .flatMapWiden(() => UniqueIdentifier.create(authorId))
+      .flatMap(() => UniqueIdentifier.create(authorId))
       .map(id => new StoryAuthorId({ authorId: id.toString() }));
   }
 
   /**
+   * ---
    * The underlying string value of the author identifier.
    */
   get authorId(): string {
