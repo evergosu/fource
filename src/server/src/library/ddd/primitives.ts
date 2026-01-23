@@ -11,8 +11,9 @@ export * from './domain/entity';
 export * from './application/use-case/use-case';
 export * from './application/guard/guard';
 
-export * from './infrastructure/repository/repository';
-export * from './infrastructure/mapper/mapper';
+export * from './infrastructure/repository/adapters/serializer';
+export * from './infrastructure/repository/adapters/rehydrator';
+export * from './infrastructure/infrastructure-repository';
 
 export * from './interfaces/http/express/express-controller';
 
@@ -20,6 +21,7 @@ export * from './types/combinators';
 export * from './types/either';
 export * from './types/result';
 export * from './types/option';
+export * from './types/task';
 
 export * from './utility/deep-compare';
 export * from './utility/deep-freeze';
