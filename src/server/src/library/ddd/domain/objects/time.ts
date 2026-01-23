@@ -12,28 +12,36 @@ import { Result } from '../../types/result';
 type Properties = Record<'date', Date>;
 
 /**
+ * ---
  * Shape of subclass static side expected by base factory helpers.
- * Subclasses must implement a static `._internalCreate(date)` factory.
+ * ---
+ * - subclasses must implement a static `._internalCreate(date)` factory.
  */
 interface SubClass<U extends Time<U>, F = never> {
   /**
+   * ---
    * Construct an instance of the concrete subclass from a `Date`.
-   * Subclass must implement this and typically call the protected constructor.
-   * Note: kept public to infer widen `Result` types.
+   * ---
+   * - subclass must implement this and typically call the protected constructor.
+   * - kept public to infer widen `Result` types.
    */
   _internalCreate(date: Date, validators?: unknown[]): Result<U, F>;
 }
 
 /**
+ * ---
  * A base immutable `Value Object` representing a precise point in time.
- *
- * This is intended to be subclassed for domain-specific concepts like
+ * ---
+ * - this is intended to be subclassed for domain-specific concepts like
  * `StoryCreatedAt`, `StoryExpiresAt`, etc.
+ * ---
  * @template T - Concrete subclass type
  */
 export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /**
+   * ---
    * Private constructor. Use `.from*()` factory methods instead.
+   * ---
    * @param date - The `Date` object to construct a `Time`.
    */
   protected constructor(date: Date) {
@@ -43,7 +51,9 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   /** ----------------- STATIC METHODS ----------------- */
 
   /**
+   * ---
    * Create a `Time` instance from a `Date` object.
+   * ---
    * @param date - JavaScript `Date` instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
@@ -55,13 +65,15 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return Result.combine([
       Guard.againstNullOrUndefined(date, 'date'),
       Guard.againstNotDate(date, 'date'),
-    ]).flatMapWiden(() =>
+    ]).flatMap(() =>
       this._internalCreate(new Date(date.getTime()), validators),
     );
   }
 
   /**
+   * ---
    * Create a `Time` instance from an `ISO 8601` string.
+   * ---
    * @param isoString - `ISO` date string.
    * @param validators - Additional arguments for domain-specific validation.
    */
@@ -73,13 +85,13 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return Result.combine([
       Guard.againstNullOrUndefined(isoString, 'date'),
       Guard.againstISODateString(isoString, 'date'),
-    ]).flatMapWiden(() =>
-      this._internalCreate(new Date(isoString), validators),
-    );
+    ]).flatMap(() => this._internalCreate(new Date(isoString), validators));
   }
 
   /**
+   * ---
    * Create a `Time` instance from a `Unix` timestamp in milliseconds.
+   * ---
    * @param ms - `Unix` time in milliseconds.
    * @param validators - Additional arguments for domain-specific validation.
    */
@@ -91,11 +103,13 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return Result.combine([
       Guard.againstNullOrUndefined(ms, 'date'),
       Guard.againstNotNumber(ms, 'date'),
-    ]).flatMapWiden(() => this._internalCreate(new Date(ms), validators));
+    ]).flatMap(() => this._internalCreate(new Date(ms), validators));
   }
 
   /**
+   * ---
    * Create a `Time` instance for the current system time.
+   * ---
    * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromNow<U extends Time<U>, F>(
@@ -107,23 +121,34 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
 
   /** ----------------- INSTANCE METHODS ----------------- */
 
-  /** Get the underlying `Date`. */
+  /**
+   * ---
+   * Get the underlying `Date`.
+   */
   public toDate(): Date {
     return new Date(this.properties.date.getTime());
   }
 
-  /** Get the time as `ISO` string. */
+  /**
+   * ---
+   * Get the time as `ISO` string.
+   */
   public toISOString(): string {
     return this.properties.date.toISOString();
   }
 
-  /** Get the time as `Unix` timestamp in milliseconds. */
+  /**
+   * ---
+   * Get the time as `Unix` timestamp in milliseconds.
+   */
   public toUnixMilliSeconds(): number {
     return this.properties.date.getTime();
   }
 
   /**
+   * ---
    * Whether this time is before another.
+   * ---
    * @param other The time object to compare with.
    */
   public isBefore<U extends Time<U>>(other: U): boolean {
@@ -131,7 +156,9 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 
   /**
+   * ---
    * Whether this time is after another.
+   * ---
    * @param other The time object to compare with.
    */
   public isAfter<U extends Time<U>>(other: U): boolean {
@@ -139,7 +166,9 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 
   /**
+   * ---
    * Whether this time is between two others (exclusive).
+   * ---
    * @param start The time object to start from.
    * @param end The time object to end with.
    */
@@ -152,7 +181,9 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 
   /**
+   * ---
    * Add milliseconds and return a new instance.
+   * ---
    * @param ms a milliseconds to add to current time instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
@@ -170,7 +201,9 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 
   /**
+   * ---
    * Subtract milliseconds and return a new instance.
+   * ---
    * @param ms a milliseconds to substract from current time instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
@@ -188,7 +221,9 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 
   /**
+   * ---
    * Equality check based on instant in time.
+   * ---
    * @param value - The other `Time` instance to compare against.
    */
   public override equals<U extends Time<U>>(value?: U): boolean {
