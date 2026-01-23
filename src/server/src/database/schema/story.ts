@@ -2,12 +2,17 @@ import {
   timestamp,
   pgTable,
   varchar,
+  integer,
   index,
   check,
   uuid,
   text,
 } from 'drizzle-orm/pg-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from 'drizzle-zod';
 import { sql } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -27,6 +32,7 @@ export const story = pgTable(
       .defaultNow()
       .notNull(),
     title: varchar('title', { length: 255 }).notNull(),
+    version: integer('version').notNull(),
     id: uuid('id').primaryKey().notNull(),
     authorId: uuid('author_id').notNull(),
     body: text('body').notNull(),
@@ -42,16 +48,35 @@ export const story = pgTable(
 );
 
 /**
- * Schema for inserting a Story row.
- * Used only at infrastructure boundaries.
+ * ---
+ * Schema for selecting a Story row.
+ * ---
+ * - used by repositories for rehydration.
  */
-export const insertStorySchema = createInsertSchema(story);
+export const storySelectSchema = createSelectSchema(story);
 
 /**
- * Schema for selecting a Story row.
- * Used by repositories for rehydration.
+ * ---
+ * Schema for inserting a Story row.
+ * ---
+ * - used only at infrastructure boundaries.
  */
-export const selectStorySchema = createSelectSchema(story);
+export const storyInsertSchema = createInsertSchema(story).omit({
+  createdAt: true,
+  expiresAt: true,
+});
 
-export type InsertStorySchema = z.infer<typeof insertStorySchema>;
-export type SelectStorySchema = z.infer<typeof selectStorySchema>;
+/**
+ * ---
+ * Schema for updating a Story row.
+ * ---
+ * - used only at infrastructure boundaries.
+ */
+export const storyUpdateSchema = createUpdateSchema(story).required().omit({
+  createdAt: true,
+  expiresAt: true,
+});
+
+export type StorySelectSchema = z.infer<typeof storySelectSchema>;
+export type StoryInsertSchema = z.infer<typeof storyInsertSchema>;
+export type StoryUpdateSchema = z.infer<typeof storyUpdateSchema>;
