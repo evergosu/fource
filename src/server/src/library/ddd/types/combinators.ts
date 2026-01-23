@@ -2,8 +2,11 @@ import { Either } from './either';
 import { Result } from './result';
 
 /**
+ * ---
  * Combines multiple `Result` instances and accumulates their errors.
- * Returns a successful `Result` if all are successful.
+ * ---
+ * - returns a successful `Result` if all are successful.
+ * ---
  * @template T Type of the containing values (can be mixed).
  * @param results Array of `Result` instances
  * @returns A `Result` containing all values and all errors.
@@ -21,10 +24,10 @@ export function combineResults<
   const values: unknown[] = [];
 
   for (const result of results) {
-    result.fold(
-      value => values.push(value),
-      error => errors.push(error),
-    );
+    result.match({
+      fail: error => errors.push(error),
+      ok: value => values.push(value),
+    });
   }
 
   return errors.length > 0
@@ -33,8 +36,11 @@ export function combineResults<
 }
 
 /**
+ * ---
  * Combines multiple `Either` instances and accumulates their hands.
- * Returns a Right hand of `Either` if all are Rights.
+ * ---
+ * - returns a Right hand of `Either` if all are Rights.
+ * ---
  * @template T Type of the containing values (can be mixed).
  * @param eithers Array of `Either` instances
  * @returns A `Either` containing all Lefts and all Rights.
