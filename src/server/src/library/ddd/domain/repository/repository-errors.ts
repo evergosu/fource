@@ -35,3 +35,23 @@ export class AggregateAlreadyExistsFailure extends DomainFailure {
     );
   }
 }
+
+/**
+ * Failure representing a concurrency violation on an aggregate.
+ *
+ * This occurs when two or more processes attempt to modify the same aggregate
+ * simultaneously, violating optimistic locking rules.
+ */
+export class AggregateConcurrencyFailure extends DomainFailure {
+  /**
+   * Creates domain failure with optional identifier of the aggregate.
+   * @param id - The identifier of the aggregate root.
+   */
+  constructor(public readonly id?: UniqueIdentifier) {
+    super(
+      id
+        ? `Concurrent modification detected for aggregate with ID ${id.toString()}. Operation aborted.`
+        : 'Concurrent modification detected on aggregate. Operation aborted.',
+    );
+  }
+}
