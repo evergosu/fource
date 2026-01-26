@@ -2,99 +2,174 @@ import {
   UniqueIdentifier,
   AggregateRoot,
   Result,
-  Guard,
 } from 'server/library/ddd/primitives';
 
 import { StoryExpiresAt } from './story-expires-at';
 import { StoryCreatedAt } from './story-created-at';
+import { StoryAuthorId } from './story-author-id';
 import { StoryTitle } from './story-title';
 import { StoryBody } from './story-body';
 
 /**
- * Properties required to create or rehydrate a `Story`.
+ * ---
+ * Raw properties required to create a `Story`.
  */
-interface Properties {
-  authorIdentifier: UniqueIdentifier;
-  createdAt: StoryCreatedAt;
-  expiresAt: StoryExpiresAt;
+interface CreateStoryProperties {
+  authorId: string;
+  title: string;
+  body: string;
+}
+
+/**
+ * ---
+ * Raw properties required to rehydrate a `Story`.
+ */
+interface RehydrateStoryProperties {
+  authorId: string;
+  createdAt: Date;
+  expiresAt: Date;
+  version: number;
+  title: string;
+  body: string;
+  id: string;
+}
+
+/**
+ * ---
+ * Properties of a brand new in-memory `Story`.
+ */
+interface NewStoryProperties {
+  authorId: StoryAuthorId;
   title: StoryTitle;
   body: StoryBody;
 }
 
 /**
+ * ---
+ * Properties of a persisted `Story`.
+ */
+interface PersistedStoryProperties extends NewStoryProperties {
+  createdAt: StoryCreatedAt;
+  expiresAt: StoryExpiresAt;
+}
+
+type StoryState = 'persisted' | 'new';
+
+/**
+ * ---
+ * Lifecycle properties of a `Story`.
+ */
+type Properties<State extends StoryState> = State extends 'new'
+  ? NewStoryProperties
+  : PersistedStoryProperties;
+
+/**
+ * ---
  * Represents a short-lived user-generated story in the platform.
+ * ---
  * `Stories` include metadata and content and are the root of emoji reactions,
  * Fource actions, and moderation signals.
  */
-export class Story extends AggregateRoot<Properties> {
+export class Story<State extends StoryState> extends AggregateRoot<
+  Properties<State>
+> {
   /**
+   * ---
    * Private constructor. Use `.create()` factory method instead.
+   * ---
    * @param properties An inner properties of an aggregate.
    * @param identifier An optional `UniqueIdentifier` of an `AggregateRoot` to rehydrate from.
+   * @param version - Incremental number, stored to control optimistic locking for concurrent modifications.
    */
-  private constructor(properties: Properties, identifier?: UniqueIdentifier) {
-    super(properties, identifier);
-  }
-  /**
-   * Factory method to create a new story.
-   * @param raw - An raw object to reconstruct `Story` from.
-   * @param raw.title - A short title of the `Story`.
-   * @param raw.body - A main content of the `Story`.
-   * @param raw.authorIdentifier - An `Identifier` of the `Author` who created the `Story`.
-   * @param identifier - An optional `Identifier` of the `Story` to operate on.
-   * @returns `Result` wrapping the new `Story` or a:
-   * - DateFailure
-   * - DateInFutureFailure
-   * - MaximumLengthExceededFailure
-   * - MinimumLengthNotMetFailure
-   * - NullOrUndefinedFailure
-   * - StoryExpiresTimeNotMatchTTLFailure
-   * - StringFailure
-   */
-  public static create(
-    raw: {
-      authorIdentifier: UniqueIdentifier;
-      title: StoryTitle['title'];
-      body: StoryBody['body'];
-    },
+  private constructor(
+    properties: Properties<State>,
     identifier?: UniqueIdentifier,
+    version?: number,
   ) {
-    const guard = Guard.for(raw);
+    super(properties, identifier, version);
+  }
 
-    const title = StoryTitle.create(raw.title);
+  /**
+   * ---
+   * Factory method to create a new story.
+   * ---
+   * @param properties - A raw object to reconstruct `Story` from.
+   * @returns `Result` wrapping the `Story` rehydrated from a raw input.
+   */
+  public static rehydrate(properties: RehydrateStoryProperties) {
+    const id = UniqueIdentifier.create(properties.id);
+    const body = StoryBody.create(properties.body);
+    const title = StoryTitle.create(properties.title);
+    const authorId = StoryAuthorId.create(properties.authorId);
+    const createdAt = StoryCreatedAt.fromDate(properties.createdAt);
+    const expiresAt = StoryExpiresAt.fromDate(properties.expiresAt, [
+      createdAt.value,
+    ]);
 
-    const body = StoryBody.create(raw.body);
-
-    const createdAt = StoryCreatedAt.fromNow();
-
-    const expiresAt = createdAt.flatMapWiden(t =>
-      StoryExpiresAt.fromCreatedAt(t),
-    );
-
-    const result = Result.combine([
+    return Result.combine([
       title,
       body,
       createdAt,
       expiresAt,
-      guard.againstNullOrUndefined('authorIdentifier'),
-    ]);
-
-    return result.map(
+      authorId,
+      id,
+    ]).map(
       () =>
-        new Story(
+        new Story<'persisted'>(
           {
-            ...raw,
             createdAt: createdAt.value,
             expiresAt: expiresAt.value,
+            authorId: authorId.value,
             title: title.value,
             body: body.value,
           },
-          identifier,
+          id.value,
+          properties.version,
         ),
     );
   }
 
   /**
+   * ---
+   * Factory method to create a new story.
+   * ---
+   * @param properties - A raw object to construct `Story` from.
+   * @returns `Result` wrapping new `Story`.
+   */
+  public static create(properties: CreateStoryProperties) {
+    const body = StoryBody.create(properties.body);
+    const title = StoryTitle.create(properties.title);
+    const authorId = StoryAuthorId.create(properties.authorId);
+
+    const result = Result.combine([body, title, authorId]);
+
+    return result.map(
+      () =>
+        new Story<'new'>({
+          authorId: authorId.value,
+          title: title.value,
+          body: body.value,
+        }),
+    );
+  }
+
+  /**
+   * ---
+   * Factory method to update a story title.
+   * ---
+   * @param title - A new title for current `Story`.
+   * @returns `Result` wrapping new `Story`.
+   */
+  public updateTitle(this: Story<'persisted'>, title: StoryTitle['title']) {
+    return StoryTitle.create(title).map(newTitle =>
+      this.evolve({
+        title: newTitle,
+      }),
+    );
+  }
+
+  /**
+   * ---
    * A short title of the `Story`.
    */
   get title(): StoryTitle {
@@ -102,6 +177,7 @@ export class Story extends AggregateRoot<Properties> {
   }
 
   /**
+   * ---
    * A main content of the `Story`.
    */
   get body(): StoryBody {
@@ -109,23 +185,26 @@ export class Story extends AggregateRoot<Properties> {
   }
 
   /**
+   * ---
    * An `Identifier` of the `Author` who created the `Story`.
    */
-  get authorIdentifier(): UniqueIdentifier {
-    return this.properties.authorIdentifier;
+  get authorId(): StoryAuthorId {
+    return this.properties.authorId;
   }
 
   /**
+   * ---
    * `Date` when the `Story` was created.
    */
-  get createdAt(): StoryCreatedAt {
+  public createdAt(this: Story<'persisted'>): StoryCreatedAt {
     return this.properties.createdAt;
   }
 
   /**
+   * ---
    * `Date` when the `Story` should expire.
    */
-  get expiresAt(): StoryExpiresAt {
+  public expiresAt(this: Story<'persisted'>): StoryExpiresAt {
     return this.properties.expiresAt;
   }
 }
