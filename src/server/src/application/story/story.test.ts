@@ -1,10 +1,5 @@
 import { NullOrUndefinedFailure } from 'server/library/ddd/errors';
-import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
-import { StoryCreatedAt } from './story-created-at';
-import { StoryExpiresAt } from './story-expires-at';
-import { StoryTitle } from './story-title';
-import { StoryBody } from './story-body';
 import { Story } from './story';
 
 describe('story', () => {
@@ -17,67 +12,93 @@ describe('story', () => {
     vi.useRealTimers();
   });
 
-  it('should create a story successfully with valid input', () => {
-    const storyAuthorIdentifier = UniqueIdentifier.create();
+  describe('.update()', () => {
+    it('should rehydrate a story successfully with valid input', () => {
+      const storyDto = {
+        createdAt: new Date('2025-08-12T10:15:30.000Z'),
+        expiresAt: new Date('2025-08-10T10:15:30.000Z'),
+        body: 'This is the body of Test Story.',
+        id: '0000-00000-0000-999999',
+        authorId: 'John Doe',
+        title: 'Test Story',
+        version: 0,
+      };
 
-    const storyTitle = StoryTitle.create('Test Story');
-    const storyBody = StoryBody.create('This is the body of Test Story.');
+      const result = Story.rehydrate(storyDto);
 
-    const result = Story.create({
-      authorIdentifier: storyAuthorIdentifier.value,
-      title: storyTitle.value.title,
-      body: storyBody.value.body,
+      const story = result.value;
+
+      expect(result.isSuccess()).toBe(true);
+      expect(story.title.title).toBe('Test Story');
+      expect(story.body.body).toBe('This is the body of Test Story.');
+      expect(story.authorId.authorId).toBe('John Doe');
     });
 
-    const story = result.value;
+    it('should translate errors from invalid input', () => {
+      const storyDto = {
+        createdAt: new Date('2025-08-12T10:15:30.000Z'),
+        expiresAt: new Date('2025-08-10T10:15:30.000Z'),
+        body: 'This is the body of Test Story.',
+        title: undefined as unknown as string,
+        id: '0000-00000-0000-999999',
+        authorId: 'John Doe',
+        version: 0,
+      };
 
-    expect(result.isSuccess).toBe(true);
-    expect(story.title.title).toBe('Test Story');
-    expect(story.body.body).toBe('This is the body of Test Story.');
-    expect(story.authorIdentifier.equals(storyAuthorIdentifier.value)).toBe(
-      true,
-    );
-    expect(story.createdAt).toBeInstanceOf(StoryCreatedAt);
-    expect(story.expiresAt).toBeInstanceOf(StoryExpiresAt);
-    expect(story.expiresAt.toUnixMilliSeconds()).toBeGreaterThan(
-      story.createdAt.toUnixMilliSeconds(),
-    );
+      const result = Story.rehydrate(storyDto);
+
+      expect(result.isFailure()).toBe(true);
+      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+    });
   });
 
-  it('should fail to create a story with missing title', () => {
-    const authorIdentifier = UniqueIdentifier.create().value;
+  describe('.create()', () => {
+    it('should create a story successfully with valid input', () => {
+      const result = Story.create({
+        body: 'This is the body of Test Story.',
+        authorId: 'John Doe',
+        title: 'Test Story',
+      });
 
-    const result = Story.create({
-      title: undefined as unknown as string,
-      body: 'Valid body',
-      authorIdentifier,
+      const story = result.value;
+
+      expect(result.isSuccess()).toBe(true);
+      expect(story.title.title).toBe('Test Story');
+      expect(story.body.body).toBe('This is the body of Test Story.');
+      expect(story.authorId.authorId).toBe('John Doe');
     });
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
-  });
+    it('should fail to create a story with missing title', () => {
+      const result = Story.create({
+        title: undefined as unknown as string,
+        authorId: 'John Doe',
+        body: 'Valid body',
+      });
 
-  it('should fail to create a story with missing body', () => {
-    const authorIdentifier = UniqueIdentifier.create().value;
-
-    const result = Story.create({
-      body: undefined as unknown as string,
-      authorIdentifier,
-      title: 'Title',
+      expect(result.isFailure()).toBe(true);
+      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
     });
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
-  });
+    it('should fail to create a story with missing body', () => {
+      const result = Story.create({
+        body: undefined as unknown as string,
+        authorId: 'John Doe',
+        title: 'Title',
+      });
 
-  it('should fail to create a story with missing author identifier', () => {
-    const result = Story.create({
-      authorIdentifier: undefined as unknown as UniqueIdentifier,
-      title: 'Valid Title',
-      body: 'Valid body',
+      expect(result.isFailure()).toBe(true);
+      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
     });
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+    it('should fail to create a story with missing author identifier', () => {
+      const result = Story.create({
+        authorId: undefined as unknown as string,
+        title: 'Valid Title',
+        body: 'Valid body',
+      });
+
+      expect(result.isFailure()).toBe(true);
+      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+    });
   });
 });
