@@ -14,6 +14,8 @@
  * - Only errors that have clear business meaning should be translated.
  */
 
+import type { Failure } from '../errors';
+
 /**
  * ---
  * Result of attempting to translate an infrastructure error.
@@ -67,7 +69,7 @@ export type InfrastructureTranslation<Failure> =
  * ---
  * @template Failure - Domain failure type produced by this translator
  */
-export interface InfrastructureErrorTranslator<Failure> {
+export interface InfrastructureErrorTranslator {
   /**
    * ---
    * Attempts to translate an infrastructure error into a domain failure.

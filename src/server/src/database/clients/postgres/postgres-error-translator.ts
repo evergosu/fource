@@ -24,9 +24,7 @@ import {
  */
 export class PostgresErrorTranslator
   implements
-  InfrastructureErrorTranslator<
-    AggregateAlreadyExistsFailure | AggregateNotFoundFailure
-  > {
+  InfrastructureErrorTranslator {
   /**
    * ---
    * Attempts to translate a PostgreSQL error into a domain failure.

@@ -16,8 +16,7 @@ export abstract class InfrastructureRepository {
    */
   constructor(
     protected readonly database: Database,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    protected readonly errorTranslator: InfrastructureErrorTranslator<any>,
+    protected readonly errorTranslator: InfrastructureErrorTranslator,
     // eslint-disable-next-line prettier/prettier
   ) { }
 }
