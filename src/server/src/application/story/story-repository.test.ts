@@ -1,21 +1,20 @@
-import { NoStoriesError, Stories } from './story-repository';
+import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
-describe('should work with @database', () => {
-  it('should return the next story', async ({ database }) => {
-    const stories = new Stories(database);
+import { StoryRepository } from './story-repository';
+import { Story } from './story';
 
-    const title = 'the story';
+describe('story repository', () => {
+  const story = Story.create({
+    authorId: UniqueIdentifier.create().value.toString(),
+    body: 'some test body',
+    title: 'test',
+  }).value;
 
-    await stories.create({ title });
+  it('should create an aggregate in @database', async ({ database }) => {
+    const repository = new StoryRepository(database);
 
-    const nextStory = await stories.getNext();
+    const result = await repository.create(story).run();
 
-    expect(nextStory.title).toBe(title);
-  });
-
-  it('should throw an error when there is no stories', async ({ database }) => {
-    const stories = new Stories(database);
-
-    await expect(() => stories.getNext()).rejects.toThrow(NoStoriesError);
+    expect(result.isSuccess()).toBe(true);
   });
 });

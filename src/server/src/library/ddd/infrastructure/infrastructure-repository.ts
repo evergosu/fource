@@ -6,10 +6,10 @@ import type { InfrastructureErrorTranslator } from './infrastructure-error-trans
  * ---
  * Base class for infrastructure repository implementations.
  */
-export abstract class InfrastructureRepository {
+export abstract class Repository {
   /**
    * ---
-   * Constructs a new `InfrastructureRepository` instance.
+   * Constructs a new `Repository` instance.
    * ---
    * @param database - A possible database client.
    * @param errorTranslator - Contract for infrastructure error translators.
