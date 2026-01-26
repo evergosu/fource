@@ -32,7 +32,7 @@ export interface Serializer<Domain, DTO> {
  * ---
  * @template S - The serializer type to extract from.
  */
-export type InferDomain<S extends Serializer<unknown, unknown>> =
+export type InferSerializerDomain<S extends Serializer<unknown, unknown>> =
   S extends Serializer<infer Domain, unknown> ? Domain : never;
 
 /**
@@ -41,5 +41,5 @@ export type InferDomain<S extends Serializer<unknown, unknown>> =
  * ---
  * @template S - The serializer type to extract from.
  */
-export type InferDTO<S extends Serializer<unknown, unknown>> =
+export type InferSerializerDTO<S extends Serializer<unknown, unknown>> =
   S extends Serializer<unknown, infer DTO> ? DTO : never;
