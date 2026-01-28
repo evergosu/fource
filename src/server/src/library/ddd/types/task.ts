@@ -83,6 +83,29 @@ export class Task<A, E> {
 
   /**
    * ---
+   * Executes a side-effect on success without changing the value.
+   * ---
+   * @param f Side-effect to perform
+   * ---
+   * ```ts
+   * Task.ok(1).map(x => x * 2).tap(x => someSideEffect(x)).map(x => x)
+   * // x === 2
+   * ```
+   */
+  tap(f: (value: A) => void): Task<A, E> {
+    return this.flatMap<A, E>(value => {
+      f(value);
+
+      return Task.ok<A, E>(value);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Invariants                                                         */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
    * Ensures that a predicate holds for the success value.
    *
    * If the predicate returns `false`, the task fails with
@@ -102,7 +125,10 @@ export class Task<A, E> {
    * task.ensure(rows => rows.length > 0, new ConcurrencyFailure());
    * ```
    */
-  ensure<F>(predicate: (value: A) => boolean, error: F): Task<A, E | F> {
+  ensure<P extends A, F>(
+    predicate: (value: A) => value is P,
+    error: F,
+  ): Task<P, E | F> {
     return this.flatMap(value =>
       predicate(value) ? Task.ok(value) : Task.fail(error),
     );
@@ -110,21 +136,55 @@ export class Task<A, E> {
 
   /**
    * ---
-   * Executes a side-effect on success without changing the value.
+   * Ensures that a validator holds for the success value.
+   *
+   * If the validator returns fail, the task fails with
+   * the provided error.
    * ---
-   * @param f Side-effect to perform
+   * - preserves value
+   * - only adds failure channel
+   * - no type change
+   * - no transformation
+   * ---
+   * @param guard Check to perform ensurance
    * ---
    * ```ts
-   * Task.ok(1).map(x => x * 2).tap(x => someSideEffect(x)).map(x => x)
-   * // x === 2
+   * task.validate(x => Guards.validate(x, 'x'));
    * ```
    */
-  tap(f: (value: A) => void): Task<A, E> {
-    return this.flatMap<A, E>(value => {
-      f(value);
+  validate<F>(guard: (value: A) => Result<void, F>): Task<A, E | F> {
+    return this.flatMap(value =>
+      guard(value).match({
+        fail: error => Task.fail(error),
+        ok: () => Task.ok(value),
+      }),
+    );
+  }
 
-      return Task.ok<A, E>(value);
-    });
+  /**
+   * ---
+   * Ensures that a refiner holds for the success value.
+   *
+   * If the refiner returns fail, the task fails with
+   * the provided error.
+   * ---
+   * - transforms value
+   * - narrows type
+   * - constructs new value
+   * ---
+   * @param guard Check to perform ensurance
+   * ---
+   * ```ts
+   * task.refine(x => Guards.refine(x, 'x'));
+   * ```
+   */
+  refine<F, B>(guard: (value: A) => Result<B, F>): Task<B, E | F> {
+    return this.flatMap(value =>
+      guard(value).match({
+        ok: refinedValue => Task.ok(refinedValue),
+        fail: error => Task.fail(error),
+      }),
+    );
   }
 
   /* ------------------------------------------------------------------ */
