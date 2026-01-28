@@ -1,13 +1,15 @@
 import type {
+  InferSerializerDomain,
+  Serializer,
+  Entity,
+  Task,
+} from 'server/library/ddd/primitives';
+import type {
   AggregateConcurrencyFailure,
   AggregateNotFoundFailure,
 } from 'server/library/ddd/errors';
-import type {
-  InferSerializerDomain,
-  Serializer,
-  Task,
-} from 'server/library/ddd/primitives';
-import type { OptimisticLockExecutor } from 'server/application/drizzle-lock';
+
+import type { OptimisticLockExecutor } from '../../orm/drizzle-lock';
 
 /**
  * ---
@@ -15,7 +17,9 @@ import type { OptimisticLockExecutor } from 'server/application/drizzle-lock';
  * ---
  * This capability CANNOT exist without version awareness.
  */
-export interface UpdateWithLock<S extends Serializer<unknown, unknown>> {
+export interface UpdateWithLock<
+  S extends Serializer<Entity<unknown>, unknown>,
+> {
   readonly optimisticLockExecutor: OptimisticLockExecutor;
   readonly updateSerializer: S;
 
@@ -30,5 +34,8 @@ export interface UpdateWithLock<S extends Serializer<unknown, unknown>> {
    */
   updateWithLock(
     domain: InferSerializerDomain<S>,
-  ): Task<void, AggregateConcurrencyFailure | AggregateNotFoundFailure>;
+  ): Task<
+    InferSerializerDomain<S>['id'],
+    AggregateConcurrencyFailure | AggregateNotFoundFailure
+  >;
 }
