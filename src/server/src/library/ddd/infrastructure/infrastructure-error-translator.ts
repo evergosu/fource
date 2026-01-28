@@ -14,8 +14,6 @@
  * - Only errors that have clear business meaning should be translated.
  */
 
-import type { Failure } from '../errors';
-
 /**
  * ---
  * Result of attempting to translate an infrastructure error.
@@ -67,9 +65,9 @@ export type InfrastructureTranslation<Failure> =
  * - Perform retries
  * - Convert all errors into domain failures
  * ---
- * @template Failure - Domain failure type produced by this translator
+ * @template Failures - Domain failure type produced by this translator
  */
-export interface InfrastructureErrorTranslator {
+export interface InfrastructureErrorTranslator<Failures> {
   /**
    * ---
    * Attempts to translate an infrastructure error into a domain failure.
@@ -81,7 +79,7 @@ export interface InfrastructureErrorTranslator {
    *   and has a meaningful domain representation
    * - `{ translated: false }` if the error must be rethrown
    */
-  translate(error: unknown): InfrastructureTranslation<Failure>;
+  translate(error: unknown): InfrastructureTranslation<Failures>;
   /**
    * ---
    * Attempts to translate an infrastructure error into a domain failure.
@@ -93,5 +91,5 @@ export interface InfrastructureErrorTranslator {
    *   and has a meaningful domain representation
    * - `rethrows` if the error must be rethrown
    */
-  translateOrThrow(error: unknown): Failure;
+  translateOrThrow(error: unknown): Failures;
 }

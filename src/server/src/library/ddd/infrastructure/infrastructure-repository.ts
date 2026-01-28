@@ -6,7 +6,7 @@ import type { InfrastructureErrorTranslator } from './infrastructure-error-trans
  * ---
  * Base class for infrastructure repository implementations.
  */
-export abstract class Repository {
+export abstract class Repository<Falures> {
   /**
    * ---
    * Constructs a new `Repository` instance.
@@ -16,7 +16,7 @@ export abstract class Repository {
    */
   constructor(
     protected readonly database: Database,
-    protected readonly errorTranslator: InfrastructureErrorTranslator,
+    protected readonly errorTranslator: InfrastructureErrorTranslator<Falures>,
     // eslint-disable-next-line prettier/prettier
   ) { }
 }
