@@ -1,8 +1,14 @@
 import type { AnyPgColumn, PgUpdate } from 'drizzle-orm/pg-core';
 
-import { type UniqueIdentifier, Result } from 'server/library/ddd/primitives';
-import { AggregateConcurrencyFailure } from 'server/library/ddd/errors';
+import {
+  AggregateConcurrencyFailure,
+  StringFailure,
+} from 'server/library/ddd/errors';
+import { type UniqueIdentifier, Task } from 'server/library/ddd/primitives';
 import { eq } from 'drizzle-orm';
+
+import { GuardNonEmptyArray } from '../../domain/invariants/array/non-empty-array';
+import { GuardString } from '../../domain/invariants/string/string';
 
 export interface LockedColumns {
   readonly version: AnyPgColumn;
@@ -14,7 +20,7 @@ export interface OptimisticLockExecutor {
     query: PgUpdate,
     version: number,
     id: UniqueIdentifier,
-  ): Promise<Result<UniqueIdentifier, AggregateConcurrencyFailure>>;
+  ): Task<string, AggregateConcurrencyFailure | StringFailure>;
 }
 
 /**
@@ -42,19 +48,19 @@ export class DrizzleOptimisticLockExecutor
    * @param id - Unique identifier of an aggregate root.
    * @returns New query builder with optimistic lock checks.
    */
-  async execute(
+  execute(
     query: PgUpdate,
     version: number,
     id: UniqueIdentifier,
-  ): Promise<Result<UniqueIdentifier, AggregateConcurrencyFailure>> {
-    const result = await query
-      .where(eq(this.aggregate.version, version - 1))
-      .returning({ id: this.aggregate.id });
-
-    return Result.fromBoolean(
-      result.length > 0,
-      new AggregateConcurrencyFailure(id),
-      id,
-    );
+  ): Task<string, AggregateConcurrencyFailure | StringFailure> {
+    return Task.fromPromise(
+      async () =>
+        await query
+          .where(eq(this.aggregate.version, version - 1))
+          .returning({ id: this.aggregate.id }),
+    )
+      .ensure(GuardNonEmptyArray.predicate, new AggregateConcurrencyFailure(id))
+      .map(rows => rows[0])
+      .refine(row => GuardString.refine(row.id, 'OptimisticLockId'));
   }
 }
