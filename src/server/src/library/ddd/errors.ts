@@ -1,4 +1,3 @@
-export * from './infrastructure/mapper/mapper-errors';
 export * from './infrastructure/infrastructure-error';
 
 export * from './application/use-case/use-case-errors';

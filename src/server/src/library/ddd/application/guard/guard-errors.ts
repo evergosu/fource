@@ -220,3 +220,16 @@ export class OutOfRangeFailure extends ApplicationFailure {
     );
   }
 }
+
+/**
+ * Failure indicating that value is not an array or is empty list.
+ */
+export class EmptyArrayFailure extends ApplicationFailure {
+  /**
+   * Creates application failure with provided error message.
+   * @param value The name of the date value being validated.
+   */
+  constructor(public readonly value: string) {
+    super(`${value} must be non empty array`);
+  }
+}
