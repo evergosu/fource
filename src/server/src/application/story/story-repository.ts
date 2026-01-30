@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import type { UpdateWithLock } from 'server/library/ddd/infrastructure/repository/capabilities/update-with-lock';
 import type { GetAll } from 'server/library/ddd/infrastructure/repository/capabilities/get-all';
 import type { Create } from 'server/library/ddd/infrastructure/repository/capabilities/create';
 import type { Database } from 'server/database/database';
@@ -10,18 +11,23 @@ import {
   type MinimumLengthNotMetFailure,
   type BlankIdentifierFailure,
   type EmptyIdentifierFailure,
+  AggregateConcurrencyFailure,
   AggregateNotFoundFailure,
   type DateInFutureFailure,
   type DateBeforeFailure,
   type StringFailure,
 } from 'server/library/ddd/errors';
-import { PostgresErrorTranslator } from 'server/database/clients/postgres/postgres-error-translator';
 import {
   type FromDateFailures,
+  UniqueIdentifier,
   Repository,
   Task,
 } from 'server/library/ddd/primitives';
+import { PostgresErrorTranslator } from 'server/database/clients/postgres/postgres-error-translator';
+import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
+import { GuardNonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { story } from 'server/database/schema/story';
+import { eq } from 'drizzle-orm';
 
 import type { Story } from './story';
 
@@ -36,9 +42,12 @@ import { StoryRehydrator } from './story-rehydrator';
  * Provides actions over persistence using Drizzle ORM.
  */
 export class StoryRepository
-  extends Repository
-
-  implements Create<StoryInsertSerializer>, GetAll<StoryRehydrator> {
+  extends Repository<AggregateAlreadyExistsFailure | AggregateNotFoundFailure>
+  implements
+  Create<StoryInsertSerializer>,
+  GetAll<StoryRehydrator>,
+  UpdateWithLock<StoryUpdateSerializer> {
+  readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
   readonly insertSerializer = new StoryInsertSerializer();
   readonly updateSerializer = new StoryUpdateSerializer();
   readonly rehydrator = new StoryRehydrator();
@@ -50,6 +59,37 @@ export class StoryRepository
    */
   constructor(database: Database) {
     super(database, new PostgresErrorTranslator());
+  }
+
+  /** @inheritdoc */
+  updateWithLock(
+    domain: Story<'persisted'>,
+  ): Task<
+    UniqueIdentifier,
+    | StringOrNumberIdentifierFailure
+    | AggregateAlreadyExistsFailure
+    | AggregateConcurrencyFailure
+    | AggregateNotFoundFailure
+    | EmptyIdentifierFailure
+    | BlankIdentifierFailure
+    | StringFailure
+  > {
+    return this.updateSerializer
+      .serialize(domain)
+      .toTask()
+      .flatMap(values =>
+        this.optimisticLockExecutor.execute(
+          this.database
+            .update(story)
+            .set(values)
+            .where(eq(story.id, values.id))
+            .$dynamic(),
+          values.version,
+          domain.id,
+        ),
+      )
+      .mapError(error => this.errorTranslator.translateOrThrow(error))
+      .refine(value => UniqueIdentifier.create(value));
   }
 
   /** @inheritdoc */
@@ -72,7 +112,7 @@ export class StoryRepository
       async () => await this.database.select().from(story),
     )
       .mapError(error => this.errorTranslator.translateOrThrow(error))
-      .ensure(stories => stories.length > 0, new AggregateNotFoundFailure())
+      .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .flatMap(stories => this.rehydrator.rehydrateList(stories).toTask());
   }
 
