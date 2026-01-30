@@ -2,6 +2,7 @@
 import type { UpdateWithLock } from 'server/library/ddd/infrastructure/repository/capabilities/update-with-lock';
 import type { GetAll } from 'server/library/ddd/infrastructure/repository/capabilities/get-all';
 import type { Create } from 'server/library/ddd/infrastructure/repository/capabilities/create';
+import type { Delete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
 import type { Database } from 'server/database/database';
 
 import {
@@ -46,7 +47,8 @@ export class StoryRepository
   implements
   Create<StoryInsertSerializer>,
   GetAll<StoryRehydrator>,
-  UpdateWithLock<StoryUpdateSerializer> {
+  UpdateWithLock<StoryUpdateSerializer>,
+  Delete<Story<'persisted'>> {
   readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
   readonly insertSerializer = new StoryInsertSerializer();
   readonly updateSerializer = new StoryUpdateSerializer();
@@ -62,12 +64,18 @@ export class StoryRepository
   }
 
   /** @inheritdoc */
+  delete(id: UniqueIdentifier): Task<void, AggregateNotFoundFailure> {
+    return Task.fromPromise(async () => {
+      await this.database.delete(story).where(eq(story.id, id.toString()));
+    }).mapError(error => this.errorTranslator.translateOrThrow(error));
+  }
+
+  /** @inheritdoc */
   updateWithLock(
     domain: Story<'persisted'>,
   ): Task<
     UniqueIdentifier,
     | StringOrNumberIdentifierFailure
-    | AggregateAlreadyExistsFailure
     | AggregateConcurrencyFailure
     | AggregateNotFoundFailure
     | EmptyIdentifierFailure

@@ -2,6 +2,7 @@ import {
   AggregateAlreadyExistsFailure,
   AggregateConcurrencyFailure,
   AggregateNotFoundFailure,
+  EmptyArrayFailure,
 } from 'server/library/ddd/errors';
 import { GuardNonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { UniqueIdentifier, Task } from 'server/library/ddd/primitives';
@@ -21,6 +22,60 @@ describe('story repository', () => {
     title: 'Title number two',
     body: 'Body number two',
   };
+
+  describe('.delete()', () => {
+    it('should delete an existing story in @database', async ({ database }) => {
+      const repository = new StoryRepository(database);
+
+      const story = Story.create(storyFirst);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.create(story))
+        .run();
+
+      const first = await repository
+        .getAll()
+        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .map(ss => ss[0])
+        .flatMap(s => repository.delete(s.id))
+        .run();
+
+      const isEmpty = await repository
+        .getAll()
+        .validate(ss => GuardNonEmptyArray.validate(ss, 'test'))
+        .run();
+
+      expect(first.isSuccess()).toBeTruthy();
+      expect(isEmpty.isFailure()).toBeTruthy();
+      expect(isEmpty.error).toBeInstanceOf(EmptyArrayFailure);
+    });
+
+    it('should fail when story does not exist in @database', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+
+      const story = Story.create(storyFirst);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.create(story))
+        .run();
+
+      await repository
+        .getAll()
+        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .map(ss => ss[0])
+        .flatMap(s => repository.delete(s.id))
+        .run();
+
+      const first = await repository.delete(story.value.id).run();
+
+      expect(first.isFailure()).toBeTruthy();
+      expect(first.error).toBeInstanceOf(AggregateNotFoundFailure);
+    });
+  });
 
   describe('.getAll()', () => {
     it('should return all stories from @database', async ({ database }) => {
