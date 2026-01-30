@@ -1,7 +1,9 @@
 import {
   AggregateAlreadyExistsFailure,
+  AggregateConcurrencyFailure,
   AggregateNotFoundFailure,
 } from 'server/library/ddd/errors';
+import { GuardNonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { UniqueIdentifier, Task } from 'server/library/ddd/primitives';
 
 import { StoryRepository } from './story-repository';
@@ -82,6 +84,97 @@ describe('story repository', () => {
 
       expect(resultSecond.isFailure()).toBe(true);
       expect(resultSecond.error).toBeInstanceOf(AggregateAlreadyExistsFailure);
+    });
+  });
+
+  describe('.updateWithLock()', () => {
+    it('should update an existing story in @database', async ({ database }) => {
+      const repository = new StoryRepository(database);
+
+      const story = Story.create(storyFirst);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.create(story))
+        .run();
+
+      const first = repository
+        .getAll()
+        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .map(ss => ss[0]);
+
+      await first
+        .flatMap(s => s.updateTitle('Brand new updated title').toTask())
+        .flatMap(s => repository.updateWithLock(s))
+        .run();
+
+      const updatedFirst = await first.run();
+
+      expect(updatedFirst.isSuccess()).toBeTruthy();
+      expect(updatedFirst.value.title.title).toBe('Brand new updated title');
+    });
+
+    it('should fail when story does not exist in @database', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+
+      const story = Story.create(storyFirst);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.create(story))
+        .run();
+
+      const first = repository
+        .getAll()
+        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .map(ss => ss[0]);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.delete(story.id))
+        .run();
+
+      const result = await first
+        .flatMap(s => s.updateTitle('Brand new updated title').toTask())
+        .flatMap(s => repository.updateWithLock(s))
+        .run();
+
+      expect(result.isFailure()).toBeTruthy();
+      expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
+    });
+
+    it('should fail when story is already concurrently updated in @database', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+
+      const story = Story.create(storyFirst);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.create(story))
+        .run();
+
+      const first = repository
+        .getAll()
+        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .map(ss => ss[0]);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.delete(story.id))
+        .run();
+
+      const result = await first
+        .flatMap(s => s.updateTitle('Brand new updated title').toTask())
+        .flatMap(s => s.updateTitle('Brand new updated title').toTask())
+        .flatMap(s => repository.updateWithLock(s))
+        .run();
+
+      expect(result.isFailure()).toBeTruthy();
+      expect(result.error).toBeInstanceOf(AggregateConcurrencyFailure);
     });
   });
 });
