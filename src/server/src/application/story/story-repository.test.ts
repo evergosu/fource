@@ -23,6 +23,43 @@ describe('story repository', () => {
     body: 'Body number two',
   };
 
+  describe('.getById()', () => {
+    it('should return a story by its id from @database', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+
+      const story = Story.create(storyFirst);
+
+      await story
+        .toTask()
+        .flatMap(story => repository.create(story))
+        .run();
+
+      const result = await story
+        .toTask()
+        .flatMap(story => repository.getById(story.id))
+        .run();
+
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value.id).toBe(story.value.id);
+    });
+
+    it('should fail when story does not exist in @database', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+
+      const result = await Story.create(storyFirst)
+        .toTask()
+        .flatMap(story => repository.getById(story.id))
+        .run();
+
+      expect(result.isFailure()).toBe(true);
+      expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
+    });
+  });
+
   describe('.delete()', () => {
     it('should delete an existing story in @database', async ({ database }) => {
       const repository = new StoryRepository(database);

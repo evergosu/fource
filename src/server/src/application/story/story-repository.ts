@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import type { UpdateWithLock } from 'server/library/ddd/infrastructure/repository/capabilities/update-with-lock';
+import type { GetById } from 'server/library/ddd/infrastructure/repository/capabilities/get-by-id';
 import type { GetAll } from 'server/library/ddd/infrastructure/repository/capabilities/get-all';
 import type { Create } from 'server/library/ddd/infrastructure/repository/capabilities/create';
 import type { Delete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
@@ -48,7 +49,8 @@ export class StoryRepository
   Create<StoryInsertSerializer>,
   GetAll<StoryRehydrator>,
   UpdateWithLock<StoryUpdateSerializer>,
-  Delete<Story<'persisted'>> {
+  Delete<Story<'persisted'>>,
+  GetById<Story<'persisted'>, StoryRehydrator> {
   readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
   readonly insertSerializer = new StoryInsertSerializer();
   readonly updateSerializer = new StoryUpdateSerializer();
@@ -61,6 +63,35 @@ export class StoryRepository
    */
   constructor(database: Database) {
     super(database, new PostgresErrorTranslator());
+  }
+
+  /** @inheritdoc */
+  getById(
+    id: UniqueIdentifier,
+  ): Task<
+    Story<'persisted'>,
+    | StringOrNumberIdentifierFailure
+    | MaximumLengthExceededFailure
+    | MinimumLengthNotMetFailure
+    | AggregateNotFoundFailure
+    | EmptyIdentifierFailure
+    | BlankIdentifierFailure
+    | DateInFutureFailure
+    | DateBeforeFailure
+    | FromDateFailures
+    | StringFailure
+  > {
+    return Task.fromPromise(
+      async () =>
+        await this.database
+          .select()
+          .from(story)
+          .where(eq(story.id, id.toString())),
+    )
+      .mapError(error => this.errorTranslator.translateOrThrow(error))
+      .refine(ss => GuardNonEmptyArray.refine(ss, 'story'))
+      .map(ss => ss[0])
+      .refine(s => this.rehydrator.rehydrate(s));
   }
 
   /** @inheritdoc */
@@ -121,7 +152,7 @@ export class StoryRepository
     )
       .mapError(error => this.errorTranslator.translateOrThrow(error))
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
-      .flatMap(stories => this.rehydrator.rehydrateList(stories).toTask());
+      .refine(stories => this.rehydrator.rehydrateList(stories));
   }
 
   /** @inheritdoc */
