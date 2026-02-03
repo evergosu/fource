@@ -1,7 +1,5 @@
 /* eslint-disable jsdoc/require-jsdoc */
-
 import { UseCase } from '../../application/use-case/use-case';
-import { Mapper } from '../../infrastructure/mapper/mapper';
 import { DomainFailure } from '../../domain/domain-error';
 import { Entity } from '../../domain/entity';
 import { Result } from '../../types/result';
@@ -20,7 +18,8 @@ export interface TestDTO {
 
 export const testDTO = { foo: 'bar' };
 
-export class Test extends Entity<TestDTO> {}
+// eslint-disable-next-line prettier/prettier
+export class Test extends Entity<TestDTO> { }
 
 export const test = new Test(testDTO);
 
@@ -31,8 +30,3 @@ export const useCaseSucceeded = {
 export const useCaseFailed = {
   execute: vi.fn().mockResolvedValue(Result.fail(new TestError())),
 } as unknown as UseCase<Test, Test>;
-
-export const mapper = {
-  toDomain: vi.fn().mockReturnValue(Result.ok(test)),
-  toDTO: vi.fn().mockReturnValue(Result.ok(testDTO)),
-} as unknown as Mapper<Test, TestDTO>;

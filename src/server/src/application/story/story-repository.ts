@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import type { GetBySpecification } from 'server/library/ddd/infrastructure/repository/capabilities/get-by-specification';
 import type { UpdateWithLock } from 'server/library/ddd/infrastructure/repository/capabilities/update-with-lock';
 import type { GetById } from 'server/library/ddd/infrastructure/repository/capabilities/get-by-id';
 import type { GetAll } from 'server/library/ddd/infrastructure/repository/capabilities/get-all';
@@ -22,12 +23,13 @@ import {
 import {
   type FromDateFailures,
   UniqueIdentifier,
+  Specification,
   Repository,
   Task,
 } from 'server/library/ddd/primitives';
+import { GuardNonEmptyArray, type NonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { PostgresErrorTranslator } from 'server/database/clients/postgres/postgres-error-translator';
 import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
-import { GuardNonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { story } from 'server/database/schema/story';
 import { eq } from 'drizzle-orm';
 
@@ -46,11 +48,12 @@ import { StoryRehydrator } from './story-rehydrator';
 export class StoryRepository
   extends Repository<AggregateAlreadyExistsFailure | AggregateNotFoundFailure>
   implements
-  Create<StoryInsertSerializer>,
   GetAll<StoryRehydrator>,
-  UpdateWithLock<StoryUpdateSerializer>,
+  GetById<StoryRehydrator>,
   Delete<Story<'persisted'>>,
-  GetById<Story<'persisted'>, StoryRehydrator> {
+  Create<StoryInsertSerializer>,
+  GetBySpecification<StoryRehydrator>,
+  UpdateWithLock<StoryUpdateSerializer> {
   readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
   readonly insertSerializer = new StoryInsertSerializer();
   readonly updateSerializer = new StoryUpdateSerializer();
@@ -63,6 +66,34 @@ export class StoryRepository
    */
   constructor(database: Database) {
     super(database, new PostgresErrorTranslator());
+  }
+
+  /** @inheritdoc */
+  getBySpecification(
+    specification: Specification<Story<'persisted'>>,
+  ): Task<
+    Story<'persisted'>[],
+    | (
+      | StringOrNumberIdentifierFailure
+      | MaximumLengthExceededFailure
+      | MinimumLengthNotMetFailure
+      | EmptyIdentifierFailure
+      | BlankIdentifierFailure
+      | DateInFutureFailure
+      | DateBeforeFailure
+      | FromDateFailures
+      | StringFailure
+    )[]
+    | AggregateNotFoundFailure
+  > {
+    return Task.fromPromise(
+      async () => await this.database.select().from(story),
+    )
+      .mapError(error => this.errorTranslator.translateOrThrow(error))
+      .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
+      .refine(stories => this.rehydrator.rehydrateList(stories))
+      .map(ss => ss.filter(s => specification.isSatisfiedBy(s)))
+      .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure());
   }
 
   /** @inheritdoc */
@@ -133,7 +164,7 @@ export class StoryRepository
 
   /** @inheritdoc */
   getAll(): Task<
-    Story<'persisted'>[],
+    NonEmptyArray<Story<'persisted'>>,
     | (
       | StringOrNumberIdentifierFailure
       | MaximumLengthExceededFailure
@@ -152,7 +183,8 @@ export class StoryRepository
     )
       .mapError(error => this.errorTranslator.translateOrThrow(error))
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
-      .refine(stories => this.rehydrator.rehydrateList(stories));
+      .refine(stories => this.rehydrator.rehydrateList(stories))
+      .refine(stories => GuardNonEmptyArray.refine(stories, 'Stories'));
   }
 
   /** @inheritdoc */

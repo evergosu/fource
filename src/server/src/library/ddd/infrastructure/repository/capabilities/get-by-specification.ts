@@ -1,8 +1,8 @@
 import type {
   InferRehydratorFailure,
+  InferRehydratorDomain,
   Specification,
   Rehydrator,
-  Entity,
   Task,
 } from 'server/library/ddd/primitives';
 import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
@@ -14,8 +14,7 @@ import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
  * Specifications encapsulate domain filtering logic and can be combined.
  */
 export interface GetBySpecification<
-  Domain extends Entity<unknown>,
-  R extends Rehydrator<unknown, Domain, unknown>,
+  R extends Rehydrator<unknown, unknown, unknown>,
 > {
   readonly rehydrator: R;
   /**
@@ -28,6 +27,9 @@ export interface GetBySpecification<
    * @param specification - A specification that defines a business rule or filter.
    */
   getBySpecification(
-    specification: Specification<Domain>,
-  ): Task<Domain[], InferRehydratorFailure<R>[] | AggregateNotFoundFailure>;
+    specification: Specification<InferRehydratorDomain<R>>,
+  ): Task<
+    InferRehydratorDomain<R>[],
+    InferRehydratorFailure<R>[] | AggregateNotFoundFailure
+  >;
 }

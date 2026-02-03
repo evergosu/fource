@@ -5,7 +5,11 @@ import {
   EmptyArrayFailure,
 } from 'server/library/ddd/errors';
 import { GuardNonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
-import { UniqueIdentifier, Task } from 'server/library/ddd/primitives';
+import {
+  UniqueIdentifier,
+  Specification,
+  Task,
+} from 'server/library/ddd/primitives';
 
 import { StoryRepository } from './story-repository';
 import { Story } from './story';
@@ -19,9 +23,57 @@ describe('story repository', () => {
 
   const storySecond = {
     authorId: UniqueIdentifier.create().value.toString(),
+    body: 'Body number two and too long',
     title: 'Title number two',
-    body: 'Body number two',
   };
+
+  describe('.getBySpecification()', () => {
+    class IsShortSpecification extends Specification<Story<'persisted'>> {
+      isSatisfiedBy(candidate: Story<'persisted'>): boolean {
+        return candidate.body.body.length < 20;
+      }
+    }
+
+    it('should return all stories from @database matching specification', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+      const specification = new IsShortSpecification();
+
+      await Task.all([
+        Story.create(storyFirst)
+          .toTask()
+          .flatMap(story => repository.create(story)),
+        Story.create(storySecond)
+          .toTask()
+          .flatMap(story => repository.create(story)),
+      ]).run();
+
+      const result = await repository.getBySpecification(specification).run();
+
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value.length).toBe(1);
+      expect(result.value.at(0)?.body).toBe(storySecond.body);
+    });
+
+    it('should return AggregateNotFoundError from @database if no entities match specification', async ({
+      database,
+    }) => {
+      const repository = new StoryRepository(database);
+      const specification = new IsShortSpecification();
+
+      await Task.all([
+        Story.create(storySecond)
+          .toTask()
+          .flatMap(story => repository.create(story)),
+      ]).run();
+
+      const result = await repository.getBySpecification(specification).run();
+
+      expect(result.isFailure()).toBe(true);
+      expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
+    });
+  });
 
   describe('.getById()', () => {
     it('should return a story by its id from @database', async ({

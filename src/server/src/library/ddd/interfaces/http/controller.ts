@@ -1,13 +1,12 @@
 import type { InfrastructureFailure } from '../../infrastructure/infrastructure-error';
 import type { UseCase as UC } from '../../application/use-case/use-case';
-import type { Mapper as M } from '../../infrastructure/mapper/mapper';
 import type { DomainFailure } from '../../domain/domain-error';
-import type { Entity } from '../../domain/entity';
 import type { Result } from '../../types/result';
 import type { Either } from '../../types/either';
 import type { Option } from '../../types/option';
 
 /**
+ * ---
  * Base class for all controllers, responsible for formatting responses and
  * converting domain-layer objects into transport-layer payloads.
  *
@@ -16,26 +15,26 @@ import type { Option } from '../../types/option';
  *
  * This class provides a consistent `execute` entrypoint that handles
  * boilerplate request/response logic, including error handling and result mapping.
- *
+ * ---
  * Concrete subclasses must provide `implement`.
  */
 export abstract class Controller<
   Request,
   Response,
   UseCase extends UC<unknown, unknown>,
-  Mapper extends M<Entity<unknown>, unknown>,
 > {
   /**
+   * ---
    * Constructor must be implemented by all subclasses with required arguments.
+   * ---
    * @param useCase - Use case to use inside implement method.
-   * @param mapper - Mapper to use inside implement method.
    */
-  constructor(
-    protected readonly useCase: UseCase,
-    protected readonly mapper: Mapper,
-  ) {}
+  // eslint-disable-next-line prettier/prettier
+  constructor(protected readonly useCase: UseCase) { }
   /**
+   * ---
    * Template method. Concrete controllers must override this.
+   * ---
    * @param response - The output response object (generic).
    * @param status - The HTTP status code.
    * @param payload - The payload to send.
@@ -47,9 +46,11 @@ export abstract class Controller<
   ): void;
 
   /**
-   *
+   * ---
    * Wrap core controller logic with surrounding logic (adapter responsibility).
-   * This method is intended to be called by protocol-specific subclasses.
+   * ---
+   * - this method is intended to be called by protocol-specific subclasses.
+   * ---
    * @param request - The input request object (generic).
    * @param response - The output response object (generic).
    */
@@ -68,14 +69,18 @@ export abstract class Controller<
   }
 
   /**
+   * ---
    * Template method. Concrete controllers must override this.
+   * ---
    * @param request - The input request object (generic).
    * @returns A domain-specific result or response payload.
    */
   protected abstract implement(request: Request): Promise<Result<unknown>>;
 
   /**
+   * ---
    * Handle a `Result` object and return an appropriate HTTP response.
+   * ---
    * @param result - The result to handle.
    * @param onSuccessStatus - Status code to return on success (defaults to 200).
    * @returns A tuple of [status code, payload].
@@ -85,14 +90,16 @@ export abstract class Controller<
     result: Result<T>,
     onSuccessStatus = 200,
   ): [number, unknown] {
-    return result.fold(
-      () => [onSuccessStatus, result.value],
-      () => this.handleError(result.error),
-    );
+    return result.match({
+      fail: () => this.handleError(result.error),
+      ok: () => [onSuccessStatus, result.value],
+    });
   }
 
   /**
+   * ---
    * Handle an `Either` object and return an HTTP response.
+   * ---
    * @param either - The either to handle.
    * @param onRightStatus - Status code to return on success (defaults to 200).
    * @returns A tuple of [status code, payload].
@@ -108,7 +115,9 @@ export abstract class Controller<
   }
 
   /**
+   * ---
    * Handle an `Option` object and return an HTTP response.
+   * ---
    * @param option - The option to handle.
    * @param onSomeStatus - Status code to return if value is present (defaults to 200).
    * @returns A tuple of [status code, payload].
@@ -123,8 +132,10 @@ export abstract class Controller<
   }
 
   /**
+   * ---
    * Default error handling. Can be overridden in subclasses to provide
    * custom status codes or error mapping logic.
+   * ---
    * @param error - The domain error to handle.
    * @param statusCode - Status code to return (defaults to 400).
    * @returns A tuple of [status code, payload].
@@ -142,8 +153,10 @@ export abstract class Controller<
   }
 
   /**
+   * ---
    * Default error handling. Can be overridden in subclasses to provide
    * custom status codes or error mapping logic.
+   * ---
    * @param error - The domain error to handle.
    * @returns A tuple of [status code, payload].
    */

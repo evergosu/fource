@@ -12,8 +12,8 @@ import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
  * Capability: Retrieve an aggregate using provided unique identifier.
  */
 export interface GetById<
-  Domain extends Entity<unknown>,
   R extends Rehydrator<unknown, Domain, unknown>,
+  Domain extends Entity<unknown> = InferRehydratorDomain<R>,
 > {
   readonly rehydrator: R;
 
@@ -28,8 +28,5 @@ export interface GetById<
    */
   getById(
     id: Domain['id'],
-  ): Task<
-    InferRehydratorDomain<R>,
-    InferRehydratorFailure<R> | AggregateNotFoundFailure
-  >;
+  ): Task<Domain, InferRehydratorFailure<R> | AggregateNotFoundFailure>;
 }
