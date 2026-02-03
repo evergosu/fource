@@ -1,12 +1,13 @@
 /* eslint-disable prettier/prettier */
-import type { UpdateWithLock } from 'server/library/ddd/infrastructure/repository/capabilities/update-with-lock';
-import type { GetById } from 'server/library/ddd/infrastructure/repository/capabilities/get-by-id';
-import type { GetAll } from 'server/library/ddd/infrastructure/repository/capabilities/get-all';
-import type { Create } from 'server/library/ddd/infrastructure/repository/capabilities/create';
-import type { Delete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
+import type { DomainUpdateWithLock } from 'server/library/ddd/domain/repository/capabilities/update-with-lock';
+import type { DomainGetById } from 'server/library/ddd/domain/repository/capabilities/get-by-id';
+import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
+import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
+import type { DomainDelete } from 'server/library/ddd/domain/repository/capabilities/delete';
 import type { Database } from 'server/database/database';
 
 import {
+  NoAggregateSatisfiesSpecificationFailure,
   type StringOrNumberIdentifierFailure,
   type AggregateAlreadyExistsFailure,
   type MaximumLengthExceededFailure,
@@ -20,10 +21,6 @@ import {
   type StringFailure,
 } from 'server/library/ddd/errors';
 import {
-  NoAggregateSatisfiesSpecificationFailure,
-  type GetBySpecification,
-} from 'server/library/ddd/infrastructure/repository/capabilities/get-by-specification';
-import {
   type FromDateFailures,
   UniqueIdentifier,
   Specification,
@@ -34,6 +31,7 @@ import {
   GuardNonEmptyArray,
   type NonEmptyArray,
 } from 'server/library/ddd/domain/invariants/array/non-empty-array';
+import { type DomainGetBySpecification } from 'server/library/ddd/domain/repository/capabilities/get-by-specification';
 import { PostgresErrorTranslator } from 'server/database/clients/postgres/postgres-error-translator';
 import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
 import { story } from 'server/database/schema/story';
@@ -54,12 +52,12 @@ import { StoryRehydrator } from './story-rehydrator';
 export class StoryRepository
   extends Repository<AggregateAlreadyExistsFailure | AggregateNotFoundFailure>
   implements
-  GetAll<StoryRehydrator>,
-  GetById<StoryRehydrator>,
-  Delete<Story<'persisted'>>,
-  Create<StoryInsertSerializer>,
-  GetBySpecification<StoryRehydrator>,
-  UpdateWithLock<StoryUpdateSerializer> {
+  DomainGetAll<StoryRehydrator>,
+  DomainGetById<StoryRehydrator>,
+  DomainDelete<Story<'persisted'>>,
+  DomainCreate<StoryInsertSerializer>,
+  DomainGetBySpecification<StoryRehydrator>,
+  DomainUpdateWithLock<StoryUpdateSerializer> {
   readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
   readonly insertSerializer = new StoryInsertSerializer();
   readonly updateSerializer = new StoryUpdateSerializer();

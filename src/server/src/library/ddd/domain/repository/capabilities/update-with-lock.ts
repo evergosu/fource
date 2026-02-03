@@ -13,11 +13,11 @@ import type { OptimisticLockExecutor } from '../../orm/drizzle-lock';
 
 /**
  * ---
- * Capability: Update aggregate using optimistic locking.
+ * Domain capability: Update aggregate using optimistic locking.
  * ---
  * This capability CANNOT exist without version awareness.
  */
-export interface UpdateWithLock<
+export interface DomainUpdateWithLock<
   S extends Serializer<Entity<unknown>, unknown>,
 > {
   readonly optimisticLockExecutor: OptimisticLockExecutor;

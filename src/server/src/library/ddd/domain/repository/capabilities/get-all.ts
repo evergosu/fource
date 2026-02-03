@@ -8,9 +8,9 @@ import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
 
 /**
  * ---
- * Capability: Retrieve all aggregates from repository.
+ * Domain capability: Retrieve all aggregates from repository.
  */
-export interface GetAll<R extends Rehydrator<unknown, unknown, unknown>> {
+export interface DomainGetAll<R extends Rehydrator<unknown, unknown, unknown>> {
   readonly rehydrator: R;
 
   /**

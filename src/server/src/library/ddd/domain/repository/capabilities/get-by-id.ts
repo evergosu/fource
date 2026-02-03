@@ -9,9 +9,9 @@ import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
 
 /**
  * ---
- * Capability: Retrieve an aggregate using provided unique identifier.
+ * Domain capability: Retrieve an aggregate using provided unique identifier.
  */
-export interface GetById<
+export interface DomainGetById<
   R extends Rehydrator<unknown, Domain, unknown>,
   Domain extends Entity<unknown> = InferRehydratorDomain<R>,
 > {

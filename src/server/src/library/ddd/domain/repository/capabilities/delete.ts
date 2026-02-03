@@ -3,9 +3,9 @@ import type { Entity, Task } from 'server/library/ddd/primitives';
 
 /**
  * ---
- * Capability: delete aggregate by provided unique identifier.
+ * Domain capability: delete aggregate by provided unique identifier.
  */
-export interface Delete<Domain extends Entity<unknown>> {
+export interface DomainDelete<Domain extends Entity<unknown>> {
   /**
    * ---
    * Deletes an aggregate by provided unique identifier.

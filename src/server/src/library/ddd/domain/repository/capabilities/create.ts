@@ -7,9 +7,9 @@ import type { AggregateAlreadyExistsFailure } from 'server/library/ddd/errors';
 
 /**
  * ---
- * Capability: Create an aggregate from provided domain entity.
+ * Domain capability: Create an aggregate from provided domain entity.
  */
-export interface Create<S extends Serializer<unknown, unknown>> {
+export interface DomainCreate<S extends Serializer<unknown, unknown>> {
   readonly insertSerializer: S;
 
   /**

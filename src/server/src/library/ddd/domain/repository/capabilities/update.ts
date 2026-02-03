@@ -7,9 +7,9 @@ import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
 
 /**
  * ---
- * Capability: Update aggregate using provided domain entity.
+ * Domain capability: Update aggregate using provided domain entity.
  */
-export interface Update<S extends Serializer<unknown, unknown>> {
+export interface DomainUpdate<S extends Serializer<unknown, unknown>> {
   readonly updateSerializer: S;
 
   /**

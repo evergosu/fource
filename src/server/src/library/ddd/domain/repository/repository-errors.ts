@@ -1,4 +1,5 @@
 import type { UniqueIdentifier } from '../identifiers/unique-identifier';
+import type { Specification } from '../rules/specification';
 
 import { DomainFailure } from '../domain-error';
 
@@ -52,6 +53,25 @@ export class AggregateConcurrencyFailure extends DomainFailure {
       id
         ? `Concurrent modification detected for aggregate with ID ${id.toString()}. Operation aborted.`
         : 'Concurrent modification detected on aggregate. Operation aborted.',
+    );
+  }
+}
+
+/**
+ * ---
+ * Failure representing no aggregates satisfies given specification.
+ */
+export class NoAggregateSatisfiesSpecificationFailure extends DomainFailure {
+  /**
+   * ---
+   * Creates domain failure with optional identifier of the aggregate.
+   * @param specification - the name of given specification.
+   */
+  constructor(public readonly specification?: Specification<unknown>) {
+    super(
+      specification
+        ? `No aggregates satisfies ${specification.toString()}`
+        : 'No aggregates satisfies given specification',
     );
   }
 }
