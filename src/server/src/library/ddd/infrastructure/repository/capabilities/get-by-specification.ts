@@ -1,6 +1,5 @@
 import type {
   InferRehydratorFailure,
-  InferRehydratorDomain,
   Specification,
   Rehydrator,
   Entity,
@@ -30,8 +29,5 @@ export interface GetBySpecification<
    */
   getBySpecification(
     specification: Specification<Domain>,
-  ): Task<
-    InferRehydratorDomain<R>[],
-    InferRehydratorFailure<R>[] | AggregateNotFoundFailure
-  >;
+  ): Task<Domain[], InferRehydratorFailure<R>[] | AggregateNotFoundFailure>;
 }
