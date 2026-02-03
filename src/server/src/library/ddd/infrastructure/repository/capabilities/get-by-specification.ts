@@ -1,11 +1,13 @@
 import type {
   InferRehydratorFailure,
   InferRehydratorDomain,
+  UniqueIdentifier,
   Specification,
   Rehydrator,
   Task,
 } from 'server/library/ddd/primitives';
-import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
+
+import { DomainFailure } from 'server/library/ddd/errors';
 
 /**
  * ---
@@ -30,6 +32,25 @@ export interface GetBySpecification<
     specification: Specification<InferRehydratorDomain<R>>,
   ): Task<
     InferRehydratorDomain<R>[],
-    InferRehydratorFailure<R>[] | AggregateNotFoundFailure
+    NoAggregateSatisfiesSpecificationFailure | InferRehydratorFailure<R>[]
   >;
+}
+
+/**
+ * ---
+ * Failure representing no aggregates satisfies given specification.
+ */
+export class NoAggregateSatisfiesSpecificationFailure extends DomainFailure {
+  /**
+   * ---
+   * Creates domain failure with optional identifier of the aggregate.
+   * @param specification - the name of given specification.
+   */
+  constructor(public readonly specification?: Specification<unknown>) {
+    super(
+      specification
+        ? `No aggregates satisfies ${specification.toString()}`
+        : 'No aggregates satisfies given specification',
+    );
+  }
 }

@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import type { GetBySpecification } from 'server/library/ddd/infrastructure/repository/capabilities/get-by-specification';
 import type { UpdateWithLock } from 'server/library/ddd/infrastructure/repository/capabilities/update-with-lock';
 import type { GetById } from 'server/library/ddd/infrastructure/repository/capabilities/get-by-id';
 import type { GetAll } from 'server/library/ddd/infrastructure/repository/capabilities/get-all';
@@ -21,13 +20,20 @@ import {
   type StringFailure,
 } from 'server/library/ddd/errors';
 import {
+  NoAggregateSatisfiesSpecificationFailure,
+  type GetBySpecification,
+} from 'server/library/ddd/infrastructure/repository/capabilities/get-by-specification';
+import {
   type FromDateFailures,
   UniqueIdentifier,
   Specification,
   Repository,
   Task,
 } from 'server/library/ddd/primitives';
-import { GuardNonEmptyArray, type NonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
+import {
+  GuardNonEmptyArray,
+  type NonEmptyArray,
+} from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { PostgresErrorTranslator } from 'server/database/clients/postgres/postgres-error-translator';
 import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
 import { story } from 'server/database/schema/story';
@@ -84,7 +90,7 @@ export class StoryRepository
       | FromDateFailures
       | StringFailure
     )[]
-    | AggregateNotFoundFailure
+    | NoAggregateSatisfiesSpecificationFailure
   > {
     return Task.fromPromise(
       async () => await this.database.select().from(story),
@@ -93,7 +99,10 @@ export class StoryRepository
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .refine(stories => this.rehydrator.rehydrateList(stories))
       .map(ss => ss.filter(s => specification.isSatisfiedBy(s)))
-      .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure());
+      .ensure(
+        GuardNonEmptyArray.predicate,
+        new NoAggregateSatisfiesSpecificationFailure(specification),
+      );
   }
 
   /** @inheritdoc */
@@ -120,7 +129,7 @@ export class StoryRepository
           .where(eq(story.id, id.toString())),
     )
       .mapError(error => this.errorTranslator.translateOrThrow(error))
-      .refine(ss => GuardNonEmptyArray.refine(ss, 'story'))
+      .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .map(ss => ss[0])
       .refine(s => this.rehydrator.rehydrate(s));
   }
@@ -128,8 +137,14 @@ export class StoryRepository
   /** @inheritdoc */
   delete(id: UniqueIdentifier): Task<void, AggregateNotFoundFailure> {
     return Task.fromPromise(async () => {
-      await this.database.delete(story).where(eq(story.id, id.toString()));
-    }).mapError(error => this.errorTranslator.translateOrThrow(error));
+      return await this.database
+        .delete(story)
+        .where(eq(story.id, id.toString()))
+        .returning();
+    })
+      .mapError(error => this.errorTranslator.translateOrThrow(error))
+      .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
+      .map(() => void 0);
   }
 
   /** @inheritdoc */

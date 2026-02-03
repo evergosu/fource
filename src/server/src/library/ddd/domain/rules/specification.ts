@@ -35,6 +35,26 @@ export abstract class Specification<T> {
   public not(): Specification<T> {
     return new NotSpecification(this);
   }
+
+  /**
+   * ---
+   * Serializes current `Specification` for logging purpose.
+   * ---
+   *@returns A formatted string.
+   */
+  public toString(): string {
+    return JSON.stringify(this.constructor.name);
+  }
+
+  /**
+   * ---
+   * Adds better Node.js debugging support.
+   * ---
+   * @returns serialized `Specification` values.
+   */
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return this.toString();
+  }
 }
 
 class AndSpecification<T> extends Specification<T> {
