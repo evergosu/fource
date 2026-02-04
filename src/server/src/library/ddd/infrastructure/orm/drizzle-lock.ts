@@ -1,26 +1,19 @@
 import type { AnyPgColumn, PgUpdate } from 'drizzle-orm/pg-core';
 
-import {
-  AggregateConcurrencyFailure,
-  StringFailure,
-} from 'server/library/ddd/errors';
-import { type UniqueIdentifier, Task } from 'server/library/ddd/primitives';
+import { Task } from 'server/library/ddd/primitives';
 import { eq } from 'drizzle-orm';
-
-import { GuardNonEmptyArray } from '../../domain/invariants/array/non-empty-array';
-import { GuardString } from '../../domain/invariants/string/string';
 
 export interface LockedColumns {
   readonly version: AnyPgColumn;
   readonly id: AnyPgColumn;
 }
 
-export interface OptimisticLockExecutor {
+interface OptimisticLockExecutor {
   execute(
     query: PgUpdate,
     version: number,
-    id: UniqueIdentifier,
-  ): Task<string, AggregateConcurrencyFailure | StringFailure>;
+    id: string,
+  ): Task<unknown[], unknown>;
 }
 
 /**
@@ -43,24 +36,20 @@ export class DrizzleOptimisticLockExecutor
    * ---
    * Wraps a query with an optimistic lock checks over version field of table.
    * ---
+   *  - error channel intentionally revealed as never
+   *  - consumer must narrow error types manually
+   * ---
    * @param query - Predefined query to perform lock for.
    * @param version - Version of an aggregate root.
-   * @param id - Unique identifier of an aggregate root.
    * @returns New query builder with optimistic lock checks.
    */
-  execute(
-    query: PgUpdate,
-    version: number,
-    id: UniqueIdentifier,
-  ): Task<string, AggregateConcurrencyFailure | StringFailure> {
+  execute(query: PgUpdate, version: number): Task<string[], never> {
     return Task.fromPromise(
       async () =>
         await query
           .where(eq(this.aggregate.version, version - 1))
-          .returning({ id: this.aggregate.id }),
-    )
-      .ensure(GuardNonEmptyArray.predicate, new AggregateConcurrencyFailure(id))
-      .map(rows => rows[0])
-      .refine(row => GuardString.refine(row.id, 'OptimisticLockId'));
+          .returning({ id: this.aggregate.id })
+          .then(rows => rows.map(row => String(row.id))),
+    );
   }
 }

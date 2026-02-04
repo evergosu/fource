@@ -1,8 +1,6 @@
 /* eslint-disable prettier/prettier */
-import type {
-  InfrastructureErrorTranslator,
-  InfrastructureTranslation,
-} from 'server/library/ddd/infrastructure/infrastructure-error-translator';
+
+import type { ErrorTranslator, Translation } from 'server/library/ddd/domain/repository/error-translator';
 
 import {
   AggregateAlreadyExistsFailure,
@@ -24,7 +22,7 @@ import {
  */
 export class PostgresErrorTranslator
   implements
-  InfrastructureErrorTranslator<
+  ErrorTranslator<
     AggregateAlreadyExistsFailure | AggregateNotFoundFailure
   > {
   /**
@@ -39,7 +37,7 @@ export class PostgresErrorTranslator
    */
   public translate(
     error: unknown,
-  ): InfrastructureTranslation<
+  ): Translation<
     AggregateAlreadyExistsFailure | AggregateNotFoundFailure
   > {
     if (!this.isPostgresError(error)) {

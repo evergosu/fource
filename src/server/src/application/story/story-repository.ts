@@ -4,7 +4,6 @@ import type { DomainGetById } from 'server/library/ddd/domain/repository/capabil
 import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
 import type { DomainDelete } from 'server/library/ddd/domain/repository/capabilities/delete';
-import type { Database } from 'server/database/database';
 
 import {
   NoAggregateSatisfiesSpecificationFailure,
@@ -21,22 +20,19 @@ import {
   type StringFailure,
 } from 'server/library/ddd/errors';
 import {
-  type FromDateFailures,
-  UniqueIdentifier,
-  Specification,
-  Repository,
-  Task,
-} from 'server/library/ddd/primitives';
-import {
   GuardNonEmptyArray,
   type NonEmptyArray,
 } from 'server/library/ddd/domain/invariants/array/non-empty-array';
 import { type DomainGetBySpecification } from 'server/library/ddd/domain/repository/capabilities/get-by-specification';
-import { PostgresErrorTranslator } from 'server/database/clients/postgres/postgres-error-translator';
-import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
-import { story } from 'server/database/schema/story';
-import { eq } from 'drizzle-orm';
+import {
+  type FromDateFailures,
+  UniqueIdentifier,
+  Specification,
+  Task,
+} from 'server/library/ddd/primitives';
+import { DomainRepository } from 'server/library/ddd/domain/repository/domain-repository';
 
+import type { StoryDatabase } from './story-database';
 import type { Story } from './story';
 
 import {
@@ -50,7 +46,7 @@ import { StoryRehydrator } from './story-rehydrator';
  * Provides actions over persistence using Drizzle ORM.
  */
 export class StoryRepository
-  extends Repository<AggregateAlreadyExistsFailure | AggregateNotFoundFailure>
+  extends DomainRepository<StoryDatabase>
   implements
   DomainGetAll<StoryRehydrator>,
   DomainGetById<StoryRehydrator>,
@@ -58,25 +54,15 @@ export class StoryRepository
   DomainCreate<StoryInsertSerializer>,
   DomainGetBySpecification<StoryRehydrator>,
   DomainUpdateWithLock<StoryUpdateSerializer> {
-  readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
-  readonly insertSerializer = new StoryInsertSerializer();
-  readonly updateSerializer = new StoryUpdateSerializer();
-  readonly rehydrator = new StoryRehydrator();
-  /**
-   * ---
-   * Constructs a new `StoryRepository` instance.
-   * ---
-   * @param database - The one of possible database clients.
-   */
-  constructor(database: Database) {
-    super(database, new PostgresErrorTranslator());
-  }
+  public readonly insertSerializer = new StoryInsertSerializer();
+  public readonly updateSerializer = new StoryUpdateSerializer();
+  public readonly rehydrator = new StoryRehydrator();
 
   /** @inheritdoc */
-  getBySpecification(
+  public getBySpecification(
     specification: Specification<Story<'persisted'>>,
   ): Task<
-    Story<'persisted'>[],
+    NonEmptyArray<Story<'persisted'>>,
     | (
       | StringOrNumberIdentifierFailure
       | MaximumLengthExceededFailure
@@ -90,9 +76,8 @@ export class StoryRepository
     )[]
     | NoAggregateSatisfiesSpecificationFailure
   > {
-    return Task.fromPromise(
-      async () => await this.database.select().from(story),
-    )
+    return this.persistence
+      .getAll()
       .mapError(error => this.errorTranslator.translateOrThrow(error))
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .refine(stories => this.rehydrator.rehydrateList(stories))
@@ -104,7 +89,7 @@ export class StoryRepository
   }
 
   /** @inheritdoc */
-  getById(
+  public getById(
     id: UniqueIdentifier,
   ): Task<
     Story<'persisted'>,
@@ -119,13 +104,8 @@ export class StoryRepository
     | FromDateFailures
     | StringFailure
   > {
-    return Task.fromPromise(
-      async () =>
-        await this.database
-          .select()
-          .from(story)
-          .where(eq(story.id, id.toString())),
-    )
+    return this.persistence
+      .getById(id.toString())
       .mapError(error => this.errorTranslator.translateOrThrow(error))
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .map(ss => ss[0])
@@ -133,20 +113,16 @@ export class StoryRepository
   }
 
   /** @inheritdoc */
-  delete(id: UniqueIdentifier): Task<void, AggregateNotFoundFailure> {
-    return Task.fromPromise(async () => {
-      return await this.database
-        .delete(story)
-        .where(eq(story.id, id.toString()))
-        .returning();
-    })
+  public delete(id: UniqueIdentifier): Task<void, AggregateNotFoundFailure> {
+    return this.persistence
+      .delete(id.toString())
       .mapError(error => this.errorTranslator.translateOrThrow(error))
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .map(() => void 0);
   }
 
   /** @inheritdoc */
-  updateWithLock(
+  public updateWithLock(
     domain: Story<'persisted'>,
   ): Task<
     UniqueIdentifier,
@@ -160,23 +136,17 @@ export class StoryRepository
     return this.updateSerializer
       .serialize(domain)
       .toTask()
-      .flatMap(values =>
-        this.optimisticLockExecutor.execute(
-          this.database
-            .update(story)
-            .set(values)
-            .where(eq(story.id, values.id))
-            .$dynamic(),
-          values.version,
-          domain.id,
-        ),
-      )
+      .flatMap(row => this.persistence.updateWithLock(row))
       .mapError(error => this.errorTranslator.translateOrThrow(error))
-      .refine(value => UniqueIdentifier.create(value));
+      .ensure(
+        GuardNonEmptyArray.predicate,
+        new AggregateConcurrencyFailure(domain.id),
+      )
+      .refine(value => UniqueIdentifier.create(value[0]));
   }
 
   /** @inheritdoc */
-  getAll(): Task<
+  public getAll(): Task<
     NonEmptyArray<Story<'persisted'>>,
     | (
       | StringOrNumberIdentifierFailure
@@ -191,9 +161,8 @@ export class StoryRepository
     )[]
     | AggregateNotFoundFailure
   > {
-    return Task.fromPromise(
-      async () => await this.database.select().from(story),
-    )
+    return this.persistence
+      .getAll()
       .mapError(error => this.errorTranslator.translateOrThrow(error))
       .ensure(GuardNonEmptyArray.predicate, new AggregateNotFoundFailure())
       .refine(stories => this.rehydrator.rehydrateList(stories))
@@ -201,15 +170,13 @@ export class StoryRepository
   }
 
   /** @inheritdoc */
-  create(domain: Story<'new'>): Task<void, AggregateAlreadyExistsFailure> {
+  public create(
+    domain: Story<'new'>,
+  ): Task<void, AggregateAlreadyExistsFailure> {
     return this.insertSerializer
       .serialize(domain)
       .toTask()
-      .flatMap(value =>
-        Task.fromPromise(async () => {
-          await this.database.insert(story).values(value);
-        }),
-      )
+      .flatMap(row => this.persistence.create(row))
       .mapError(error => this.errorTranslator.translateOrThrow(error));
   }
 }

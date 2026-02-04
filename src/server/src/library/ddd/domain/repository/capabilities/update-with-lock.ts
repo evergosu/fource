@@ -9,8 +9,6 @@ import type {
   AggregateNotFoundFailure,
 } from 'server/library/ddd/errors';
 
-import type { OptimisticLockExecutor } from '../../orm/drizzle-lock';
-
 /**
  * ---
  * Domain capability: Update aggregate using optimistic locking.
@@ -20,7 +18,6 @@ import type { OptimisticLockExecutor } from '../../orm/drizzle-lock';
 export interface DomainUpdateWithLock<
   S extends Serializer<Entity<unknown>, unknown>,
 > {
-  readonly optimisticLockExecutor: OptimisticLockExecutor;
   readonly updateSerializer: S;
 
   /**

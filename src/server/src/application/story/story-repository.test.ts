@@ -12,6 +12,7 @@ import {
 } from 'server/library/ddd/primitives';
 
 import { StoryRepository } from './story-repository';
+import { StoryDatabase } from './story-database';
 import { Story } from './story';
 
 describe('story repository', () => {
@@ -37,7 +38,7 @@ describe('story repository', () => {
     it('should return all stories from @database matching specification', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
       const specification = new IsShortSpecification();
 
       await Task.all([
@@ -59,7 +60,7 @@ describe('story repository', () => {
     it('should return AggregateNotFoundError from @database if no entities match specification', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
       const specification = new IsShortSpecification();
 
       await Task.all([
@@ -79,7 +80,7 @@ describe('story repository', () => {
     it('should return a story by its id from @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const story = Story.create(storyFirst);
 
@@ -100,7 +101,7 @@ describe('story repository', () => {
     it('should fail when story does not exist in @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const result = await Story.create(storyFirst)
         .toTask()
@@ -114,7 +115,7 @@ describe('story repository', () => {
 
   describe('.delete()', () => {
     it('should delete an existing story in @database', async ({ database }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const story = Story.create(storyFirst);
 
@@ -143,7 +144,7 @@ describe('story repository', () => {
     it('should fail when story does not exist in @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const story = Story.create(storyFirst);
 
@@ -168,7 +169,7 @@ describe('story repository', () => {
 
   describe('.getAll()', () => {
     it('should return all stories from @database', async ({ database }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const result = await Task.all([
         Story.create(storyFirst)
@@ -188,7 +189,7 @@ describe('story repository', () => {
     it('should fail when no stories exists in @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const result = await repository.getAll().run();
 
@@ -199,7 +200,7 @@ describe('story repository', () => {
 
   describe('.create()', () => {
     it('should create a new story in @database', async ({ database }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const result = await Story.create(storyFirst)
         .toTask()
@@ -212,7 +213,7 @@ describe('story repository', () => {
     it('should fail when the story already exists in @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const resultFirst = await Story.create(storyFirst)
         .toTask()
@@ -233,7 +234,7 @@ describe('story repository', () => {
 
   describe('.updateWithLock()', () => {
     it('should update an existing story in @database', async ({ database }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const story = Story.create(storyFirst);
 
@@ -261,7 +262,7 @@ describe('story repository', () => {
     it('should fail when story does not exist in @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const story = Story.create(storyFirst);
 
@@ -292,7 +293,7 @@ describe('story repository', () => {
     it('should fail when story is already concurrently updated in @database', async ({
       database,
     }) => {
-      const repository = new StoryRepository(database);
+      const repository = new StoryRepository(new StoryDatabase(database));
 
       const story = Story.create(storyFirst);
 

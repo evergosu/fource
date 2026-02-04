@@ -8,6 +8,8 @@ import type {
 
 import { NoAggregateSatisfiesSpecificationFailure } from 'server/library/ddd/errors';
 
+import type { NonEmptyArray } from '../../invariants/array/non-empty-array';
+
 /**
  * ---
  * Domain capability: Retrieve all aggregates that satisfy a given specification.
@@ -30,7 +32,7 @@ export interface DomainGetBySpecification<
   getBySpecification(
     specification: Specification<InferRehydratorDomain<R>>,
   ): Task<
-    InferRehydratorDomain<R>[],
+    NonEmptyArray<InferRehydratorDomain<R>>,
     NoAggregateSatisfiesSpecificationFailure | InferRehydratorFailure<R>[]
   >;
 }
