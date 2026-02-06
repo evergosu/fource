@@ -1,5 +1,6 @@
-import { EmptyArrayFailure } from 'server/library/ddd/errors';
 import { Result } from 'server/library/ddd/primitives';
+
+import { type DomainFailure, domainFailure } from '../../issues/failure';
 
 /**
  * ---
@@ -20,6 +21,21 @@ import { Result } from 'server/library/ddd/primitives';
 export type NonEmptyArray<T> = [T, ...T[]];
 
 /**
+ * Indicates that value is not an array or is empty.
+ */
+export type EmptyArrayFailure = {
+  readonly _tag: 'EmptyArrayFailure';
+  readonly name: string;
+} & DomainFailure;
+
+// eslint-disable-next-line sonarjs/no-redeclare
+export const EmptyArrayFailure = (name: string): EmptyArrayFailure =>
+  domainFailure({
+    _tag: 'EmptyArrayFailure',
+    name,
+  });
+
+/**
  * ---
  * Checks that value is a `NonEmptyArray`.
  * ---
@@ -29,7 +45,7 @@ function isNonEmptyArray<T>(value: T[]): value is NonEmptyArray<T> {
   return Array.isArray(value) && value.length > 0;
 }
 
-export const GuardNonEmptyArray = {
+export const guardEmptyArray = (name: string) => ({
   /**
    * ---
    * Checks that value is a `string`.
@@ -42,26 +58,21 @@ export const GuardNonEmptyArray = {
    * Validates value without returning nor refining it.
    * ---
    * @param value - value to validate
-   * @param name - name of the value to use in error messages
    */
-  validate(value: unknown[], name: string): Result<void, EmptyArrayFailure> {
+  validate(value: unknown[]): Result<void, EmptyArrayFailure> {
     return isNonEmptyArray(value)
       ? Result.ok()
-      : Result.fail(new EmptyArrayFailure(name));
+      : Result.fail(EmptyArrayFailure(name));
   },
   /**
    * ---
    * Refines value with a new type, based on predicate.
    * ---
    * @param value - value to refine
-   * @param name - name of the value to use in error messages
    */
-  refine<T>(
-    value: T[],
-    name: string,
-  ): Result<NonEmptyArray<T>, EmptyArrayFailure> {
+  refine<T>(value: T[]): Result<NonEmptyArray<T>, EmptyArrayFailure> {
     return isNonEmptyArray(value)
       ? Result.ok(value)
-      : Result.fail(new EmptyArrayFailure(name));
+      : Result.fail(EmptyArrayFailure(name));
   },
-};
+});
