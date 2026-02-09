@@ -30,7 +30,7 @@ export const AfterDateFailure = (
  * @param threshold - the limit to check against.
  */
 function isAfter(threshold: Date) {
-  return (value: unknown): value is string =>
+  return (value: unknown): value is Date =>
     guardDate('').predicate(value) && value.getTime() > threshold.getTime();
 }
 

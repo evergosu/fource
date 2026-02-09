@@ -23,9 +23,10 @@ export const UndefinedFailure = (name: string): UndefinedFailure =>
  * ---
  * @param value - The value to check.
  */
-function isDefined(value: unknown): value is string {
+function isDefined<T>(value: T): value is NonNullable<T> {
+  // eslint-disable-next-line sonarjs/different-types-comparison
   return value !== null && value !== undefined;
 }
 
-export const guarUndefined = (name: string) =>
+export const guardUndefined = (name: string) =>
   makeGuards(isDefined, UndefinedFailure(name));
