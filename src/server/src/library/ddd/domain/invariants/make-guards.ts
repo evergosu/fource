@@ -2,6 +2,12 @@ import { Result } from 'server/library/ddd/primitives';
 
 import type { DomainFailure } from '../issues/failure';
 
+export interface Guard<T, F extends DomainFailure> {
+  validate(value: unknown): Result<void, F>;
+  predicate(value: unknown): value is T;
+  refine(value: unknown): Result<T, F>;
+}
+
 /**
  * ---
  * Guards construction to provide validation
@@ -15,7 +21,7 @@ import type { DomainFailure } from '../issues/failure';
 export function makeGuards<T, F extends DomainFailure>(
   is: (value: unknown) => value is T,
   failure: F,
-) {
+): Guard<T, F> {
   return {
     /**
      * ---

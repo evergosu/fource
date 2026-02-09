@@ -5,15 +5,15 @@ import { makeGuards } from '../make-guards';
  * ---
  * Indicates that a value is `null` or `undefined`.
  */
-export type UndefinedFailure = {
-  readonly _tag: 'UndefinedFailure';
+export type NullishFailure = {
+  readonly _tag: 'NullishFailure';
   readonly name: string;
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const UndefinedFailure = (name: string): UndefinedFailure =>
+export const NullishFailure = (name: string): NullishFailure =>
   domainFailure({
-    _tag: 'UndefinedFailure',
+    _tag: 'NullishFailure',
     name,
   });
 
@@ -28,5 +28,5 @@ function isDefined<T>(value: T): value is NonNullable<T> {
   return value !== null && value !== undefined;
 }
 
-export const guardUndefined = (name: string) =>
-  makeGuards(isDefined, UndefinedFailure(name));
+export const guardDefined = (name: string) =>
+  makeGuards(isDefined, NullishFailure(name));
