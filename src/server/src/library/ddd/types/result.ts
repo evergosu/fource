@@ -1,5 +1,5 @@
 /* eslint-disable unicorn/no-array-callback-reference */
-import type { Failure } from '../issues/failure';
+import type { Failure } from '../domain/issues/failure';
 
 import { DataTypeInvariantViolationException } from './type-error';
 import { Option } from './option';
@@ -168,28 +168,67 @@ export class Result<T, E = Failure> {
 
   /**
    * ---
-   * Ensures that a predicate holds for the success value.
+   * Ensures that a validator holds for the success value.
    *
-   * If the predicate returns `false`, the result fails with
-   * the provided error.
+   * If the validator fails, the result fails with the produced error.
    * ---
-   * Returning `boolean` from Result leaks infrastructure concerns.
-   * `ensure` converts such checks into typed failures.
-   *
-   * - optimistic locking checks
-   * - authorization guards
-   * - existence validation
+   * Semantics:
+   * - preserves the original value
+   * - does NOT transform or narrow the value
+   * - only widens the failure channel
+   * - no boolean predicates allowed
    * ---
-   * @param predicate Check to perform ensurance
-   * @param error Error to produce if predicate returns false
+   * Intended use:
+   * - domain invariant checks
+   * - application invariant checks
+   * - structural validation
+   * ---
+   * @param guard Check to perform ensurance
    * ---
    * ```ts
-   * result.ensure(rows => rows.length > 0, new Failure());
+   * Result.ok(value)
+   *   .validate(v => GuardMinimumLength.validate(v, 'name', 3))
    * ```
    */
-  ensure<F>(predicate: (value: T) => boolean, error: F): Result<T, E | F> {
+  validate<F>(guard: (value: T) => Result<void, F>): Result<T, E | F> {
     return this.flatMap(value =>
-      predicate(value) ? Result.ok(value) : Result.fail(error),
+      guard(value).match({
+        fail: error => Result.fail(error),
+        ok: () => Result.ok(value),
+      }),
+    );
+  }
+
+  /**
+   * ---
+   * Refines the success value using a refinement guard.
+   *
+   * If the guard fails, the result fails with the produced error.
+   * ---
+   * Semantics:
+   * - transforms the value
+   * - may narrow the type
+   * - constructs a new value
+   * - widens the failure channel
+   * ---
+   * Intended use:
+   * - value object construction
+   * - type refinement
+   * - invariant-preserving transformations
+   * ---
+   * @param guard Check to perform ensurance
+   * ---
+   * ```ts
+   * Result.ok(raw)
+   *   .refine(v => GuardNonEmptyString.refine(v, 'title'))
+   * ```
+   */
+  refine<F, B>(guard: (value: T) => Result<B, F>): Result<B, E | F> {
+    return this.flatMap(value =>
+      guard(value).match({
+        ok: refined => Result.ok(refined),
+        fail: error => Result.fail(error),
+      }),
     );
   }
 
@@ -288,7 +327,7 @@ export class Result<T, E = Failure> {
    * @param error - Error payload.
    * @returns Failure result.
    */
-  static fail<E, EW = never>(error: E): Result<never, EW | E> {
+  static fail<E, A = never>(error: E): Result<A, E> {
     return new Result({ tag: 'failure', error });
   }
 
@@ -299,7 +338,7 @@ export class Result<T, E = Failure> {
    * @param value - Success payload (optional).
    * @returns Success result.
    */
-  static ok<T = void>(value?: T): Result<T, never> {
+  static ok<T = void, E = never>(value?: T): Result<T, E> {
     return new Result({ value: value as T, tag: 'success' });
   }
 
@@ -400,7 +439,7 @@ export class Result<T, E = Failure> {
    * @returns A new `Result<U, E | E2>`, or the current failure.
    */
   public flatMap<U, EW>(f: (value: T) => Result<U, EW>): Result<U, EW | E> {
-    return this.isSuccess() ? f(this.value) : Result.fail<EW | E>(this.error);
+    return this.isSuccess() ? f(this.value) : Result.fail(this.error);
   }
 
   /**

@@ -3,7 +3,7 @@
  * Base structural contract for all failures in the system.
  * Failures are immutable, serializable, and safe to expose.
  */
-interface Failure {
+export interface Failure {
   readonly _tag: string;
 }
 
