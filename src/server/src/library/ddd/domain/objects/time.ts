@@ -65,10 +65,10 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return Result.ok(date)
       .validate(guardDefined(this.name))
       .refine(guardDate(this.name))
-      .matchFailure({ _: TimeFailure(this.name) })
       .flatMap(value =>
         this._internalCreate(new Date(value.getTime()), validators),
-      );
+      )
+      .matchFailure({ _: TimeFailure(this.name) });
   }
 
   /**
@@ -87,8 +87,8 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
       .validate(guardDefined(this.name))
       .refine(guardString(this.name))
       .validate(guardISOString(this.name))
-      .matchFailure({ _: TimeFailure(this.name) })
-      .flatMap(value => this._internalCreate(new Date(value), validators));
+      .flatMap(value => this._internalCreate(new Date(value), validators))
+      .matchFailure({ _: TimeFailure(this.name) });
   }
 
   /**
@@ -105,8 +105,8 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return Result.ok(ms)
       .validate(guardDefined(this.name))
       .refine(guardNumber(this.name))
-      .matchFailure({ _: TimeFailure(this.name) })
-      .flatMap(value => this._internalCreate(new Date(value), validators));
+      .flatMap(value => this._internalCreate(new Date(value), validators))
+      .matchFailure({ _: TimeFailure(this.name) });
   }
 
   /**

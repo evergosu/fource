@@ -1,29 +1,25 @@
 /* eslint-disable prettier/prettier */
 import { type DomainFailure, domainFailure } from '../issues/failure';
-import { NullishFailure } from '../invariants/defined/defined';
 import { Result } from '../../types/result';
 import { Time } from './time';
 
 type TestFailure = {
-  readonly cause: DomainFailure;
   readonly _tag: 'TestFailure';
   readonly name: string;
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
 const TestFailure =
-  (name: string) =>
-    (cause: DomainFailure): TestFailure =>
-      domainFailure({
-        _tag: 'TestFailure',
-        cause,
-        name,
-      });
+  (name: string): TestFailure =>
+    domainFailure({
+      _tag: 'TestFailure',
+      name,
+    });
 
 class TestTime extends Time<TestTime> {
   public static _internalCreate(date: Date): Result<TestTime, TestFailure> {
     if (date.getTime() === 999) {
-      return Result.fail(TestFailure(this.name)(NullishFailure(this.name)));
+      return Result.fail(TestFailure(this.name));
     }
 
     return Result.ok(new TestTime(date));
@@ -38,7 +34,7 @@ class TestTimeWithValidators extends Time<TestTimeWithValidators> {
     const [validate] = validators;
 
     if (date.getTime() === validate()) {
-      return Result.fail(TestFailure(this.name)(NullishFailure(this.name)));
+      return Result.fail(TestFailure(this.name));
     }
 
     return Result.ok(new TestTimeWithValidators(date));
