@@ -1,11 +1,11 @@
 import { Result } from 'server/library/ddd/primitives';
 
-import type { DomainFailure } from '../issues/failure';
+import type { Failure } from '../issues/failure';
 
-export interface Guard<T, F extends DomainFailure> {
-  validate(value: unknown): Result<void, F>;
-  predicate(value: unknown): value is T;
-  refine(value: unknown): Result<T, F>;
+export interface Guard<I, O extends I, F extends Failure> {
+  validate(value: I): Result<void, F>;
+  predicate(value: I): value is O;
+  refine(value: I): Result<O, F>;
 }
 
 /**
@@ -18,10 +18,10 @@ export interface Guard<T, F extends DomainFailure> {
  * @param is - Predicate to use in guard checks.
  * @param failure - Error to produce on failed checks.
  */
-export function makeGuards<T, F extends DomainFailure>(
-  is: (value: unknown) => value is T,
+export function makeGuards<I, O extends I, F extends Failure>(
+  is: (value: unknown) => value is O,
   failure: F,
-): Guard<T, F> {
+): Guard<I, O, F> {
   return {
     /**
      * ---
@@ -45,7 +45,7 @@ export function makeGuards<T, F extends DomainFailure>(
      * ---
      * @param value - value to refine
      */
-    refine(value: unknown): Result<T, F> {
+    refine(value: unknown): Result<O, F> {
       return is(value) ? Result.ok(value) : Result.fail(failure);
     },
   };

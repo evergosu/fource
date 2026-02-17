@@ -1,5 +1,7 @@
 import { Result } from 'server/library/ddd/primitives';
 
+import type { Guard } from '../make-guards';
+
 import { type DomainFailure, domainFailure } from '../../issues/failure';
 
 /**
@@ -45,7 +47,9 @@ function isNonEmptyArray<T>(value: T[]): value is NonEmptyArray<T> {
   return Array.isArray(value) && value.length > 0;
 }
 
-export const guardEmptyArray = (name: string) => ({
+export const guardEmptyArray = <T>(
+  name: string,
+): Guard<T[], NonEmptyArray<T>, EmptyArrayFailure> => ({
   /**
    * ---
    * Checks that value is a `string`.
