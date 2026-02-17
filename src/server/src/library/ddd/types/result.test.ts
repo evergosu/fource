@@ -1,10 +1,29 @@
 import { DataTypeInvariantViolationException } from './type-error';
+import { identity } from './identity';
 import { Result } from './result';
 
 describe('result', () => {
   const error = 'Something went wrong';
 
-  describe('.isSuccess()()', () => {
+  interface Failure {
+    readonly _tag: string;
+  }
+
+  class AFailure implements Failure {
+    readonly _tag = 'AFailure';
+  }
+
+  class BFailure implements Failure {
+    readonly _tag = 'BFailure';
+  }
+
+  class LiftedFailure implements Failure {
+    readonly _tag = 'LiftedFailure';
+    // eslint-disable-next-line prettier/prettier
+    constructor(readonly source: Failure) { }
+  }
+
+  describe('.isSuccess()', () => {
     const value = 'test value';
 
     it('should create a success result with value', () => {
@@ -195,9 +214,9 @@ describe('result', () => {
 
   describe('.match()', () => {
     it('should match success value correctly', () => {
-      const result = (Result.ok(7) as Result<number, string>).match({
-        fail: value => `success: ${value.toString()}`,
-        ok: () => 'failed',
+      const result = Result.ok(7).match({
+        ok: value => `success: ${value.toString()}`,
+        fail: () => 'failed',
       });
 
       expect(result).toBe('success: 7');
@@ -246,6 +265,64 @@ describe('result', () => {
 
       expect(right.isSuccess()).toBe(true);
       expect(right.value).toBe(14);
+    });
+  });
+
+  describe('.matchFailure()', () => {
+    it('should map only specified failure variants', () => {
+      const result = Result.fail(new AFailure());
+
+      const mapped = result.matchFailure({
+        AFailure: f => new LiftedFailure(f),
+      });
+
+      expect(mapped).toEqual(Result.fail(expect.any(LiftedFailure)));
+    });
+
+    it('should collapse different failures identically', () => {
+      const result = Result.fail(new BFailure()).flatMap(() =>
+        Result.fail(new AFailure()),
+      );
+
+      const lifted = result.matchFailure({ _: f => new LiftedFailure(f) });
+
+      expect(lifted).toEqual(Result.fail(expect.any(LiftedFailure)));
+    });
+
+    it('preserves non-mapped failure variants', () => {
+      const result = Result.fail(new BFailure()).flatMap(() =>
+        Result.fail(new AFailure()),
+      );
+
+      const mapped = result.matchFailure({
+        AFailure: f => new LiftedFailure(f),
+        _: identity,
+      });
+
+      expect(mapped).toEqual(Result.fail(expect.any(BFailure)));
+    });
+
+    it('should not affect ok values', () => {
+      const result = Result.ok<number, AFailure>(42);
+
+      const mapped = result.matchFailure({
+        AFailure: f => new LiftedFailure(f),
+      });
+
+      expect(mapped).toEqual(Result.ok(42));
+    });
+
+    it('should support multiple mappings', () => {
+      const result = Result.fail(new BFailure()).flatMap(() =>
+        Result.fail(new AFailure()),
+      );
+
+      const mapped = result.matchFailure({
+        AFailure: f => new LiftedFailure(f),
+        BFailure: f => new LiftedFailure(f),
+      });
+
+      expect(mapped).toEqual(Result.fail(expect.any(LiftedFailure)));
     });
   });
 

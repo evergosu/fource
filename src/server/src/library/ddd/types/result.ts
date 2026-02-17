@@ -1,16 +1,16 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable unicorn/no-array-callback-reference */
+import type { Guard } from '../domain/invariants/make-guards';
 import type { Failure } from '../domain/issues/failure';
 
 import { DataTypeInvariantViolationException } from './type-error';
+import { type Identity, identity } from './identity';
 import { Option } from './option';
 import { Task } from './task';
 
 type ResultState<T, E> =
-  // eslint-disable-next-line prettier/prettier
   | { readonly tag: 'failure'; readonly error: E; }
-  // eslint-disable-next-line prettier/prettier
   | { readonly tag: 'success'; readonly value: T; };
-
 
 export type ResultFailure<R> = R extends Result<unknown, infer F> ? F : never;
 
@@ -159,12 +159,34 @@ export class Result<T, E = Failure> {
    * @param cases.fail - callback for failure state
    * @param cases.ok - callback for success state
    */
-  // eslint-disable-next-line prettier/prettier
   public match<U>(cases: { fail: (error: E) => U; ok: (value: T) => U; }): U {
     return this.state.tag === 'success'
       ? cases.ok(this.state.value)
       : cases.fail(this.state.error);
   }
+
+  /**
+   * ---
+   * Executes a side-effect on success without changing the value.
+   * ---
+   * @param f Side-effect to perform
+   * ---
+   * ```ts
+   * Result.ok(1).map(x => x * 2).tap(x => someSideEffect(x)).map(x => x)
+   * // x === 2
+   * ```
+   */
+  tap(f: (value: T) => void): this {
+    if (this.isSuccess()) {
+      f(this.value);
+    }
+
+    return this;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Invariants                                                         */
+  /* ------------------------------------------------------------------ */
 
   /**
    * ---
@@ -183,16 +205,18 @@ export class Result<T, E = Failure> {
    * - application invariant checks
    * - structural validation
    * ---
-   * @param guard Check to perform ensurance
+   * @param guard Guard to use for ensurance. {@link Guard}
    * ---
    * ```ts
    * Result.ok(value)
-   *   .validate(v => GuardMinimumLength.validate(v, 'name', 3))
+   *   .validate(GuardMinimumLength(v, 'name', 3))
    * ```
    */
-  validate<F>(guard: (value: T) => Result<void, F>): Result<T, E | F> {
+  validate<F extends Failure, B extends T>(
+    guard: Guard<T, B, F>,
+  ): Result<T, E | F> {
     return this.flatMap(value =>
-      guard(value).match({
+      guard.validate(value).match({
         fail: error => Result.fail(error),
         ok: () => Result.ok(value),
       }),
@@ -216,39 +240,22 @@ export class Result<T, E = Failure> {
    * - type refinement
    * - invariant-preserving transformations
    * ---
-   * @param guard Check to perform ensurance
+   * @param guard Guard to use for ensurance. {@link Guard}
    * ---
    * ```ts
    * Result.ok(raw)
-   *   .refine(v => GuardNonEmptyString.refine(v, 'title'))
+   *   .refine(GuardNonEmptyString(v, 'title'))
    * ```
    */
-  refine<F, B>(guard: (value: T) => Result<B, F>): Result<B, E | F> {
+  refine<F extends Failure, B extends T>(
+    guard: Guard<T, B, F>,
+  ): Result<B, E | F> {
     return this.flatMap(value =>
-      guard(value).match({
+      guard.refine(value).match({
         ok: refined => Result.ok(refined),
         fail: error => Result.fail(error),
       }),
     );
-  }
-
-  /**
-   * ---
-   * Executes a side-effect on success without changing the value.
-   * ---
-   * @param f Side-effect to perform
-   * ---
-   * ```ts
-   * Result.ok(1).map(x => x * 2).tap(x => someSideEffect(x)).map(x => x)
-   * // x === 2
-   * ```
-   */
-  tap(f: (value: T) => void): this {
-    if (this.isSuccess()) {
-      f(this.value);
-    }
-
-    return this;
   }
 
   /* ------------------------------------------------------------------ */
@@ -402,6 +409,57 @@ export class Result<T, E = Failure> {
 
   /**
    * ---
+   * Provides an alternative `Result` if this one fails.
+   * ---
+   * This combinator is:
+   * - lazy (alternative evaluated only on failure)
+   * - error-agnostic (original error is discarded)
+   * - left-biased (success short-circuits)
+   * ---
+   * Semantics:
+   * - if this result is `ok`, it is returned unchanged
+   * - if this result is `fail`, the alternative result is evaluated
+   * ---
+   * Intended use:
+   * - branching validation
+   * - union construction (A | B)
+   * - parser-style alternatives
+   * ---
+   * @param other - Lazy alternative result
+   */
+  or<B, E2 extends Failure>(other: () => Result<B, E2>): Result<T | B, E2 | E> {
+    return this.isFailure() ? other() : this;
+  }
+
+  /**
+   * ---
+   * Provides an alternative `Result` computed from the failure value.
+   * ---
+   * This combinator is:
+   * - lazy (the alternative is computed only on failure)
+   * - error-aware (receives the original error)
+   * - left-biased (success short-circuits)
+   * ---
+   * Semantics:
+   * - if this result is `ok`, it is returned unchanged
+   * - if this result is `fail`, the provided function is invoked
+   *   with the failure value to produce an alternative result
+   * ---
+   * Intended use:
+   * - error translation
+   * - error-dependent recovery
+   * - conditional fallback based on failure cause
+   * ---
+   * @param f - Function producing an alternative result from the failure
+   */
+  orElse<B, E2 extends Failure>(
+    f: (error: E) => Result<B, E2>,
+  ): Result<T | B, E2 | E> {
+    return this.isFailure() ? f(this.error) : this;
+  }
+
+  /**
+   * ---
    * Combine multiple results into a single result.
    * Useful for validating multiple independent operations.
    * ---
@@ -479,6 +537,115 @@ export class Result<T, E = Failure> {
 
   /**
    * ---
+   * Partially maps failure variants to new failure values,
+   * with optional `_` default branch.
+   * ---
+   * Rules:
+   * - If `_` is NOT provided → mapping must be exhaustive.
+   * - If `_` IS provided → partial mapping allowed.
+   * - `_` may collapse all failures.
+   * - `_` may return original failure based on `identity` sentinel.
+   * ---
+   * ```ts
+   * const mapOneCollapseRest = result.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: f => UnknownFailure(f),
+   * });
+   * const mapOnePreserveRest = result.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: identity,
+   * });
+   * ```
+   */
+  public matchFailure<F extends Failure, Cases extends FailureCases<F>>(
+    this: Result<T, F>,
+    cases: Cases,
+  ): Result<T, ReturnType<Cases[keyof Cases]>>;
+
+  /**
+   * ---
+   * Partially maps failure variants to new failure values,
+   * with optional `_` default branch.
+   * ---
+   * Rules:
+   * - If `_` is NOT provided → mapping must be exhaustive.
+   * - If `_` IS provided → partial mapping allowed.
+   * - `_` may collapse all failures.
+   * - `_` may return original failure based on `identity` sentinel.
+   * ---
+   * ```ts
+   * const mapOneCollapseRest = result.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: f => UnknownFailure(f),
+   * });
+   * const mapOnePreserveRest = result.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: identity,
+   * });
+   * ```
+   */
+  public matchFailure<
+    F extends Failure,
+    Cases extends FailureCasesWithDefault<F>,
+  >(
+    this: Result<T, F>,
+    cases: Cases,
+  ): Result<T, DefaultReturn<F, Cases> | ExplicitReturn<Cases>>;
+
+  /**
+   * ---
+   * Partially maps failure variants to new failure values,
+   * with optional `_` default branch.
+   * ---
+   * Rules:
+   * - If `_` is NOT provided → mapping must be exhaustive.
+   * - If `_` IS provided → partial mapping allowed.
+   * - `_` may collapse all failures.
+   * - `_` may return original failure based on `identity` sentinel.
+   * ---
+   * @param cases - Failure handlers
+   * ---
+   * ```ts
+   * const mapOneCollapseRest = result.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: f => UnknownFailure(f),
+   * });
+   * const mapOnePreserveRest = result.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: identity,
+   * });
+   * ```
+   */
+  public matchFailure<
+    F extends Failure,
+    Cases extends FailureCasesWithDefault<F> | FailureCases<F>,
+  >(this: Result<T, F>, cases: Cases): Result<T> {
+    return this.match({
+      fail: failure => {
+        const explicit = (cases as Partial<FailureCases<F>>)[
+          failure._tag as F['_tag']
+        ];
+
+        if (explicit) {
+          return Result.fail(explicit(failure as ExtractByTag<F, F['_tag']>));
+        }
+
+        if ('_' in cases) {
+          if (cases._ === identity) {
+            return Result.fail(failure);
+          }
+
+          return Result.fail(cases._(failure));
+        }
+
+        return Result.fail(failure);
+      },
+      ok: value => Result.ok(value),
+    });
+  }
+
+  /**
+   * ---
    * Applies transformations to both the `success` and `failure` cases of this `Result`.
    * ---
    * - if the result is successful (`ok`), applies the `onSuccess` function
@@ -525,3 +692,41 @@ export class Result<T, E = Failure> {
       : Result.fail<E2>(onFailure(this.error));
   }
 }
+
+type ExtractByTag<F, U = F extends { _tag: infer U; } ? U : never> = F extends {
+  _tag: U;
+}
+  ? F
+  : never;
+
+type FailureCases<F extends Failure> = {
+  [Tag in F['_tag']]: (f: ExtractByTag<F, Tag>) => Failure;
+};
+
+type FailureCasesWithDefault<F extends Failure> =
+  | ({
+    _: (failure: F) => Failure;
+  } & Partial<FailureCases<F>>)
+  | Partial<FailureCases<F>> & ({
+    _: Identity;
+  });
+
+type HandledTags<C> = Exclude<keyof C, '_'>;
+
+type ExcludeHandled<F extends Failure, C> = F extends { _tag: infer Tag; }
+  ? Tag extends HandledTags<C>
+  ? never
+  : F
+  : never;
+
+type ExplicitReturn<C> = {
+  [K in Exclude<keyof C, '_'>]: C[K] extends (...as: unknown[]) => infer R
+  ? R
+  : never;
+}[Exclude<keyof C, '_'>];
+
+type DefaultReturn<F extends Failure, C> = C extends { _: Identity; }
+  ? ExcludeHandled<F, C>
+  : C extends { _: (f: unknown) => infer R; }
+  ? R
+  : never;
