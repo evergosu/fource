@@ -6,9 +6,12 @@ import type {
   Task,
 } from 'server/library/ddd/primitives';
 
-import { NoAggregateSatisfiesSpecificationFailure } from 'server/library/ddd/errors';
-
-import type { NonEmptyArray } from '../../invariants/array/non-empty-array';
+import type {
+  AggregateSpecificationFailure,
+  AggregatePersistenceFailure,
+  AggregateNotFoundFailure,
+} from '../repository-errors';
+import type { NonEmptyArray } from '../../invariants/array/empty-array';
 
 /**
  * ---
@@ -33,6 +36,9 @@ export interface DomainGetBySpecification<
     specification: Specification<InferRehydratorDomain<R>>,
   ): Task<
     NonEmptyArray<InferRehydratorDomain<R>>,
-    NoAggregateSatisfiesSpecificationFailure | InferRehydratorFailure<R>[]
+    | AggregateSpecificationFailure
+    | AggregatePersistenceFailure
+    | InferRehydratorFailure<R>
+    | AggregateNotFoundFailure
   >;
 }

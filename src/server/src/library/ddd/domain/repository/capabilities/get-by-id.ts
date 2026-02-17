@@ -5,7 +5,11 @@ import type {
   Entity,
   Task,
 } from 'server/library/ddd/primitives';
-import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
+
+import type {
+  AggregatePersistenceFailure,
+  AggregateNotFoundFailure,
+} from '../repository-errors';
 
 /**
  * ---
@@ -28,5 +32,10 @@ export interface DomainGetById<
    */
   getById(
     id: Domain['id'],
-  ): Task<Domain, InferRehydratorFailure<R> | AggregateNotFoundFailure>;
+  ): Task<
+    Domain,
+    | AggregatePersistenceFailure
+    | InferRehydratorFailure<R>
+    | AggregateNotFoundFailure
+  >;
 }

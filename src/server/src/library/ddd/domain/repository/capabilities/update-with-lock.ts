@@ -4,10 +4,13 @@ import type {
   Entity,
   Task,
 } from 'server/library/ddd/primitives';
+
 import type {
+  AggregateAlreadyExistsFailure,
   AggregateConcurrencyFailure,
+  AggregatePersistenceFailure,
   AggregateNotFoundFailure,
-} from 'server/library/ddd/errors';
+} from '../repository-errors';
 
 /**
  * ---
@@ -33,6 +36,9 @@ export interface DomainUpdateWithLock<
     domain: InferSerializerDomain<S>,
   ): Task<
     InferSerializerDomain<S>['id'],
-    AggregateConcurrencyFailure | AggregateNotFoundFailure
+    | AggregateAlreadyExistsFailure
+    | AggregatePersistenceFailure
+    | AggregateConcurrencyFailure
+    | AggregateNotFoundFailure
   >;
 }

@@ -3,7 +3,11 @@ import type {
   Serializer,
   Task,
 } from 'server/library/ddd/primitives';
-import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
+
+import type {
+  AggregatePersistenceFailure,
+  AggregateNotFoundFailure,
+} from '../repository-errors';
 
 /**
  * ---
@@ -22,5 +26,5 @@ export interface DomainUpdate<S extends Serializer<unknown, unknown>> {
    */
   update(
     domain: InferSerializerDomain<S>,
-  ): Task<void, AggregateNotFoundFailure>;
+  ): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure>;
 }

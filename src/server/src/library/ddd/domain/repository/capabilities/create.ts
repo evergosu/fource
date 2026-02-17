@@ -3,7 +3,11 @@ import type {
   Serializer,
   Task,
 } from 'server/library/ddd/primitives';
-import type { AggregateAlreadyExistsFailure } from 'server/library/ddd/errors';
+
+import type {
+  AggregateAlreadyExistsFailure,
+  AggregatePersistenceFailure,
+} from '../repository-errors';
 
 /**
  * ---
@@ -22,5 +26,5 @@ export interface DomainCreate<S extends Serializer<unknown, unknown>> {
    */
   create(
     domain: InferSerializerDomain<S>,
-  ): Task<void, AggregateAlreadyExistsFailure>;
+  ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure>;
 }

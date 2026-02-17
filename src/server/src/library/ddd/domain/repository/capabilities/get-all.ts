@@ -4,7 +4,11 @@ import type {
   Rehydrator,
   Task,
 } from 'server/library/ddd/primitives';
-import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
+
+import type {
+  AggregatePersistenceFailure,
+  AggregateNotFoundFailure,
+} from '../repository-errors';
 
 /**
  * ---
@@ -22,6 +26,8 @@ export interface DomainGetAll<R extends Rehydrator<unknown, unknown, unknown>> {
    */
   getAll(): Task<
     InferRehydratorDomain<R>[],
-    InferRehydratorFailure<R>[] | AggregateNotFoundFailure
+    | AggregatePersistenceFailure
+    | InferRehydratorFailure<R>
+    | AggregateNotFoundFailure
   >;
 }

@@ -1,5 +1,9 @@
-import type { AggregateNotFoundFailure } from 'server/library/ddd/errors';
 import type { Entity, Task } from 'server/library/ddd/primitives';
+
+import type {
+  AggregatePersistenceFailure,
+  AggregateNotFoundFailure,
+} from '../repository-errors';
 
 /**
  * ---
@@ -14,5 +18,7 @@ export interface DomainDelete<Domain extends Entity<unknown>> {
    * ---
    * @param id - The unique identifier of the domain entity.
    */
-  delete(id: Domain['id']): Task<void, AggregateNotFoundFailure>;
+  delete(
+    id: Domain['id'],
+  ): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure>;
 }
