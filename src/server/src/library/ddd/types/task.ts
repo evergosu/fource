@@ -612,6 +612,6 @@ type ExplicitReturn<C> = {
 
 type DefaultReturn<F extends Failure, C> = C extends { _: Identity; }
   ? ExcludeHandled<F, C>
-  : C extends { _: (f: unknown) => infer R; }
+  : C extends { _: (f: F) => infer R; }
   ? R
   : never;
