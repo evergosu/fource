@@ -1,11 +1,10 @@
-import { EmptyIdentifierFailure } from './identifier-errors';
 import { Identifier } from './identifier';
 
 describe('identifier', () => {
   it('should create an Identifier with a valid primitive value', () => {
     const result = Identifier.create('abc123');
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.value).toBeInstanceOf(Identifier);
     expect(result.value.toValue()).toBe('abc123');
   });
@@ -14,15 +13,15 @@ describe('identifier', () => {
     // eslint-disable-next-line unicorn/no-null
     const result = Identifier.create(null);
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(EmptyIdentifierFailure);
+    expect(result.isFailure()).toBe(true);
+    expect(result.error._tag).toBe('NullishFailure');
   });
 
   it('should return failure when created with undefined', () => {
     const result = Identifier.create();
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(EmptyIdentifierFailure);
+    expect(result.isFailure()).toBe(true);
+    expect(result.error._tag).toBe('NullishFailure');
   });
 
   describe('.equals()', () => {

@@ -1,7 +1,5 @@
-import {
-  StringOrNumberIdentifierFailure,
-  BlankIdentifierFailure,
-} from './identifier-errors';
+import { EmptyStringFailure } from '../invariants/string/empty-string';
+import { NullishFailure } from '../invariants/defined/defined';
 import { UniqueIdentifier } from './unique-identifier';
 
 describe('unique identifier', () => {
@@ -32,23 +30,26 @@ describe('unique identifier', () => {
   it('should return failure for empty string', () => {
     const result = UniqueIdentifier.create('');
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(BlankIdentifierFailure);
+    expect(result.isFailure()).toBe(true);
+    expect(result.error._tag).toBe(EmptyStringFailure('')._tag);
+    expect(result.error.name).toBe(UniqueIdentifier.name);
   });
 
   it('should return failure for null', () => {
     // eslint-disable-next-line unicorn/no-null
     const result = UniqueIdentifier.create(null as unknown as string);
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(StringOrNumberIdentifierFailure);
+    expect(result.isFailure()).toBe(true);
+    expect(result.error._tag).toBe(NullishFailure('')._tag);
+    expect(result.error.name).toBe(UniqueIdentifier.name);
   });
 
   it('should return failure for objects', () => {
     const result = UniqueIdentifier.create({} as unknown as string);
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(StringOrNumberIdentifierFailure);
+    expect(result.isFailure()).toBe(true);
+    expect(result.error._tag).toBe(NullishFailure('')._tag);
+    expect(result.error.name).toBe(UniqueIdentifier.name);
   });
 
   describe('.equals()', () => {
