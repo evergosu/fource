@@ -1,11 +1,10 @@
-import {
-  NullOrUndefinedFailure,
-  ISODateFailure,
-  StringFailure,
-  NumberFailure,
-  DateFailure,
-} from '../../errors';
-import { Guard } from '../../application/guard/guard';
+/* eslint-disable prettier/prettier */
+import { type DomainFailure, domainFailure } from '../issues/failure';
+import { guardISOString } from '../invariants/string/iso-string';
+import { guardDefined } from '../invariants/defined/defined';
+import { guardNumber } from '../invariants/number/number';
+import { guardString } from '../invariants/string/string';
+import { guardDate } from '../invariants/date/date';
 import { ValueObject } from './value-object';
 import { Result } from '../../types/result';
 
@@ -26,6 +25,7 @@ interface SubClass<U extends Time<U>, F = never> {
    * - kept public to infer widen `Result` types.
    */
   _internalCreate(date: Date, validators?: unknown[]): Result<U, F>;
+  name: string;
 }
 
 /**
@@ -57,17 +57,18 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param date - JavaScript `Date` instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public static fromDate<U extends Time<U>, F>(
+  public static fromDate<U extends Time<U>, F extends DomainFailure>(
     this: SubClass<U, F>,
-    date: Date,
+    date: unknown,
     validators?: unknown[],
-  ): Result<U, FromDateFailures | F> {
-    return Result.combine([
-      Guard.againstNullOrUndefined(date, 'date'),
-      Guard.againstNotDate(date, 'date'),
-    ]).flatMap(() =>
-      this._internalCreate(new Date(date.getTime()), validators),
-    );
+  ) {
+    return Result.ok(date)
+      .validate(guardDefined(this.name))
+      .refine(guardDate(this.name))
+      .matchFailure({ _: TimeFailure(this.name) })
+      .flatMap(value =>
+        this._internalCreate(new Date(value.getTime()), validators),
+      );
   }
 
   /**
@@ -77,15 +78,17 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param isoString - `ISO` date string.
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public static fromISOString<U extends Time<U>, F>(
+  public static fromISOString<U extends Time<U>, F extends DomainFailure>(
     this: SubClass<U, F>,
-    isoString: string,
+    isoString: unknown,
     validators?: unknown[],
-  ): Result<U, FromISOStringFailures | F> {
-    return Result.combine([
-      Guard.againstNullOrUndefined(isoString, 'date'),
-      Guard.againstISODateString(isoString, 'date'),
-    ]).flatMap(() => this._internalCreate(new Date(isoString), validators));
+  ) {
+    return Result.ok(isoString)
+      .validate(guardDefined(this.name))
+      .refine(guardString(this.name))
+      .validate(guardISOString(this.name))
+      .matchFailure({ _: TimeFailure(this.name) })
+      .flatMap(value => this._internalCreate(new Date(value), validators));
   }
 
   /**
@@ -95,15 +98,15 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms - `Unix` time in milliseconds.
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public static fromUnixMilliSeconds<U extends Time<U>, F>(
-    this: SubClass<U, F>,
-    ms: number,
-    validators?: unknown[],
-  ): Result<U, FromUnixMsFailures | F> {
-    return Result.combine([
-      Guard.againstNullOrUndefined(ms, 'date'),
-      Guard.againstNotNumber(ms, 'date'),
-    ]).flatMap(() => this._internalCreate(new Date(ms), validators));
+  public static fromUnixMilliSeconds<
+    U extends Time<U>,
+    F extends DomainFailure,
+  >(this: SubClass<U, F>, ms: unknown, validators?: unknown[]) {
+    return Result.ok(ms)
+      .validate(guardDefined(this.name))
+      .refine(guardNumber(this.name))
+      .matchFailure({ _: TimeFailure(this.name) })
+      .flatMap(value => this._internalCreate(new Date(value), validators));
   }
 
   /**
@@ -112,10 +115,10 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * ---
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public static fromNow<U extends Time<U>, F>(
+  public static fromNow<U extends Time<U>, F extends DomainFailure>(
     this: SubClass<U, F>,
     validators?: unknown[],
-  ): Result<U, F> {
+  ) {
     return this._internalCreate(new Date(), validators);
   }
 
@@ -235,11 +238,18 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
   }
 }
 
-export type FromUnixMsFailures = NullOrUndefinedFailure | NumberFailure;
+type TimeFailure = {
+  readonly cause: DomainFailure;
+  readonly _tag: 'TimeFailure';
+  readonly name: string;
+} & DomainFailure;
 
-export type FromDateFailures = NullOrUndefinedFailure | DateFailure;
-
-export type FromISOStringFailures =
-  | NullOrUndefinedFailure
-  | ISODateFailure
-  | StringFailure;
+// eslint-disable-next-line sonarjs/no-redeclare
+const TimeFailure =
+  (name: string) =>
+    (cause: DomainFailure): TimeFailure =>
+      domainFailure({
+        _tag: 'TimeFailure',
+        cause,
+        name,
+      });

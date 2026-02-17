@@ -1,17 +1,29 @@
-import { DomainFailure } from '../../errors';
+/* eslint-disable prettier/prettier */
+import { type DomainFailure, domainFailure } from '../issues/failure';
+import { NullishFailure } from '../invariants/defined/defined';
 import { Result } from '../../types/result';
 import { Time } from './time';
 
-class TestFailure extends DomainFailure {
-  constructor() {
-    super('test error message');
-  }
-}
+type TestFailure = {
+  readonly cause: DomainFailure;
+  readonly _tag: 'TestFailure';
+  readonly name: string;
+} & DomainFailure;
+
+// eslint-disable-next-line sonarjs/no-redeclare
+const TestFailure =
+  (name: string) =>
+    (cause: DomainFailure): TestFailure =>
+      domainFailure({
+        _tag: 'TestFailure',
+        cause,
+        name,
+      });
 
 class TestTime extends Time<TestTime> {
   public static _internalCreate(date: Date): Result<TestTime, TestFailure> {
     if (date.getTime() === 999) {
-      return Result.fail(new TestFailure());
+      return Result.fail(TestFailure(this.name)(NullishFailure(this.name)));
     }
 
     return Result.ok(new TestTime(date));
@@ -24,8 +36,9 @@ class TestTimeWithValidators extends Time<TestTimeWithValidators> {
     validators: [validate: () => 999],
   ): Result<TestTimeWithValidators, TestFailure> {
     const [validate] = validators;
+
     if (date.getTime() === validate()) {
-      return Result.fail(new TestFailure());
+      return Result.fail(TestFailure(this.name)(NullishFailure(this.name)));
     }
 
     return Result.ok(new TestTimeWithValidators(date));
@@ -47,7 +60,7 @@ describe('time', () => {
 
       const result = TestTime.fromDate(now);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value.toDate()).toStrictEqual(now);
     });
 
@@ -56,14 +69,17 @@ describe('time', () => {
 
       const result = TestTime.fromDate(now);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value).toBeInstanceOf(TestTime);
     });
 
     it('should fail on invalid date', () => {
       const result = TestTime.fromDate(new Date('not-a-date'));
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
+      expect(result.error.name).toBe(TestTime.name);
+      expect(result.error._tag).toBe('TimeFailure');
+      expect(result.error.cause._tag).toBe('DateFailure');
     });
   });
 
@@ -71,14 +87,17 @@ describe('time', () => {
     it('should create from valid ISO string', () => {
       const result = TestTime.fromISOString(isoString);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value.toISOString()).toBe(isoString);
     });
 
     it('should fail on invalid ISO string', () => {
       const result = TestTime.fromISOString('not-an-iso-string');
 
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
+      expect(result.error.name).toBe(TestTime.name);
+      expect(result.error._tag).toBe('TimeFailure');
+      expect(result.error.cause._tag).toBe('ISOStringFailure');
     });
   });
 
@@ -88,7 +107,7 @@ describe('time', () => {
     it('should create from unix milliseconds', () => {
       const result = TestTime.fromUnixMilliSeconds(ms);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value.toUnixMilliSeconds()).toBe(ms);
     });
   });
@@ -97,7 +116,7 @@ describe('time', () => {
     it('should create from now', () => {
       const result = TestTime.fromNow();
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
       expect(
         Math.abs(result.value.toUnixMilliSeconds() - Date.now()),
