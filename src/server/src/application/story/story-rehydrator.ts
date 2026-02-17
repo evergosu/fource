@@ -30,6 +30,7 @@ export class StoryRehydrator
 
   /** @inheritdoc */
   rehydrateList(dtos: StorySelectSchema[]) {
-    return combineResults(dtos.map(dto => this.rehydrate(dto)));
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return combineResults(dtos.map(dto => this.rehydrate(dto))).mapError(x => x.at(0)!);
   }
 }

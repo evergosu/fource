@@ -26,7 +26,7 @@ export interface Rehydrator<DTO, Domain, Failure> {
    * @returns A `Result` with an array of domain entities
    * reconstructed from the DTOs, `DomainFailure` list otherwise.
    */
-  rehydrateList(raw: DTO[]): Result<Domain[], Failure[]>;
+  rehydrateList(raw: DTO[]): Result<Domain[], Failure>;
 }
 
 /**
