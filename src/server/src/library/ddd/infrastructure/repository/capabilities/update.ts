@@ -1,5 +1,7 @@
 import type { Task } from 'server/library/ddd/primitives';
 
+import type { InfrastructureFailures } from '../../infrastructure-errors';
+
 /**
  * ---
  * Infrastructure capability: update a row.
@@ -11,5 +13,5 @@ export interface DatabaseUpdate<Row> {
    * ---
    * @param row - row to update.
    */
-  update(row: Row): Task<string[], unknown>;
+  update(row: Row): Task<string[], InfrastructureFailures>;
 }

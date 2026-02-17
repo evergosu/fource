@@ -1,5 +1,7 @@
 import type { Task } from 'server/library/ddd/primitives';
 
+import type { InfrastructureFailures } from '../../infrastructure-errors';
+
 /**
  * ---
  * Infrastructure capability: update row with optimistic locking.
@@ -13,5 +15,5 @@ export interface DatabaseUpdateWithLock<Row> {
    * ---
    * @param row - row to update.
    */
-  updateWithLock(row: Row): Task<string[], unknown>;
+  updateWithLock(row: Row): Task<string[], InfrastructureFailures>;
 }
