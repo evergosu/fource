@@ -111,6 +111,7 @@ describe('category theory', () => {
     it('should satisfy naturality on success', async () => {
       const laws = naturalTransformationLaws(
         runtimeTask,
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         Result.ok(1) as Result<number, string>,
         mapResult,
         mapTask,
@@ -123,6 +124,7 @@ describe('category theory', () => {
     it('should satisfy naturality on failure', async () => {
       const laws = naturalTransformationLaws(
         runtimeTask,
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         Result.fail('err') as Result<number, string>,
         mapResult,
         mapTask,

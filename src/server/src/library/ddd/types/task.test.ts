@@ -105,7 +105,7 @@ describe('Task', () => {
 
     it('should fail when predicate is false', async () => {
       const result = await Task.ok(1)
-        .ensure(x => x > 2, 'fail')
+        .ensure((x): x is number => x > 2, 'fail')
         .run();
 
       expect(result.isFailure()).toBe(true);

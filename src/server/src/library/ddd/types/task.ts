@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /**
  * `Task` represents a **lazy, composable, asynchronous effect**
  * that may fail with a typed error.
@@ -19,6 +20,10 @@
  * Task<A, E> ≈ () => Promise<Result<A, E>>
  * ```
  */
+import type { Guard } from '../domain/invariants/make-guards';
+import type { Failure } from '../domain/issues/failure';
+
+import { type Identity, identity } from './identity';
 import { Result } from './result';
 
 /**
@@ -55,7 +60,7 @@ export class Task<A, E> {
    * ---
    * @param effect - Lazy async computation returning a {@link Result}
    */
-  // eslint-disable-next-line prettier/prettier
+
   private constructor(private readonly effect: () => Promise<Result<A, E>>) { }
 
   /**
@@ -146,15 +151,17 @@ export class Task<A, E> {
    * - no type change
    * - no transformation
    * ---
-   * @param guard Check to perform ensurance
+   * @param guard Guard to use for ensurance. {@link Guard}
    * ---
    * ```ts
-   * task.validate(x => Guards.validate(x, 'x'));
+   * task.validate(GuardString(x, 'x'));
    * ```
    */
-  validate<F>(guard: (value: A) => Result<void, F>): Task<A, E | F> {
+  validate<F extends Failure, B extends A>(
+    guard: Guard<A, B, F>,
+  ): Task<A, E | F> {
     return this.flatMap(value =>
-      guard(value).match({
+      guard.validate(value).match({
         fail: error => Task.fail(error),
         ok: () => Task.ok(value),
       }),
@@ -172,16 +179,18 @@ export class Task<A, E> {
    * - narrows type
    * - constructs new value
    * ---
-   * @param guard Check to perform ensurance
+   * @param guard Guard to use for ensurance. {@link Guard}
    * ---
    * ```ts
-   * task.refine(x => Guards.refine(x, 'x'));
+   * task.refine(GuardSring(x, 'x'));
    * ```
    */
-  refine<F, B>(guard: (value: A) => Result<B, F>): Task<B, E | F> {
+  refine<F extends Failure, B extends A>(
+    guard: Guard<A, B, F>,
+  ): Task<B, E | F> {
     return this.flatMap(value =>
-      guard(value).match({
-        ok: refinedValue => Task.ok(refinedValue),
+      guard.refine(value).match({
+        ok: refined => Task.ok(refined),
         fail: error => Task.fail(error),
       }),
     );
@@ -330,11 +339,127 @@ export class Task<A, E> {
    * task.mapError(err => new InfraError(err));
    * ```
    */
-  mapError<F>(f: (error: E) => F): Task<A, E | F> {
+  mapError<F>(f: (error: E) => F): Task<A, F> {
     return new Task(async () => {
       const result = await this.run();
 
       return result.mapError(f);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Failure transforms                                                 */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * ---
+   * Partially maps failure variants to new failure values,
+   * with optional `_` default branch.
+   * ---
+   * Rules:
+   * - If `_` is NOT provided → mapping must be exhaustive.
+   * - If `_` IS provided → partial mapping allowed.
+   * - `_` may collapse all failures.
+   * - `_` may return original failure based on `identity` sentinel.
+   * ---
+   * ```ts
+   * const mapOneCollapseRest = task.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: f => UnknownFailure(f),
+   * });
+   * const mapOnePreserveRest = task.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: identity,
+   * });
+   * ```
+   */
+  public matchFailure<F extends Failure, Cases extends FailureCases<F>>(
+    this: Task<A, F>,
+    cases: Cases,
+  ): Task<A, ReturnType<Cases[keyof Cases]>>;
+
+  /**
+   * ---
+   * Partially maps failure variants to new failure values,
+   * with optional `_` default branch.
+   * ---
+   * Rules:
+   * - If `_` is NOT provided → mapping must be exhaustive.
+   * - If `_` IS provided → partial mapping allowed.
+   * - `_` may collapse all failures.
+   * - `_` may return original failure based on `identity` sentinel.
+   * ---
+   * ```ts
+   * const mapOneCollapseRest = task.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: f => UnknownFailure(f),
+   * });
+   * const mapOnePreserveRest = task.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: identity,
+   * });
+   * ```
+   */
+  public matchFailure<
+    F extends Failure,
+    Cases extends FailureCasesWithDefault<F>,
+  >(
+    this: Task<A, F>,
+    cases: Cases,
+  ): Task<A, DefaultReturn<F, Cases> | ExplicitReturn<Cases>>;
+  /**
+   * ---
+   * Partially maps failure variants to new failure values,
+   * with optional `_` default branch.
+   * ---
+   * Rules:
+   * - If `_` is NOT provided → mapping must be exhaustive.
+   * - If `_` IS provided → partial mapping allowed.
+   * - `_` may collapse all failures.
+   * - `_` may return original failure based on `identity` sentinel.
+   * ---
+   * @param cases - Failure handlers
+   * ---
+   * ```ts
+   * const mapOneCollapseRest = task.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: f => UnknownFailure(f),
+   * });
+   * const mapOnePreserveRest = task.matchFailure({
+   *   EmptyArrayFailure: f => NotFoundFailure(f),
+   *   _: identity,
+   * });
+   * ```
+   */
+  public matchFailure<
+    F extends Failure,
+    Cases extends FailureCasesWithDefault<F> | FailureCases<F>,
+  >(this: Task<A, F>, cases: Cases): Task<A, Failure> {
+    return new Task(async () => {
+      const result = await this.run();
+
+      return result.match({
+        fail: failure => {
+          const explicit = (cases as Partial<FailureCases<F>>)[
+            failure._tag as F['_tag']
+          ];
+
+          if (explicit) {
+            return Result.fail(explicit(failure as ExtractByTag<F, F['_tag']>));
+          }
+
+          if ('_' in cases) {
+            if (cases._ === identity) {
+              return Result.fail(failure);
+            }
+
+            return Result.fail(cases._(failure));
+          }
+
+          return Result.fail(failure);
+        },
+        ok: value => Result.ok(value),
+      });
     });
   }
 
@@ -452,3 +577,41 @@ export class Task<A, E> {
     });
   }
 }
+
+type ExtractByTag<F, U = F extends { _tag: infer U; } ? U : never> = F extends {
+  _tag: U;
+}
+  ? F
+  : never;
+
+type FailureCases<F extends Failure> = {
+  [Tag in F['_tag']]: (f: ExtractByTag<F, Tag>) => Failure;
+};
+
+type FailureCasesWithDefault<F extends Failure> =
+  | ({
+    _: (failure: F) => Failure;
+  } & Partial<FailureCases<F>>)
+  | (Partial<FailureCases<F>> & {
+    _: Identity;
+  });
+
+type HandledTags<C> = Exclude<keyof C, '_'>;
+
+type ExcludeHandled<F extends Failure, C> = F extends { _tag: infer Tag; }
+  ? Tag extends HandledTags<C>
+  ? never
+  : F
+  : never;
+
+type ExplicitReturn<C> = {
+  [K in Exclude<keyof C, '_'>]: C[K] extends (...as: unknown[]) => infer R
+  ? R
+  : never;
+}[Exclude<keyof C, '_'>];
+
+type DefaultReturn<F extends Failure, C> = C extends { _: Identity; }
+  ? ExcludeHandled<F, C>
+  : C extends { _: (f: unknown) => infer R; }
+  ? R
+  : never;
