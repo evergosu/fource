@@ -1,5 +1,6 @@
-import { NullOrUndefinedFailure } from 'server/library/ddd/errors';
+import { NullishFailure } from 'server/library/ddd/domain/invariants/defined/defined';
 
+import { StoryTitle } from './story-title';
 import { Story } from './story';
 
 describe('story', () => {
@@ -48,7 +49,8 @@ describe('story', () => {
       const result = Story.rehydrate(storyDto);
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+      expect(result.error._tag).toBe(NullishFailure('')._tag);
+      expect(result.error.name).toBe(StoryTitle.name);
     });
   });
 
@@ -76,7 +78,9 @@ describe('story', () => {
       });
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+      expect(result.error.name).toBe(Story.name);
+      expect(result.error._tag).toBe('StoryFailure');
+      expect(result.error.cause._tag).toBe('StoryTitleFailure');
     });
 
     it('should fail to create a story with missing body', () => {
@@ -87,7 +91,9 @@ describe('story', () => {
       });
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+      expect(result.error.name).toBe(Story.name);
+      expect(result.error._tag).toBe('StoryFailure');
+      expect(result.error.cause._tag).toBe('StoryBodyFailure');
     });
 
     it('should fail to create a story with missing author identifier', () => {
@@ -98,7 +104,9 @@ describe('story', () => {
       });
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+      expect(result.error.name).toBe(Story.name);
+      expect(result.error._tag).toBe('StoryFailure');
+      expect(result.error.cause._tag).toBe('StoryAuthorFailure');
     });
   });
 });

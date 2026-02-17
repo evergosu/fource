@@ -1,10 +1,3 @@
-import {
-  MaximumLengthExceededFailure,
-  MinimumLengthNotMetFailure,
-  NullOrUndefinedFailure,
-  StringFailure,
-} from 'server/library/ddd/errors';
-
 import { StoryBody } from './story-body';
 
 describe('story body', () => {
@@ -14,36 +7,45 @@ describe('story body', () => {
     it('should create a valid story body', () => {
       const result = StoryBody.create(validBody);
 
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       expect(result.value.body).toBe(validBody);
     });
 
     it('should fail with null value', () => {
-      const result = StoryBody.create(undefined as unknown as string);
+      const result = StoryBody.create(undefined as unknown);
 
-      expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(NullOrUndefinedFailure);
+      expect(result.isFailure()).toBe(true);
+      expect(result.error.name).toBe(StoryBody.name);
+      expect(result.error._tag).toBe('StoryBodyFailure');
+      expect(result.error.cause._tag).toBe('NullishFailure');
     });
+  });
 
-    it('should fail with not string', () => {
-      const result = StoryBody.create({} as unknown as string);
+  it('should fail with not string', () => {
+    const result = StoryBody.create({} as unknown as string);
 
-      expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(StringFailure);
-    });
+    expect(result.isFailure()).toBe(true);
+    expect(result.error.name).toBe(StoryBody.name);
+    expect(result.error._tag).toBe('StoryBodyFailure');
+    expect(result.error.cause._tag).toBe('StringFailure');
+  });
 
-    it('should fail with empty string', () => {
-      const result = StoryBody.create('');
+  it('should fail with empty string', () => {
+    const result = StoryBody.create('');
 
-      expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(MinimumLengthNotMetFailure);
-    });
+    expect(result.isFailure()).toBe(true);
+    expect(result.error.name).toBe(StoryBody.name);
+    expect(result.error._tag).toBe('StoryBodyFailure');
+    expect(result.error.cause._tag).toBe('MinimumLengthStringFailure');
+  });
 
-    it('should fail with overly long body', () => {
-      const result = StoryBody.create('x'.repeat(1001));
-      expect(result.isFailure).toBe(true);
-      expect(result.error).toBeInstanceOf(MaximumLengthExceededFailure);
-    });
+  it('should fail with overly long body', () => {
+    const result = StoryBody.create('x'.repeat(1001));
+
+    expect(result.isFailure()).toBe(true);
+    expect(result.error.name).toBe(StoryBody.name);
+    expect(result.error._tag).toBe('StoryBodyFailure');
+    expect(result.error.cause._tag).toBe('MaximumLengthStringFailure');
   });
 
   describe('.equals()', () => {

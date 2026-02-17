@@ -1,10 +1,12 @@
-import { Guard, Time } from 'server/library/ddd/primitives';
+import { guardBeforeDate } from 'server/library/ddd/domain/invariants/date/before-date';
+import { Result, Time } from 'server/library/ddd/primitives';
 
 import { StoryCreatedAt } from './story-created-at';
 
 /**
+ * ---
  * `Value Object` representing the expiration time of a `Story`.
- *
+ * ---
  * Invariants:
  * - must be a valid date/time.
  * - must be strictly after the `Story`'s creation time.
@@ -16,12 +18,11 @@ export class StoryExpiresAt extends Time<StoryExpiresAt> {
   }
 
   /**
+   * ---
    * Creates a new `StoryExpiresAt` instance from a provided date/time.
+   * ---
    * @param date - The date object.
    * @param validators - The `StoryCreatedAt` instance for validation.
-   * @returns `Result` with:
-   * - `StoryExpiresAt`
-   * - `ApplicationFailure`
    */
   public static _internalCreate(
     date: Date,
@@ -29,10 +30,8 @@ export class StoryExpiresAt extends Time<StoryExpiresAt> {
   ) {
     const [createdAt] = validators;
 
-    return Guard.againstDateBefore(
-      date,
-      createdAt.toDate(),
-      'StoryExpiresAt',
-    ).map(() => new StoryExpiresAt(date));
+    return Result.ok(date)
+      .validate(guardBeforeDate(this.name, createdAt.toDate()))
+      .map(() => new StoryExpiresAt(date));
   }
 }

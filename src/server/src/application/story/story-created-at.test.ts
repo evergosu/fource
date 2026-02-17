@@ -1,12 +1,10 @@
-import { DateInFutureFailure } from 'server/library/ddd/errors';
-
 import { StoryCreatedAt } from './story-created-at';
 
 describe('story created at', () => {
   it('should be able to be created', () => {
     const result = StoryCreatedAt.fromNow();
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.value).toBeInstanceOf(StoryCreatedAt);
   });
 
@@ -15,8 +13,10 @@ describe('story created at', () => {
 
     const result = StoryCreatedAt.fromDate(future);
 
-    expect(result.isFailure).toBe(true);
-    expect(result.error).toBeInstanceOf(DateInFutureFailure);
+    expect(result.isFailure()).toBe(true);
+    expect(result.error.name).toBe(StoryCreatedAt.name);
+    expect(result.error._tag).toBe('TimeFailure');
+    expect(result.error.cause._tag).toBe('PastDateFailure');
   });
 
   it('should succeed when date is in the past', () => {
@@ -24,6 +24,6 @@ describe('story created at', () => {
 
     const result = StoryCreatedAt.fromDate(past);
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
   });
 });

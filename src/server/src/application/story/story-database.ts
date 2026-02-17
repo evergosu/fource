@@ -5,6 +5,7 @@ import type { DatabaseGetAll } from 'server/library/ddd/infrastructure/repositor
 import type { DatabaseCreate } from 'server/library/ddd/infrastructure/repository/capabilities/create';
 import type { DatabaseDelete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
 import type { DatabaseUpdate } from 'server/library/ddd/infrastructure/repository/capabilities/update';
+import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
 import type { Database } from 'server/database/database';
 
 import {
@@ -14,6 +15,7 @@ import {
   story,
 } from 'server/database/schema/story';
 import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
+import { decodePostgresError } from 'server/database/clients/postgres/decode-error';
 import { Task } from 'server/library/ddd/primitives';
 import { eq } from 'drizzle-orm';
 
@@ -25,13 +27,16 @@ import { eq } from 'drizzle-orm';
  *  - consumer must narrow error types manually
  */
 export class StoryDatabase
-  implements DatabaseGetAll<StorySelectSchema>,
+  implements
+  DatabaseGetAll<StorySelectSchema>,
   DatabaseGetById<StorySelectSchema, string>,
   DatabaseCreate<StoryInsertSchema>,
   DatabaseDelete<string>,
   DatabaseUpdate<StoryUpdateSchema>,
   DatabaseUpdateWithLock<StoryUpdateSchema> {
-  private readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(story);
+  private readonly optimisticLockExecutor = new DrizzleOptimisticLockExecutor(
+    story,
+  );
 
   /**
    * ---
@@ -41,10 +46,10 @@ export class StoryDatabase
    */
   constructor(private readonly database: Database) { }
   /** @inheritdoc */
-  public getAll(): Task<StorySelectSchema[], never> {
+  public getAll(): Task<StorySelectSchema[], InfrastructureFailures> {
     return Task.fromPromise(
       async () => await this.database.select().from(story),
-    );
+    ).mapError(error => decodePostgresError(error));
   }
 
   /** @inheritdoc */
@@ -56,14 +61,14 @@ export class StoryDatabase
   }
 
   /** @inheritdoc */
-  public create(row: StoryInsertSchema): Task<void, never> {
+  public create(row: StoryInsertSchema): Task<void, InfrastructureFailures> {
     return Task.fromPromise(async () => {
       await this.database.insert(story).values(row);
-    });
+    }).mapError(error => decodePostgresError(error));
   }
 
   /** @inheritdoc */
-  public delete(id: string): Task<string[], never> {
+  public delete(id: string): Task<string[], InfrastructureFailures> {
     return Task.fromPromise(
       async () =>
         await this.database
@@ -71,11 +76,13 @@ export class StoryDatabase
           .where(eq(story.id, id))
           .returning()
           .then(rows => rows.map(row => row.id)),
-    );
+    ).mapError(error => decodePostgresError(error));
   }
 
   /** @inheritdoc */
-  public update(row: StoryUpdateSchema): Task<string[], never> {
+  public update(
+    row: StoryUpdateSchema,
+  ): Task<string[], InfrastructureFailures> {
     return Task.fromPromise(
       async () =>
         await this.database
@@ -84,18 +91,22 @@ export class StoryDatabase
           .where(eq(story.id, row.id))
           .returning()
           .then(rows => rows.map(row => row.id)),
-    );
+    ).mapError(error => decodePostgresError(error));
   }
 
   /** @inheritdoc */
-  public updateWithLock(row: StoryUpdateSchema): Task<string[], never> {
-    return this.optimisticLockExecutor.execute(
-      this.database
-        .update(story)
-        .set(row)
-        .where(eq(story.id, row.id))
-        .$dynamic(),
-      row.version,
-    );
+  public updateWithLock(
+    row: StoryUpdateSchema,
+  ): Task<string[], InfrastructureFailures> {
+    return this.optimisticLockExecutor
+      .execute(
+        this.database
+          .update(story)
+          .set(row)
+          .where(eq(story.id, row.id))
+          .$dynamic(),
+        row.version,
+      )
+      .mapError(error => decodePostgresError(error));
   }
 }

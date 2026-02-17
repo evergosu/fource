@@ -1,3 +1,9 @@
+/* eslint-disable prettier/prettier */
+import {
+  type InfrastructureFailure,
+  type DomainFailure,
+  domainFailure,
+} from 'server/library/ddd/domain/issues/failure';
 import {
   UniqueIdentifier,
   AggregateRoot,
@@ -106,27 +112,24 @@ export class Story<State extends StoryState> extends AggregateRoot<
       createdAt.value,
     ]);
 
-    return Result.combine([
-      title,
-      body,
-      createdAt,
-      expiresAt,
-      authorId,
-      id,
-    ]).map(
-      () =>
-        new Story<'persisted'>(
-          {
-            createdAt: createdAt.value,
-            expiresAt: expiresAt.value,
-            authorId: authorId.value,
-            title: title.value,
-            body: body.value,
-          },
-          id.value,
-          properties.version,
-        ),
-    );
+    return Result.combine([title, body, createdAt, expiresAt, authorId, id])
+      .mapError(x => x)
+      .matchFailure({ _: f => StoryFailure(this.name)(f) })
+      .mapError(x => x)
+      .map(
+        () =>
+          new Story<'persisted'>(
+            {
+              createdAt: createdAt.value,
+              expiresAt: expiresAt.value,
+              authorId: authorId.value,
+              title: title.value,
+              body: body.value,
+            },
+            id.value,
+            properties.version,
+          ),
+      );
   }
 
   /**
@@ -143,7 +146,7 @@ export class Story<State extends StoryState> extends AggregateRoot<
 
     const result = Result.combine([body, title, authorId]);
 
-    return result.map(
+    return result.matchFailure({ _: StoryFailure(this.name) }).map(
       () =>
         new Story<'new'>({
           authorId: authorId.value,
@@ -208,3 +211,19 @@ export class Story<State extends StoryState> extends AggregateRoot<
     return this.properties.expiresAt;
   }
 }
+
+export type StoryFailure = {
+  readonly cause: InfrastructureFailure | DomainFailure;
+  readonly _tag: 'StoryFailure';
+  readonly name: string;
+} & DomainFailure;
+
+// eslint-disable-next-line sonarjs/no-redeclare
+export const StoryFailure =
+  (name: string) =>
+    (cause: InfrastructureFailure | DomainFailure): StoryFailure =>
+      domainFailure({
+        _tag: 'StoryFailure',
+        cause,
+        name,
+      });
