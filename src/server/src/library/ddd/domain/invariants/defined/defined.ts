@@ -1,5 +1,5 @@
 import { type DomainFailure, domainFailure } from '../../issues/failure';
-import { makeGuards } from '../make-guards';
+import { makeGuards, type Guard } from '../make-guards';
 
 /**
  * ---
@@ -28,5 +28,10 @@ function isDefined<T>(value: T): value is NonNullable<T> {
   return value !== null && value !== undefined;
 }
 
-export const guardDefined = (name: string) =>
-  makeGuards(isDefined, NullishFailure(name));
+export const guardDefined = <T>(
+  name: string,
+): Guard<T, NonNullable<T>, NullishFailure> =>
+  makeGuards<T, NonNullable<T>, NullishFailure>(
+    isDefined,
+    NullishFailure(name),
+  );

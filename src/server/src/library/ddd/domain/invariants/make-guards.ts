@@ -19,7 +19,7 @@ export interface Guard<I, O extends I, F extends Failure> {
  * @param failure - Error to produce on failed checks.
  */
 export function makeGuards<I, O extends I, F extends Failure>(
-  is: (value: unknown) => value is O,
+  is: (value: I) => value is O,
   failure: F,
 ): Guard<I, O, F> {
   return {
@@ -36,7 +36,7 @@ export function makeGuards<I, O extends I, F extends Failure>(
      * ---
      * @param value - value to validate
      */
-    validate(value: unknown): Result<void, F> {
+    validate(value: I): Result<void, F> {
       return is(value) ? Result.ok() : Result.fail(failure);
     },
     /**
@@ -45,7 +45,7 @@ export function makeGuards<I, O extends I, F extends Failure>(
      * ---
      * @param value - value to refine
      */
-    refine(value: unknown): Result<O, F> {
+    refine(value: I): Result<O, F> {
       return is(value) ? Result.ok(value) : Result.fail(failure);
     },
   };

@@ -13,10 +13,14 @@ import type { Guard } from './make-guards';
  * @param parameters.invalid - values for invalid result.
  * @param parameters.failure - failure to produce on invalid result.
  */
-export function testGuardContract<T, F extends DomainFailure>(parameters: {
-  invalid: readonly unknown[];
-  valid: readonly unknown[];
-  guard: Guard<T, F>;
+export function testGuardContract<
+  T,
+  B extends T,
+  F extends DomainFailure,
+>(parameters: {
+  invalid: readonly T[];
+  guard: Guard<T, B, F>;
+  valid: readonly T[];
   failure: F;
 }) {
   it('should satisfy guard contract', () => {
@@ -30,7 +34,7 @@ export function testGuardContract<T, F extends DomainFailure>(parameters: {
 
       const r = guard.refine(value);
       expect(r.isSuccess()).toBe(true);
-      expect(r.value).toEqual(value);
+      expect(r.value).toBe(value);
     }
 
     for (const value of invalid) {
