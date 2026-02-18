@@ -50,7 +50,8 @@ export class StoryRepository
    * Creates new repository instance.
    * ---
    * @param persistence - persistence source of actions.
-   */ constructor(private readonly persistence: StoryDatabase) { }
+   */
+  constructor(private readonly persistence: StoryDatabase) { }
 
   /** @inheritdoc */
   public getBySpecification(
