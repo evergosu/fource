@@ -20,17 +20,12 @@ export type StoryRehydrateSuccess = ResultSuccess<StoryRehydrateResult>;
  * Delegates rehydration to `AggregateRoot`.
  * Contains helper methods to deal with batch operations.
  */
-export class StoryRehydrator
-  implements
-  Rehydrator<StorySelectSchema, StoryRehydrateSuccess, StoryRehydrateFailure> {
-  /** @inheritdoc */
-  rehydrate(dto: StorySelectSchema) {
-    return Story.rehydrate(dto);
-  }
-
-  /** @inheritdoc */
+export const StoryRehydrator: Rehydrator<StorySelectSchema, StoryRehydrateSuccess, StoryRehydrateFailure> = {
   rehydrateList(dtos: StorySelectSchema[]) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return combineResults(dtos.map(dto => this.rehydrate(dto))).mapError(x => x.at(0)!);
+  },
+  rehydrate(dto: StorySelectSchema) {
+    return Story.rehydrate(dto);
   }
 }

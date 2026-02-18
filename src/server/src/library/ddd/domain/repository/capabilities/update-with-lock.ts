@@ -1,16 +1,15 @@
 import type {
   InferSerializerDomain,
-  Serializer,
+  Serializer as S,
   Entity,
   Task,
 } from 'server/library/ddd/primitives';
 
 import type {
-  AggregateAlreadyExistsFailure,
-  AggregateConcurrencyFailure,
-  AggregatePersistenceFailure,
-  AggregateNotFoundFailure,
-} from '../repository-errors';
+  RepositoryFailureMap as RFM,
+  RequiresErrorPolicy,
+} from '../policy/error-policy';
+import type { AggregateConcurrencyFailure } from '../repository-errors';
 
 /**
  * ---
@@ -19,26 +18,22 @@ import type {
  * This capability CANNOT exist without version awareness.
  */
 export interface DomainUpdateWithLock<
-  S extends Serializer<Entity<unknown>, unknown>,
-> {
-  readonly updateSerializer: S;
-
+  Serializer extends S<Domain, unknown>,
+  FailureMap extends RFM,
+  Domain extends Entity<unknown> = InferSerializerDomain<Serializer>,
+> extends RequiresErrorPolicy<UPDATE_WITH_LOCK_OPERATION, FailureMap> {
   /**
    * ---
    * Updates an aggregate from provided domain entity.
    * ---
-   * - fails if an aggregate already exists in the persistance.
-   * - fails if an aggregate versions missmatch.
-   * ---
    * @param domain - entity to create.
    */
   updateWithLock(
-    domain: InferSerializerDomain<S>,
+    domain: Domain,
   ): Task<
-    InferSerializerDomain<S>['id'],
-    | AggregateAlreadyExistsFailure
-    | AggregatePersistenceFailure
-    | AggregateConcurrencyFailure
-    | AggregateNotFoundFailure
+    Domain['id'],
+    FailureMap[UPDATE_WITH_LOCK_OPERATION] | AggregateConcurrencyFailure
   >;
 }
+
+export type UPDATE_WITH_LOCK_OPERATION = 'updateWithLock';

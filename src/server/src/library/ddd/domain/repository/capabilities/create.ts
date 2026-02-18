@@ -1,30 +1,31 @@
 import type {
   InferSerializerDomain,
-  Serializer,
+  Serializer as S,
+  Entity,
   Task,
 } from 'server/library/ddd/primitives';
 
 import type {
-  AggregateAlreadyExistsFailure,
-  AggregatePersistenceFailure,
-} from '../repository-errors';
+  RepositoryFailureMap as RFM,
+  RequiresErrorPolicy,
+} from '../policy/error-policy';
 
 /**
  * ---
  * Domain capability: Create an aggregate from provided domain entity.
  */
-export interface DomainCreate<S extends Serializer<unknown, unknown>> {
-  readonly insertSerializer: S;
-
+export interface DomainCreate<
+  Serializer extends S<Domain, unknown>,
+  FailureMap extends RFM,
+  Domain extends Entity<unknown> = InferSerializerDomain<Serializer>,
+> extends RequiresErrorPolicy<CREATE_OPERATION, FailureMap> {
   /**
    * ---
    * Creates an aggregate from provided domain entity.
    * ---
-   * - fails if an aggregate already exists in the persistance.
-   * ---
    * @param domain - entity to create.
    */
-  create(
-    domain: InferSerializerDomain<S>,
-  ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure>;
+  create(domain: Domain): Task<void, FailureMap[CREATE_OPERATION]>;
 }
+
+export type CREATE_OPERATION = 'create';

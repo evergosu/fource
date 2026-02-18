@@ -20,11 +20,9 @@ describe('story rehydrator', () => {
     expiresAt,
   };
 
-  const storyRehydrator = new StoryRehydrator();
-
   describe('story rehydrator', () => {
     it('should rehydrate story from dto', () => {
-      const storyResult = storyRehydrator.rehydrate(raw);
+      const storyResult = StoryRehydrator.rehydrate(raw);
 
       expect(storyResult.isSuccess()).toBe(true);
 
@@ -45,7 +43,7 @@ describe('story rehydrator', () => {
     });
 
     it('should rehydrate array of stories from dtos array', () => {
-      const storyResult = storyRehydrator.rehydrateList([raw, raw]);
+      const storyResult = StoryRehydrator.rehydrateList([raw, raw]);
 
       expect(storyResult.isSuccess()).toBe(true);
 

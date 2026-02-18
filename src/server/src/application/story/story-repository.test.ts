@@ -1,15 +1,15 @@
 import {
+  AggregateSpecificationFailure,
   AggregateAlreadyExistsFailure,
   AggregateConcurrencyFailure,
   AggregateNotFoundFailure,
-  EmptyArrayFailure,
-} from 'server/library/ddd/errors';
-import { GuardNonEmptyArray } from 'server/library/ddd/domain/invariants/array/non-empty-array';
+} from 'server/library/ddd/domain/repository/repository-errors';
 import {
   UniqueIdentifier,
   Specification,
   Task,
 } from 'server/library/ddd/primitives';
+import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
 
 import { StoryRepository } from './story-repository';
 import { StoryDatabase } from './story-database';
@@ -57,7 +57,7 @@ describe('story repository', () => {
       expect(result.value.at(0)?.body).toBe(storySecond.body);
     });
 
-    it('should return AggregateNotFoundError from @database if no entities match specification', async ({
+    it('should return AggregateSpecificationFailure from @database if no entities match specification', async ({
       database,
     }) => {
       const repository = new StoryRepository(new StoryDatabase(database));
@@ -72,7 +72,7 @@ describe('story repository', () => {
       const result = await repository.getBySpecification(specification).run();
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
+      expect(result.error._tag).toBe(AggregateSpecificationFailure);
     });
   });
 
@@ -109,7 +109,7 @@ describe('story repository', () => {
         .run();
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
+      expect(result.error._tag).toBe(AggregateNotFoundFailure);
     });
   });
 
@@ -126,19 +126,16 @@ describe('story repository', () => {
 
       const first = await repository
         .getAll()
-        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .refine(guardEmptyArray('test'))
         .map(ss => ss[0])
         .flatMap(s => repository.delete(s.id))
         .run();
 
-      const isEmpty = await repository
-        .getAll()
-        .validate(ss => GuardNonEmptyArray.validate(ss, 'test'))
-        .run();
+      const isEmpty = await repository.getAll().run();
 
       expect(first.isSuccess()).toBeTruthy();
       expect(isEmpty.isFailure()).toBeTruthy();
-      expect(isEmpty.error).toBeInstanceOf(EmptyArrayFailure);
+      expect(isEmpty.error._tag).toBe(AggregateNotFoundFailure);
     });
 
     it('should fail when story does not exist in @database', async ({
@@ -155,7 +152,7 @@ describe('story repository', () => {
 
       await repository
         .getAll()
-        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .refine(guardEmptyArray('test'))
         .map(ss => ss[0])
         .flatMap(s => repository.delete(s.id))
         .run();
@@ -228,7 +225,7 @@ describe('story repository', () => {
         .run();
 
       expect(resultSecond.isFailure()).toBe(true);
-      expect(resultSecond.error).toBeInstanceOf(AggregateAlreadyExistsFailure);
+      expect(resultSecond.error._tag).toBe(AggregateAlreadyExistsFailure);
     });
   });
 
@@ -245,7 +242,7 @@ describe('story repository', () => {
 
       const first = repository
         .getAll()
-        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .refine(guardEmptyArray('test'))
         .map(ss => ss[0]);
 
       await first
@@ -273,7 +270,7 @@ describe('story repository', () => {
 
       const first = repository
         .getAll()
-        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .refine(guardEmptyArray('test'))
         .map(ss => ss[0]);
 
       await story
@@ -304,7 +301,7 @@ describe('story repository', () => {
 
       const first = repository
         .getAll()
-        .refine(ss => GuardNonEmptyArray.refine(ss, 'test'))
+        .refine(guardEmptyArray('test'))
         .map(ss => ss[0]);
 
       await story

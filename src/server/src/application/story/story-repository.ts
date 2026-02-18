@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import type { DomainUpdateWithLock } from 'server/library/ddd/domain/repository/capabilities/update-with-lock';
-import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
 import type { DomainGetById } from 'server/library/ddd/domain/repository/capabilities/get-by-id';
 import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
@@ -23,15 +22,12 @@ import {
   Specification,
   Task,
 } from 'server/library/ddd/primitives';
-import { DomainRepository } from 'server/library/ddd/domain/repository/domain-repository';
 import { identity } from 'server/library/ddd/types/identity';
 
 import type { StoryDatabase } from './story-database';
 
-import {
-  StoryInsertSerializer,
-  StoryUpdateSerializer,
-} from './story-serializers';
+import { type StoryFailureMap, StoryErrorPolicy } from './story-error-policy';
+import { StorySerializer } from './story-serializers';
 import { StoryRehydrator } from './story-rehydrator';
 import { StoryFailure, type Story } from './story';
 
@@ -40,48 +36,21 @@ import { StoryFailure, type Story } from './story';
  * Provides actions over persistence using Drizzle ORM.
  */
 export class StoryRepository
-  extends DomainRepository<StoryDatabase>
   implements
-  DomainGetAll<StoryRehydrator>,
-  DomainGetById<StoryRehydrator>,
-  DomainDelete<Story<'persisted'>>,
-  DomainCreate<StoryInsertSerializer>,
-  DomainGetBySpecification<StoryRehydrator>,
-  DomainUpdateWithLock<StoryUpdateSerializer> {
-  private translateInfrastructureFailureUpdate = (
-    error: InfrastructureFailures,
-  ) => {
-    switch (error._tag) {
-      case 'ForeignKeyViolationFailure': {
-        return AggregateNotFoundFailure(StoryRepository.name)(error);
-      }
+  DomainGetAll<typeof StoryRehydrator, StoryFailureMap>,
+  DomainGetById<typeof StoryRehydrator, StoryFailureMap>,
+  DomainDelete<Story<'persisted'>, StoryFailureMap>,
+  DomainCreate<typeof StorySerializer.insert, StoryFailureMap>,
+  DomainGetBySpecification<typeof StoryRehydrator, StoryFailureMap>,
+  DomainUpdateWithLock<typeof StorySerializer.update, StoryFailureMap> {
+  readonly errorPolicy = StoryErrorPolicy;
 
-      case 'UniqueViolationFailure': {
-        return AggregateAlreadyExistsFailure(StoryRepository.name)(error);
-      }
-
-      default: {
-        return AggregatePersistenceFailure(StoryRepository.name)(error);
-      }
-    }
-  };
-
-  private translateInfrastructureFailureCreate = (
-    error: InfrastructureFailures,
-  ) =>
-    error._tag === 'UniqueViolationFailure'
-      ? AggregateAlreadyExistsFailure(StoryRepository.name)(error)
-      : AggregatePersistenceFailure(StoryRepository.name)(error);
-
-  private translateInfrastructureFailureSelect = (
-    error: InfrastructureFailures,
-  ) =>
-    error._tag === 'ForeignKeyViolationFailure'
-      ? AggregateNotFoundFailure(StoryRepository.name)(error)
-      : AggregatePersistenceFailure(StoryRepository.name)(error);
-  public readonly insertSerializer = new StoryInsertSerializer();
-  public readonly updateSerializer = new StoryUpdateSerializer();
-  public readonly rehydrator = new StoryRehydrator();
+  /**
+   * ---
+   * Creates new repository instance.
+   * ---
+   * @param persistence - persistence source of actions.
+   */ constructor(private readonly persistence: StoryDatabase) { }
 
   /** @inheritdoc */
   public getBySpecification(
@@ -95,8 +64,8 @@ export class StoryRepository
   > {
     return this.persistence
       .getAll()
-      .mapError(this.translateInfrastructureFailureSelect)
-      .flatMap(stories => this.rehydrator.rehydrateList(stories).toTask())
+      .mapError(this.errorPolicy.translate('getBySpecification'))
+      .flatMap(stories => StoryRehydrator.rehydrateList(stories).toTask())
       .map(ss => ss.filter(s => specification.isSatisfiedBy(s)))
       .refine(guardEmptyArray(StoryRepository.name))
       .matchFailure({
@@ -107,6 +76,7 @@ export class StoryRepository
         _: identity,
       });
   }
+
   /** @inheritdoc */
   public getById(
     id: UniqueIdentifier,
@@ -116,14 +86,14 @@ export class StoryRepository
   > {
     return this.persistence
       .getById(id.toString())
-      .mapError(this.translateInfrastructureFailureSelect)
+      .mapError(this.errorPolicy.translate('getById'))
       .refine(guardEmptyArray(StoryRepository.name))
       .matchFailure({
         EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name, id),
         _: identity,
       })
       .map(ss => ss[0])
-      .flatMap(s => this.rehydrator.rehydrate(s).toTask());
+      .flatMap(s => StoryRehydrator.rehydrate(s).toTask());
   }
 
   /** @inheritdoc */
@@ -132,7 +102,7 @@ export class StoryRepository
   ): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure> {
     return this.persistence
       .delete(id.toString())
-      .mapError(this.translateInfrastructureFailureSelect)
+      .mapError(this.errorPolicy.translate('delete'))
       .validate(guardEmptyArray(StoryRepository.name))
       .matchFailure({
         EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name, id),
@@ -146,16 +116,15 @@ export class StoryRepository
     domain: Story<'persisted'>,
   ): Task<
     UniqueIdentifier,
-    | AggregateAlreadyExistsFailure
     | AggregatePersistenceFailure
     | AggregateConcurrencyFailure
     | AggregateNotFoundFailure
   > {
-    return this.updateSerializer
+    return StorySerializer.update
       .serialize(domain)
       .toTask()
       .flatMap(row => this.persistence.updateWithLock(row))
-      .mapError(this.translateInfrastructureFailureUpdate)
+      .mapError(this.errorPolicy.translate('updateWithLock'))
       .refine(guardEmptyArray(StoryRepository.name))
       .flatMap(value => UniqueIdentifier.create(value[0]).toTask())
       .matchFailure({
@@ -177,13 +146,13 @@ export class StoryRepository
   > {
     return this.persistence
       .getAll()
-      .mapError(this.translateInfrastructureFailureSelect)
+      .mapError(this.errorPolicy.translate('getAll'))
       .validate(guardEmptyArray(StoryRepository.name))
       .matchFailure({
         EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name),
         _: identity,
       })
-      .flatMap(stories => this.rehydrator.rehydrateList(stories).toTask())
+      .flatMap(stories => StoryRehydrator.rehydrateList(stories).toTask())
       .refine(guardEmptyArray(StoryRepository.name))
       .matchFailure({
         EmptyArrayFailure: StoryFailure(StoryRepository.name),
@@ -195,10 +164,10 @@ export class StoryRepository
   public create(
     domain: Story<'new'>,
   ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
-    return this.insertSerializer
+    return StorySerializer.insert
       .serialize(domain)
       .toTask()
       .flatMap(row => this.persistence.create(row))
-      .mapError(this.translateInfrastructureFailureCreate);
+      .mapError(this.errorPolicy.translate('create'));
   }
 }

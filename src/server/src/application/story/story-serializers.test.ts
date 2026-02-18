@@ -1,9 +1,6 @@
 import type { StorySelectSchema } from 'server/database/schema/story';
 
-import {
-  StoryInsertSerializer,
-  StoryUpdateSerializer,
-} from './story-serializers';
+import { StorySerializer } from './story-serializers';
 import { Story } from './story';
 
 describe('story serializers', () => {
@@ -26,7 +23,7 @@ describe('story serializers', () => {
   const story = Story.rehydrate(raw);
 
   function shouldSerializeStoryToDTO(
-    serializer: StoryInsertSerializer | StoryUpdateSerializer,
+    serializer: (typeof StorySerializer)['insert' | 'update'],
   ) {
     it('should serialize story to dto', () => {
       const dtoResult = serializer.serialize(story.value);
@@ -43,7 +40,7 @@ describe('story serializers', () => {
   }
 
   function shouldSerializeListOfStoriesToDTOs(
-    serializer: StoryInsertSerializer | StoryUpdateSerializer,
+    serializer: (typeof StorySerializer)['insert' | 'update'],
   ) {
     it('should serialize array of stories to dtos array', () => {
       const dtoResult = serializer.serializeList([story.value, story.value]);
@@ -65,14 +62,14 @@ describe('story serializers', () => {
   }
 
   describe('insert', () => {
-    shouldSerializeStoryToDTO(new StoryInsertSerializer());
+    shouldSerializeStoryToDTO(StorySerializer.insert);
 
-    shouldSerializeListOfStoriesToDTOs(new StoryInsertSerializer());
+    shouldSerializeListOfStoriesToDTOs(StorySerializer.insert);
   });
 
   describe('update', () => {
-    shouldSerializeStoryToDTO(new StoryUpdateSerializer());
+    shouldSerializeStoryToDTO(StorySerializer.update);
 
-    shouldSerializeListOfStoriesToDTOs(new StoryUpdateSerializer());
+    shouldSerializeListOfStoriesToDTOs(StorySerializer.update);
   });
 });

@@ -1,17 +1,19 @@
 import type {
   InferRehydratorFailure,
   InferRehydratorDomain,
+  Rehydrator as R,
   Specification,
-  Rehydrator,
+  Entity,
   Task,
 } from 'server/library/ddd/primitives';
 
 import type {
-  AggregateSpecificationFailure,
-  AggregatePersistenceFailure,
-  AggregateNotFoundFailure,
-} from '../repository-errors';
+  RepositoryFailureMap as RFM,
+  RequiresErrorPolicy,
+} from '../policy/error-policy';
+import type { AggregateSpecificationFailure } from '../repository-errors';
 import type { NonEmptyArray } from '../../invariants/array/empty-array';
+import type { DomainFailure } from '../../issues/failure';
 
 /**
  * ---
@@ -20,25 +22,25 @@ import type { NonEmptyArray } from '../../invariants/array/empty-array';
  * Specifications encapsulate domain filtering logic and can be combined.
  */
 export interface DomainGetBySpecification<
-  R extends Rehydrator<unknown, unknown, unknown>,
-> {
-  readonly rehydrator: R;
+  Rehydrator extends R<unknown, Domain, DomainFailures>,
+  FailureMap extends RFM,
+  Domain extends Entity<unknown> = InferRehydratorDomain<Rehydrator>,
+  DomainFailures extends DomainFailure = InferRehydratorFailure<Rehydrator>,
+> extends RequiresErrorPolicy<GET_BY_SPECIFICATION_OPERATION, FailureMap> {
   /**
    * ---
    * Retrieves all aggregates that satisfy a given specification.
    * ---
-   * - fails if an aggregate does not exist in the persistance.
-   * - fails if an aggregate has failed rehydration step.
-   * ---
    * @param specification - A specification that defines a business rule or filter.
    */
   getBySpecification(
-    specification: Specification<InferRehydratorDomain<R>>,
+    specification: Specification<Domain>,
   ): Task<
-    NonEmptyArray<InferRehydratorDomain<R>>,
+    NonEmptyArray<Domain>,
+    | FailureMap[GET_BY_SPECIFICATION_OPERATION]
     | AggregateSpecificationFailure
-    | AggregatePersistenceFailure
-    | InferRehydratorFailure<R>
-    | AggregateNotFoundFailure
+    | DomainFailures
   >;
 }
+
+export type GET_BY_SPECIFICATION_OPERATION = 'getBySpecification';
