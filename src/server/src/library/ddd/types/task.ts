@@ -1,3 +1,6 @@
+import type { Guard } from '../domain/invariants/make-guards';
+import type { Failure } from '../domain/issues/failure';
+
 /* eslint-disable prettier/prettier */
 /**
  * `Task` represents a **lazy, composable, asynchronous effect**
@@ -20,9 +23,7 @@
  * Task<A, E> ≈ () => Promise<Result<A, E>>
  * ```
  */
-import type { Guard } from '../domain/invariants/make-guards';
-import type { Failure } from '../domain/issues/failure';
-
+import { EmptyArrayFailure, guardEmptyArray, NonEmptyArray } from '../domain/invariants/array/empty-array';
 import { type Identity, identity } from './identity';
 import { Result } from './result';
 
