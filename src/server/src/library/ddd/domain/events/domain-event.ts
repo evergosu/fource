@@ -23,11 +23,6 @@ export interface DomainEvent {
   readonly id: UniqueIdentifier;
   /**
    * ---
-   * The timestamp at which the domain event occurred.
-   */
-  readonly occurredAt: Date;
-  /**
-   * ---
    * The usefull payload carried by the domain event.
    */
   readonly payload: unknown;
