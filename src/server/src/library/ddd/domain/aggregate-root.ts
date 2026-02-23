@@ -1,6 +1,6 @@
 import type { UniqueIdentifier } from './identifiers/unique-identifier';
 
-import { type DomainEvent, DomainEvents } from './domain-events';
+import { type DomainEvent } from './events/domain-event';
 import { Entity } from './entity';
 
 /**
@@ -31,7 +31,33 @@ export abstract class AggregateRoot<T> extends Entity<T> {
    * ---
    * The internal collection of domain events associated with this aggregate.
    */
-  private _domainEvents: DomainEvent[] = [];
+  private readonly _domainEvents: DomainEvent[] = [];
+
+  /**
+   * ---
+   * Adds a domain event to the internal buffer.
+   * ---
+   * @param event Domain event emitted by this aggregate.
+   */
+  protected addDomainEvent(event: DomainEvent): void {
+    this.domainEvents.push(event);
+  }
+
+  /**
+   * ---
+   * Returns and clears buffered domain events.
+   * ---
+   * Must only be called inside a transaction boundary.
+   * ---
+   * @returns Copy of buffered events.
+   */
+  public pullDomainEvents(): DomainEvent[] {
+    const copy = this.domainEvents;
+
+    this.clearDomainEvents();
+
+    return copy;
+  }
 
   /**
    * ---
@@ -39,8 +65,16 @@ export abstract class AggregateRoot<T> extends Entity<T> {
    * ---
    * @returns shallow copy of current aggregate domain events.
    */
-  public get domainEvents(): DomainEvent[] {
+  private get domainEvents(): DomainEvent[] {
     return [...this._domainEvents];
+  }
+
+  /**
+   * ---
+   * Clears all domain events.
+   */
+  private clearDomainEvents(): void {
+    this._domainEvents.length = 0;
   }
 
   /**
@@ -51,26 +85,6 @@ export abstract class AggregateRoot<T> extends Entity<T> {
    */
   public get version(): number {
     return this._version;
-  }
-
-  /**
-   * ---
-   * Adds a domain event to the internal list and marks this aggregate for dispatch.
-   * ---
-   * @param event - The domain event to add.
-   */
-  protected addDomainEvent(event: DomainEvent): void {
-    this._domainEvents.push(event);
-
-    DomainEvents.markAggregateForDispatch(this);
-  }
-
-  /**
-   * ---
-   * Clears all domain events.
-   */
-  public clearDomainEvents(): void {
-    this._domainEvents.length = 0;
   }
 
   /**
