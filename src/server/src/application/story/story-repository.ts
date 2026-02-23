@@ -93,7 +93,7 @@ export class StoryRepository
         EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name, id),
         _: identity,
       })
-      .map(ss => ss[0])
+      .map(stories => stories[0])
       .flatMap(s => StoryRehydrator.rehydrate(s).toTask());
   }
 
@@ -114,7 +114,7 @@ export class StoryRepository
 
   /** @inheritdoc */
   public updateWithLock(
-    domain: Story<'persisted'>,
+    story: Story<'persisted'>,
   ): Task<
     UniqueIdentifier,
     | AggregatePersistenceFailure
@@ -122,16 +122,16 @@ export class StoryRepository
     | AggregateNotFoundFailure
   > {
     return StorySerializer.update
-      .serialize(domain)
+      .serialize(story)
       .toTask()
-      .flatMap(row => this.persistence.updateWithLock(row))
+      .flatMap(s => this.persistence.updateWithLock(s))
       .mapError(this.errorPolicy.translate('updateWithLock'))
       .refine(guardEmptyArray(StoryRepository.name))
       .flatMap(value => UniqueIdentifier.create(value[0]).toTask())
       .matchFailure({
         EmptyArrayFailure: AggregateConcurrencyFailure(
           StoryRepository.name,
-          domain.id,
+          story.id,
         ),
         UniqueIdentifierFailure: AggregatePersistenceFailure(
           StoryRepository.name,
@@ -163,12 +163,12 @@ export class StoryRepository
 
   /** @inheritdoc */
   public create(
-    domain: Story<'new'>,
+    story: Story<'new'>,
   ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
     return StorySerializer.insert
-      .serialize(domain)
+      .serialize(story)
       .toTask()
-      .flatMap(row => this.persistence.create(row))
+      .flatMap(s => this.persistence.create(s))
       .mapError(this.errorPolicy.translate('create'));
   }
 }

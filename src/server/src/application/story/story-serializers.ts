@@ -29,8 +29,8 @@ export const StorySerializer: StorySerializer = {
       });
     },
 
-    serializeList(domains) {
-      return combineResults(domains.map(domain => this.serialize(domain)));
+    serializeList(stories) {
+      return combineResults(stories.map(story => this.serialize(story)));
     },
   },
   insert: {
@@ -43,8 +43,8 @@ export const StorySerializer: StorySerializer = {
         body: story.body.body,
       });
     },
-    serializeList(domains) {
-      return combineResults(domains.map(domain => this.serialize(domain)));
+    serializeList(stories) {
+      return combineResults(stories.map(story => this.serialize(story)));
     },
   },
 };

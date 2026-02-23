@@ -12,18 +12,18 @@ export interface Serializer<Domain, DTO> {
    * ---
    * Convert a domain entity to a plain DTO.
    * ---
-   * @param domain - The domain entity.
+   * @param entity - The domain entity.
    * @returns A `Result` with plain object suitable for transport or storage.
    */
-  serialize(domain: Domain): Result<DTO, never>;
+  serialize(entity: Domain): Result<DTO, never>;
   /**
    * ---
    * Convert an array of domain entities to an array of DTOs.
    * ---
-   * @param domains - The array of domain entities.
+   * @param entities - The array of domain entities.
    * @returns A `Result` with an array of objects suitable for transport or storage.
    */
-  serializeList(domains: Domain[]): Result<DTO[], never[]>;
+  serializeList(entities: Domain[]): Result<DTO[], never>;
 }
 
 /**
