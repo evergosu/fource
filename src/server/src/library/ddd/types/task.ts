@@ -23,7 +23,6 @@ import type { Failure } from '../domain/issues/failure';
  * Task<A, E> ≈ () => Promise<Result<A, E>>
  * ```
  */
-import { EmptyArrayFailure, guardEmptyArray, NonEmptyArray } from '../domain/invariants/array/empty-array';
 import { type Identity, identity } from './identity';
 import { Result } from './result';
 
