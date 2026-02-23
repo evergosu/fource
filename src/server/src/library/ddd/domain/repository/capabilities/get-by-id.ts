@@ -9,7 +9,7 @@ import type {
 import type {
   RepositoryFailureMap as RFM,
   RequiresErrorPolicy,
-} from '../policy/error-policy';
+} from '../repository-error-policy';
 import type { DomainFailure } from '../../issues/failure';
 
 /**

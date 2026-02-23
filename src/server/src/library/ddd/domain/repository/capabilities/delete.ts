@@ -3,7 +3,7 @@ import type { Entity, Task } from 'server/library/ddd/primitives';
 import type {
   RepositoryFailureMap as RFM,
   RequiresErrorPolicy,
-} from '../policy/error-policy';
+} from '../repository-error-policy';
 
 /**
  * ---

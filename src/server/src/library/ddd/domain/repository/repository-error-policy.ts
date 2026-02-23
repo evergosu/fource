@@ -2,6 +2,7 @@ import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/i
 
 import type { GET_BY_SPECIFICATION_OPERATION } from './capabilities/get-by-specification';
 import type { UPDATE_WITH_LOCK_OPERATION } from './capabilities/update-with-lock';
+import type { CREATE_BATCH_OPERATION } from './capabilities/create-batch';
 import type { GET_BY_ID_OPERATION } from './capabilities/get-by-id';
 import type { GET_ALL_OPERATION } from './capabilities/get-all';
 import type { CREATE_OPERATION } from './capabilities/create';
@@ -12,6 +13,7 @@ import type { DomainFailure } from '../issues/failure';
 export type Operation =
   | GET_BY_SPECIFICATION_OPERATION
   | UPDATE_WITH_LOCK_OPERATION
+  | CREATE_BATCH_OPERATION
   | GET_BY_ID_OPERATION
   | GET_ALL_OPERATION
   | DELETE_OPERATION

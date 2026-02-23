@@ -8,7 +8,7 @@ import type {
 import type {
   RepositoryFailureMap as RFM,
   RequiresErrorPolicy,
-} from '../policy/error-policy';
+} from '../repository-error-policy';
 import type { AggregateConcurrencyFailure } from '../repository-errors';
 
 /**
@@ -26,10 +26,10 @@ export interface DomainUpdateWithLock<
    * ---
    * Updates an aggregate from provided domain entity.
    * ---
-   * @param domain - entity to create.
+   * @param entity - entity to create.
    */
   updateWithLock(
-    domain: Domain,
+    entity: Domain,
   ): Task<
     Domain['id'],
     FailureMap[UPDATE_WITH_LOCK_OPERATION] | AggregateConcurrencyFailure

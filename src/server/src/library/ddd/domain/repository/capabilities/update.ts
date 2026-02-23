@@ -8,7 +8,7 @@ import type {
 import type {
   RepositoryFailureMap as RFM,
   RequiresErrorPolicy,
-} from '../policy/error-policy';
+} from '../repository-error-policy';
 
 /**
  * ---
@@ -23,9 +23,9 @@ export interface DomainUpdate<
    * ---
    * Updates an aggregate from provided domain entity.
    * ---
-   * @param domain - entity to update.
+   * @param entity - entity to update.
    */
-  update(domain: Domain): Task<void, FailureMap[UPDATE_OPERATION]>;
+  update(entity: Domain): Task<void, FailureMap[UPDATE_OPERATION]>;
 }
 
 export type UPDATE_OPERATION = 'update';

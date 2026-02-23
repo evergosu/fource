@@ -8,7 +8,7 @@ import type {
 import type {
   RepositoryFailureMap as RFM,
   RequiresErrorPolicy,
-} from '../policy/error-policy';
+} from '../repository-error-policy';
 
 /**
  * ---
@@ -23,9 +23,9 @@ export interface DomainCreate<
    * ---
    * Creates an aggregate from provided domain entity.
    * ---
-   * @param domain - entity to create.
+   * @param entity - entity to create.
    */
-  create(domain: Domain): Task<void, FailureMap[CREATE_OPERATION]>;
+  create(entity: Domain): Task<void, FailureMap[CREATE_OPERATION]>;
 }
 
 export type CREATE_OPERATION = 'create';
