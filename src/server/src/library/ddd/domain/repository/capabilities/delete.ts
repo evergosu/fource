@@ -17,9 +17,9 @@ export interface DomainDelete<
    * ---
    * Deletes an aggregate by provided unique identifier.
    * ---
-   * @param id - The unique identifier of the domain entity.
+   * @param entity - entity to create.
    */
-  delete(id: Domain['id']): Task<void, FailureMap[DELETE_OPERATION]>;
+  delete(entity: Domain): Task<void, FailureMap[DELETE_OPERATION]>;
 }
 
 export type DELETE_OPERATION = 'delete';
