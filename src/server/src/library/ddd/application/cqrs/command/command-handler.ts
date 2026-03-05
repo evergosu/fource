@@ -1,5 +1,6 @@
 import type { Task } from 'server/library/ddd/primitives';
 
+import type { TransactionEnvironment } from '../../unit-of-work/unit-of-work';
 import type { Command } from './command';
 
 /**
@@ -21,5 +22,8 @@ export interface CommandHandler<
    * ---
    * @param command - Command instance
    */
-  handle(command: C): Task<Output, Failure>;
+  handle(
+    command: C,
+    environment?: TransactionEnvironment,
+  ): Task<Output, Failure>;
 }

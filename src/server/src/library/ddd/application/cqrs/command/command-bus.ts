@@ -2,6 +2,7 @@ import type { Task } from 'server/library/ddd/primitives';
 
 import { Exception } from 'server/library/ddd/domain/issues/exception';
 
+import type { TransactionEnvironment } from '../../unit-of-work/unit-of-work';
 import type { CommandMiddleware } from './command-middleware';
 import type { CommandHandler } from './command-handler';
 import type { Command } from './command';
@@ -20,7 +21,8 @@ export class InMemoryCommandBus {
     string,
     CommandHandler<object, unknown, unknown>
   >();
-  private readonly middleware: CommandMiddleware[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly middleware: CommandMiddleware<any>[] = [];
 
   /**
    * ---
@@ -42,7 +44,7 @@ export class InMemoryCommandBus {
    * ---
    * @param middleware - command middleware
    */
-  use(middleware: CommandMiddleware): void {
+  use(middleware: CommandMiddleware<unknown>): void {
     this.middleware.push(middleware);
   }
 
@@ -83,8 +85,10 @@ export class InMemoryCommandBus {
       );
     }
 
-    const pipeline = this.composeMiddleware(command, () =>
-      handler.handle(command),
+    const pipeline = this.composeMiddleware(
+      command,
+      (environment?: TransactionEnvironment) =>
+        handler.handle(command, environment),
     );
 
     return pipeline();
