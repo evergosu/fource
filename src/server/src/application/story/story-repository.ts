@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import type { DomainUpdateWithLock } from 'server/library/ddd/domain/repository/capabilities/update-with-lock';
+import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { DomainGetById } from 'server/library/ddd/domain/repository/capabilities/get-by-id';
 import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
@@ -25,12 +26,16 @@ import {
 } from 'server/library/ddd/primitives';
 import { identity } from 'server/library/ddd/types/identity';
 
-import type { StoryDatabase } from './story-database';
-
 import { type StoryFailureMap, StoryErrorPolicy } from './story-error-policy';
 import { StorySerializer } from './story-serializers';
 import { StoryRehydrator } from './story-rehydrator';
 import { StoryFailure, type Story } from './story';
+import { StoryDatabase } from './story-database';
+
+interface StoryRepositoryEnvironment {
+  provider: TransactionalDatabaseProvider;
+  tracker: AggregateTracker;
+}
 
 /**
  * ---
@@ -62,12 +67,10 @@ export class StoryRepository
    * ---
    * Factory method for safely creating an `StoryRepository` instance.
    * ---
-   * ---
-   * @param persistence - persistence source of actions.
-   * @param tracker - event tracker for modified aggregates.
+   * @param environment - environment in which instance should be created.
    */
-  static new(persistence: StoryDatabase, tracker: AggregateTracker) {
-    return new StoryRepository(persistence, tracker);
+  static new(environment: StoryRepositoryEnvironment) {
+    return new StoryRepository(environment.provider.get(StoryDatabase), environment.tracker);
   }
 
   /** @inheritdoc */
@@ -180,7 +183,7 @@ export class StoryRepository
       .flatMap(stories => StoryRehydrator.rehydrateList(stories).toTask())
       .refine(guardEmptyArray(StoryRepository.name))
       .matchFailure({
-        EmptyArrayFailure: StoryFailure(StoryRepository.name),
+        EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name),
         _: identity,
       });
   }

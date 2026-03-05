@@ -1,8 +1,10 @@
+import type { DatabaseTransaction } from 'server/database/database';
+
+import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import { AggregateAlreadyExistsFailure } from 'server/library/ddd/domain/repository/repository-errors';
 import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
 import { OutboxRepository } from './outbox-repository';
-import { OutboxDatabase } from './outbox-database';
 
 describe('outbox repository', () => {
   const event = {
@@ -15,12 +17,15 @@ describe('outbox repository', () => {
     type: 'foo',
   };
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
+  const createEnvironment = (transaction: DatabaseTransaction) => ({
+    provider: new TransactionalDatabaseProvider(transaction),
+  });
+
   describe('.createBatch()', () => {
     it('should create a new event in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = OutboxRepository.new(
-          new OutboxDatabase(transaction),
-        );
+        const repository = OutboxRepository.new(createEnvironment(transaction));
 
         const result = await repository.createBatch([event]).run();
 
@@ -34,9 +39,7 @@ describe('outbox repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = OutboxRepository.new(
-          new OutboxDatabase(transaction),
-        );
+        const repository = OutboxRepository.new(createEnvironment(transaction));
 
         const resultFirst = await repository.createBatch([event]).run();
 

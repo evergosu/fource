@@ -1,3 +1,5 @@
+import type { DatabaseTransaction } from 'server/database/database';
+
 /* eslint-disable sonarjs/no-nested-functions */
 import {
   AggregateSpecificationFailure,
@@ -5,6 +7,7 @@ import {
   AggregateConcurrencyFailure,
   AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
+import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import {
   UniqueIdentifier,
   Specification,
@@ -14,7 +17,6 @@ import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empt
 import { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
 
 import { StoryRepository } from './story-repository';
-import { StoryDatabase } from './story-database';
 import { Story } from './story';
 
 describe('story repository', () => {
@@ -32,6 +34,11 @@ describe('story repository', () => {
 
   const tracker = new AggregateTracker();
 
+  const createEnvironment = (transaction: DatabaseTransaction) => ({
+    provider: new TransactionalDatabaseProvider(transaction),
+    tracker,
+  });
+
   describe('.getBySpecification()', () => {
     class IsShortSpecification extends Specification<Story<'persisted'>> {
       isSatisfiedBy(candidate: Story<'persisted'>): boolean {
@@ -43,10 +50,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const specification = new IsShortSpecification();
 
@@ -73,10 +77,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const specification = new IsShortSpecification();
 
@@ -101,10 +102,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const story = Story.create(storyFirst);
 
@@ -129,10 +127,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const result = await Story.create(storyFirst)
           .toTask()
@@ -150,10 +145,7 @@ describe('story repository', () => {
   describe('.delete()', () => {
     it('should delete an existing story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const story = Story.create(storyFirst);
 
@@ -183,10 +175,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const story = Story.create(storyFirst);
 
@@ -217,10 +206,7 @@ describe('story repository', () => {
   describe('.getAll()', () => {
     it('should return all stories from @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const result = await Task.all([
           Story.create(storyFirst)
@@ -244,10 +230,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const result = await repository.getAll().run();
 
@@ -262,10 +245,7 @@ describe('story repository', () => {
   describe('.create()', () => {
     it('should create a new story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const result = await Story.create(storyFirst)
           .toTask()
@@ -282,10 +262,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const resultFirst = await Story.create(storyFirst)
           .toTask()
@@ -310,10 +287,7 @@ describe('story repository', () => {
   describe('.updateWithLock()', () => {
     it('should update an existing story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const story = Story.create(storyFirst);
 
@@ -345,10 +319,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const story = Story.create(storyFirst);
 
@@ -380,10 +351,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(
-          new StoryDatabase(transaction),
-          tracker,
-        );
+        const repository = StoryRepository.new(createEnvironment(transaction));
 
         const story = Story.create(storyFirst);
 

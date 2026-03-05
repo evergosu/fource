@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { DomainCreateBatch } from 'server/library/ddd/domain/repository/capabilities/create-batch';
 import type { DomainEvent } from 'server/library/ddd/domain/events/domain-event';
 
@@ -8,13 +9,16 @@ import {
 } from 'server/library/ddd/domain/repository/repository-errors';
 import { Task } from 'server/library/ddd/primitives';
 
-import type { OutboxDatabase } from './outbox-database';
-
 import {
   type OutboxFailureMap,
   OutboxErrorPolicy,
 } from './outbox-error-policy';
 import { OutboxSerializer } from './outbox-serializers';
+import { OutboxDatabase } from './outbox-database';
+
+interface OutboxRepositoryEnvironment {
+  provider: TransactionalDatabaseProvider;
+}
 
 /**
  * ---
@@ -46,10 +50,9 @@ export class OutboxRepository
    * ---
    * Factory method for safely creating an `OutboxRepository` instance.
    * ---
-   * @param persistence - persistence source of actions.
+   * @param environment - environment in which instance should be created.
    */
-  static new(persistence: OutboxDatabase) {
-    return new OutboxRepository(persistence
-    );
+  static new(environment: OutboxRepositoryEnvironment) {
+    return new OutboxRepository(environment.provider.get(OutboxDatabase));
   }
 }
