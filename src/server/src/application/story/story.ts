@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import {
-  type InfrastructureFailure,
   type DomainFailure,
   domainFailure,
 } from 'server/library/ddd/domain/issues/failure';
@@ -213,7 +212,7 @@ export class Story<State extends StoryState> extends AggregateRoot<
 }
 
 export type StoryFailure = {
-  readonly cause: InfrastructureFailure | DomainFailure;
+  readonly cause: DomainFailure;
   readonly _tag: 'StoryFailure';
   readonly name: string;
 } & DomainFailure;
@@ -221,7 +220,7 @@ export type StoryFailure = {
 // eslint-disable-next-line sonarjs/no-redeclare
 export const StoryFailure =
   (name: string) =>
-    (cause: InfrastructureFailure | DomainFailure): StoryFailure =>
+    (cause: DomainFailure): StoryFailure =>
       domainFailure({
         _tag: 'StoryFailure',
         cause,
