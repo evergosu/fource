@@ -17,26 +17,38 @@ describe('outbox repository', () => {
 
   describe('.createBatch()', () => {
     it('should create a new event in @database', async ({ database }) => {
-      const repository = new OutboxRepository(new OutboxDatabase(database));
+      await database.transaction(async transaction => {
+        const repository = OutboxRepository.new(
+          new OutboxDatabase(transaction),
+        );
 
-      const result = await repository.createBatch([event]).run();
+        const result = await repository.createBatch([event]).run();
 
-      expect(result.isSuccess()).toBe(true);
+        expect(result.isSuccess()).toBe(true);
+
+        transaction.rollback();
+      });
     });
 
     it('should fail when the event already exists in @database', async ({
       database,
     }) => {
-      const repository = new OutboxRepository(new OutboxDatabase(database));
+      await database.transaction(async transaction => {
+        const repository = OutboxRepository.new(
+          new OutboxDatabase(transaction),
+        );
 
-      const resultFirst = await repository.createBatch([event]).run();
+        const resultFirst = await repository.createBatch([event]).run();
 
-      expect(resultFirst.isSuccess()).toBe(true);
+        expect(resultFirst.isSuccess()).toBe(true);
 
-      const resultSecond = await repository.createBatch([event]).run();
+        const resultSecond = await repository.createBatch([event]).run();
 
-      expect(resultSecond.isFailure()).toBe(true);
-      expect(resultSecond.error._tag).toBe(AggregateAlreadyExistsFailure);
+        expect(resultSecond.isFailure()).toBe(true);
+        expect(resultSecond.error._tag).toBe(AggregateAlreadyExistsFailure);
+
+        transaction.rollback();
+      });
     });
   });
 });

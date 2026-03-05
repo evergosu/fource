@@ -6,7 +6,7 @@ import type { DatabaseCreate } from 'server/library/ddd/infrastructure/repositor
 import type { DatabaseDelete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
 import type { DatabaseUpdate } from 'server/library/ddd/infrastructure/repository/capabilities/update';
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
-import type { Database } from 'server/database/database';
+import type { DatabaseTransaction } from 'server/database/database';
 
 import {
   type StoryInsertSchema,
@@ -42,13 +42,13 @@ export class StoryDatabase
    * ---
    * Constructs a new `StoryDatabase` instance.
    * ---
-   * @param database - The one of possible database clients.
+   * @param transaction - current database transaction.
    */
-  constructor(private readonly database: Database) { }
+  constructor(private readonly transaction: DatabaseTransaction) { }
   /** @inheritdoc */
   public getAll(): Task<StorySelectSchema[], InfrastructureFailures> {
     return Task.fromPromise(
-      async () => await this.database.select().from(story),
+      async () => await this.transaction.select().from(story),
     ).mapError(error => decodePostgresError(error));
   }
 
@@ -56,14 +56,14 @@ export class StoryDatabase
   public getById(id: string): Task<StorySelectSchema[], never> {
     return Task.fromPromise(
       async () =>
-        await this.database.select().from(story).where(eq(story.id, id)),
+        await this.transaction.select().from(story).where(eq(story.id, id)),
     );
   }
 
   /** @inheritdoc */
   public create(row: StoryInsertSchema): Task<void, InfrastructureFailures> {
     return Task.fromPromise(async () => {
-      await this.database.insert(story).values(row);
+      await this.transaction.insert(story).values(row);
     }).mapError(error => decodePostgresError(error));
   }
 
@@ -71,7 +71,7 @@ export class StoryDatabase
   public delete(id: string): Task<string[], InfrastructureFailures> {
     return Task.fromPromise(
       async () =>
-        await this.database
+        await this.transaction
           .delete(story)
           .where(eq(story.id, id))
           .returning()
@@ -85,7 +85,7 @@ export class StoryDatabase
   ): Task<string[], InfrastructureFailures> {
     return Task.fromPromise(
       async () =>
-        await this.database
+        await this.transaction
           .update(story)
           .set(row)
           .where(eq(story.id, row.id))
@@ -100,7 +100,7 @@ export class StoryDatabase
   ): Task<string[], InfrastructureFailures> {
     return this.optimisticLockExecutor
       .execute(
-        this.database
+        this.transaction
           .update(story)
           .set(row)
           .where(eq(story.id, row.id))

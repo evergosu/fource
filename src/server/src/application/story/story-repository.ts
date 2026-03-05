@@ -4,6 +4,7 @@ import type { DomainGetById } from 'server/library/ddd/domain/repository/capabil
 import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
 import type { DomainDelete } from 'server/library/ddd/domain/repository/capabilities/delete';
+import type { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
 
 import {
   AggregateSpecificationFailure,
@@ -50,8 +51,24 @@ export class StoryRepository
    * Creates new repository instance.
    * ---
    * @param persistence - persistence source of actions.
+   * @param tracker - event tracker for modified aggregates.
    */
-  constructor(private readonly persistence: StoryDatabase) { }
+  private constructor(
+    private readonly persistence: StoryDatabase,
+    private readonly tracker: AggregateTracker,
+  ) { }
+
+  /**
+   * ---
+   * Factory method for safely creating an `StoryRepository` instance.
+   * ---
+   * ---
+   * @param persistence - persistence source of actions.
+   * @param tracker - event tracker for modified aggregates.
+   */
+  static new(persistence: StoryDatabase, tracker: AggregateTracker) {
+    return new StoryRepository(persistence, tracker);
+  }
 
   /** @inheritdoc */
   public getBySpecification(
@@ -99,14 +116,19 @@ export class StoryRepository
 
   /** @inheritdoc */
   public delete(
-    id: UniqueIdentifier,
+    story: Story<'persisted'>,
   ): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure> {
+    this.tracker.track(story);
+
     return this.persistence
-      .delete(id.toString())
+      .delete(story.id.toString())
       .mapError(this.errorPolicy.translate('delete'))
       .validate(guardEmptyArray(StoryRepository.name))
       .matchFailure({
-        EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name, id),
+        EmptyArrayFailure: AggregateNotFoundFailure(
+          StoryRepository.name,
+          story.id,
+        ),
         _: identity,
       })
       .map(() => void 0);
@@ -121,6 +143,8 @@ export class StoryRepository
     | AggregateConcurrencyFailure
     | AggregateNotFoundFailure
   > {
+    this.tracker.track(story);
+
     return StorySerializer.update
       .serialize(story)
       .toTask()
@@ -165,6 +189,8 @@ export class StoryRepository
   public create(
     story: Story<'new'>,
   ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
+    this.tracker.track(story);
+
     return StorySerializer.insert
       .serialize(story)
       .toTask()

@@ -14,23 +14,31 @@ describe('outbox database', () => {
 
   describe('.createBatch()', () => {
     it('should create a new rows in @database', async ({ database }) => {
-      const repository = new OutboxDatabase(database);
+      await database.transaction(async transaction => {
+        const repository = new OutboxDatabase(transaction);
 
-      const result = await repository.createBatch([event]).run();
+        const result = await repository.createBatch([event]).run();
 
-      expect(result.isSuccess()).toBeTruthy();
+        expect(result.isSuccess()).toBeTruthy();
+
+        transaction.rollback();
+      });
     });
 
     it('should fail when the rows already exists in @database', async ({
       database,
     }) => {
-      const repository = new OutboxDatabase(database);
+      await database.transaction(async transaction => {
+        const repository = new OutboxDatabase(transaction);
 
-      await repository.createBatch([event]).run();
+        await repository.createBatch([event]).run();
 
-      const result = await repository.createBatch([event]).run();
+        const result = await repository.createBatch([event]).run();
 
-      expect(result.isFailure()).toBeTruthy();
+        expect(result.isFailure()).toBeTruthy();
+
+        transaction.rollback();
+      });
     });
   });
 });

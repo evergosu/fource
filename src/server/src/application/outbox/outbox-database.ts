@@ -1,6 +1,6 @@
 import type { DatabaseCreateBatch } from 'server/library/ddd/infrastructure/repository/capabilities/create-batch';
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
-import type { Database } from 'server/database/database';
+import type { DatabaseTransaction } from 'server/database/database';
 
 import { decodePostgresError } from 'server/database/clients/postgres/decode-error';
 import { type OutboxInsertSchema, outbox } from 'server/database/schema/outbox';
@@ -18,17 +18,17 @@ export class OutboxDatabase implements DatabaseCreateBatch<OutboxInsertSchema> {
    * ---
    * Constructs a new `OutboxDatabase` instance.
    * ---
-   * @param database - The one of possible database clients.
+   * @param transaction - current database transaction.
    */
   // eslint-disable-next-line prettier/prettier
-  constructor(private readonly database: Database) { }
+  constructor(private readonly transaction: DatabaseTransaction) { }
 
   /** @inheritdoc */
   public createBatch(
     rows: OutboxInsertSchema[],
   ): Task<void, InfrastructureFailures> {
     return Task.fromPromise(async () => {
-      await this.database.insert(outbox).values(rows);
+      await this.transaction.insert(outbox).values(rows);
     }).mapError(error => decodePostgresError(error));
   }
 }

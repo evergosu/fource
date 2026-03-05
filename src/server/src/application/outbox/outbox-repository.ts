@@ -29,7 +29,7 @@ export class OutboxRepository
    * ---
    * @param persistence - persistence source of actions.
    */
-  constructor(private readonly persistence: OutboxDatabase) { }
+  private constructor(private readonly persistence: OutboxDatabase) { }
 
   /** @inheritdoc */
   createBatch(
@@ -40,5 +40,16 @@ export class OutboxRepository
       .toTask()
       .flatMap(es => this.persistence.createBatch(es))
       .mapError(this.errorPolicy.translate('createBatch'));
+  }
+
+  /**
+   * ---
+   * Factory method for safely creating an `OutboxRepository` instance.
+   * ---
+   * @param persistence - persistence source of actions.
+   */
+  static new(persistence: OutboxDatabase) {
+    return new OutboxRepository(persistence
+    );
   }
 }
