@@ -2,13 +2,12 @@
 import type { Database } from 'server/database/database';
 
 import {
-  type WorkEnvironment,
+  type TransactionEnvironment,
   UnitOfWorkFailure,
   type UnitOfWork,
 } from 'server/library/ddd/application/unit-of-work/unit-of-work';
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import { OutboxRepository } from 'server/application/outbox/outbox-repository';
-import { OutboxDatabase } from 'server/application/outbox/outbox-database';
 import { Task } from 'server/library/ddd/primitives';
 
 import { AggregateTracker } from './aggregate-tracker';
@@ -25,7 +24,7 @@ export class DrizzleUnitOfWork implements UnitOfWork {
 
   /** @inheritdoc */
   execute<Output, Failure>(
-    work: (environment: WorkEnvironment) => Task<Output, Failure>,
+    work: (environment: TransactionEnvironment) => Task<Output, Failure>,
   ): Task<Output, UnitOfWorkFailure> {
     return Task.fromPromise(() =>
       this.database.transaction(async tx => {
@@ -42,7 +41,7 @@ export class DrizzleUnitOfWork implements UnitOfWork {
         const events = tracker.collectEvents();
 
         if (events.length > 0) {
-          const outbox = OutboxRepository.new(provider.get(OutboxDatabase));
+          const outbox = OutboxRepository.new({ provider });
 
           const result = await outbox.createBatch(events).run();
 

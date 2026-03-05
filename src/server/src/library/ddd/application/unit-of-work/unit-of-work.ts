@@ -58,7 +58,7 @@ export interface UnitOfWork {
    * @returns Task resolving to the program result or a UnitOfWorkFailure.
    */
   execute<Output, Failure>(
-    work: (environment: WorkEnvironment) => Task<Output, Failure>,
+    work: (environment: TransactionEnvironment) => Task<Output, Failure>,
   ): Task<Output, UnitOfWorkFailure>;
 }
 
@@ -77,7 +77,7 @@ export interface UnitOfWork {
  * `tracker`
  *    Tracks aggregates that produced domain events during execution.
  */
-export interface WorkEnvironment {
+export interface TransactionEnvironment {
   provider: TransactionalDatabaseProvider;
   tracker: AggregateTracker;
 }
