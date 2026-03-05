@@ -1,74 +1,44 @@
-import type { Failure } from '../../issues/failure';
-
-import { UseCaseExecutionException } from './use-case-errors';
-import { Result } from '../../types/result';
+import type { TransactionEnvironment } from 'server/library/ddd/application/unit-of-work/unit-of-work';
+import type { ApplicationFailure } from 'server/library/ddd/domain/issues/failure';
+import type { Task } from 'server/library/ddd/primitives';
 
 /**
- * Represents a generic application use case.
+ * ---
+ * Base abstraction for command-oriented application use cases.
  *
- * Use cases encapsulate all the application-specific business logic required to
- * perform a specific action or request. They orchestrate domain entities, services,
- * repositories, and return a `Result`.
- * @template Input - Type of the request object or input parameters.
- * @template Output - Type of the response object or output value.
+ * This class standardizes the execution pipeline for all
+ * command use cases in the application layer.
+ * ---
+ * Design constraints:
+ *
+ * - infrastructure must not leak into use cases
+ * - transactional environment must be passed explicitly
+ * - domain and infrastructure failures must be translated
+ * to application failures at the boundary
+ * ---
+ * @template Input - Input payload required by the use case.
+ * @template Output - Successful result returned by the use case.
+ * @template Failure - Application failure type produced by the use case.
  */
-export abstract class UseCase<Input, Output> {
+export abstract class CommandUseCase<
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+  Input,
+  Output,
+  Failure extends ApplicationFailure,
+> {
   /**
-   * Wraps domain errors and calls business logic in `implement`.
-   * @param input - The input parameters required for execution.
-   * @returns A Promise of a Result containing either the expected output or an exception.
+   * ---
+   * Implements the core business logic of the use case.
+   * ---
+   * Subclasses must implement this method and perform
+   * domain operations required by the command.
+   *
+   * ---
+   * @param input - Input payload.
+   * @param environment - Transaction-scoped execution environment.
    */
-  public async execute(
+  protected abstract execute(
     input: Input,
-  ): Promise<Result<Output, UseCaseExecutionException | Failure>> {
-    try {
-      return await this.implement(input);
-    } catch (error) {
-      return Result.fail(
-        new UseCaseExecutionException(this.constructor.name, error),
-      );
-    }
-  }
-
-  /**
-   * Actual implementation of the use case business logic.
-   * Should not contain try/catch — all errors bubble to `execute()`.
-   * @param input - The input parameters required for execution.
-   * @template E - Inferred errors to collect.
-   */
-  protected abstract implement(input: Input): Promise<Result<Output>>;
-}
-
-/**
- * Represents a write operation (Command) in CQRS.
- * @template Output - Type of the response object or output value (often void or ID of new entity).
- */
-export abstract class CommandUseCase<Input, Output = void> extends UseCase<
-  Input,
-  Output
-> {
-  /**
-   * Actual implementation of the use case business logic.
-   * Should not contain try/catch — all errors bubble to `execute()`.
-   * @param input - The input parameters required for execution.
-   * @template E - Inferred errors to collect.
-   */
-  protected abstract override implement(input: Input): Promise<Result<Output>>;
-}
-
-/**
- * Represents a read operation (Query) in CQRS.
- * @template Output - Type of the response object or output value (often DTOs or aggregates).
- */
-export abstract class QueryUseCase<Input, Output> extends UseCase<
-  Input,
-  Output
-> {
-  /**
-   * Actual implementation of the use case business logic.
-   * Should not contain try/catch — all errors bubble to `execute()`.
-   * @param input - The input parameters required for execution.
-   * @template E - Inferred errors to collect.
-   */
-  protected abstract override implement(input: Input): Promise<Result<Output>>;
+    environment: TransactionEnvironment,
+  ): Task<Output, Failure>;
 }
