@@ -1,4 +1,8 @@
-import type { AnyPgColumn, PgUpdate } from 'drizzle-orm/pg-core';
+import type {
+  PgUpdateDynamic,
+  PgUpdateBase,
+  AnyPgColumn,
+} from 'drizzle-orm/pg-core';
 
 import { Task } from 'server/library/ddd/primitives';
 import { eq } from 'drizzle-orm';
@@ -8,9 +12,13 @@ export interface LockedColumns {
   readonly id: AnyPgColumn;
 }
 
+type AnyPgUpdate =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  PgUpdateDynamic<PgUpdateBase<any, any, any>> | PgUpdateBase<any, any, any>;
+
 interface OptimisticLockExecutor {
   execute(
-    query: PgUpdate,
+    query: AnyPgUpdate,
     version: number,
     id: string,
   ): Task<unknown[], unknown>;
@@ -43,13 +51,13 @@ export class DrizzleOptimisticLockExecutor
    * @param version - Version of an aggregate root.
    * @returns New query builder with optimistic lock checks.
    */
-  execute(query: PgUpdate, version: number): Task<string[], never> {
+  execute(query: AnyPgUpdate, version: number): Task<string[], never> {
     return Task.fromPromise(
       async () =>
         await query
           .where(eq(this.aggregate.version, version - 1))
-          .returning({ id: this.aggregate.id })
-          .then(rows => rows.map(row => String(row.id))),
+          .returning()
+          .then(rows => rows.map(row => String(row['id']))),
     );
   }
 }
