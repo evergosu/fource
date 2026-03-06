@@ -2,28 +2,18 @@
 import type { DomainUpdateWithLock } from 'server/library/ddd/domain/repository/capabilities/update-with-lock';
 import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { DomainGetById } from 'server/library/ddd/domain/repository/capabilities/get-by-id';
-import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
 import type { DomainDelete } from 'server/library/ddd/domain/repository/capabilities/delete';
 import type { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
 
 import {
-  AggregateSpecificationFailure,
   AggregateAlreadyExistsFailure,
   AggregateConcurrencyFailure,
   AggregatePersistenceFailure,
   AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
-import { type DomainGetBySpecification } from 'server/library/ddd/domain/repository/capabilities/get-by-specification';
-import {
-  type NonEmptyArray,
-  guardEmptyArray,
-} from 'server/library/ddd/domain/invariants/array/empty-array';
-import {
-  UniqueIdentifier,
-  Specification,
-  Task,
-} from 'server/library/ddd/primitives';
+import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
+import { UniqueIdentifier, Task } from 'server/library/ddd/primitives';
 import { identity } from 'server/library/ddd/types/identity';
 
 import { type StoryFailureMap, StoryErrorPolicy } from './story-error-policy';
@@ -43,11 +33,9 @@ interface StoryRepositoryEnvironment {
  */
 export class StoryRepository
   implements
-  DomainGetAll<typeof StoryRehydrator, StoryFailureMap>,
   DomainGetById<typeof StoryRehydrator, StoryFailureMap>,
   DomainDelete<Story<'persisted'>, StoryFailureMap>,
   DomainCreate<typeof StorySerializer.insert, StoryFailureMap>,
-  DomainGetBySpecification<typeof StoryRehydrator, StoryFailureMap>,
   DomainUpdateWithLock<typeof StorySerializer.update, StoryFailureMap> {
   readonly errorPolicy = StoryErrorPolicy;
 
@@ -70,32 +58,10 @@ export class StoryRepository
    * @param environment - environment in which instance should be created.
    */
   static new(environment: StoryRepositoryEnvironment) {
-    return new StoryRepository(environment.provider.get(StoryDatabase), environment.tracker);
-  }
-
-  /** @inheritdoc */
-  public getBySpecification(
-    specification: Specification<Story<'persisted'>>,
-  ): Task<
-    NonEmptyArray<Story<'persisted'>>,
-    | AggregateSpecificationFailure
-    | AggregatePersistenceFailure
-    | AggregateNotFoundFailure
-    | StoryFailure
-  > {
-    return this.persistence
-      .getAll()
-      .mapError(this.errorPolicy.translate('getBySpecification'))
-      .flatMap(stories => StoryRehydrator.rehydrateList(stories).toTask())
-      .map(ss => ss.filter(s => specification.isSatisfiedBy(s)))
-      .refine(guardEmptyArray(StoryRepository.name))
-      .matchFailure({
-        EmptyArrayFailure: AggregateSpecificationFailure(
-          StoryRepository.name,
-          specification,
-        ),
-        _: identity,
-      });
+    return new StoryRepository(
+      environment.provider.get(StoryDatabase),
+      environment.tracker,
+    );
   }
 
   /** @inheritdoc */
@@ -163,27 +129,6 @@ export class StoryRepository
         UniqueIdentifierFailure: AggregatePersistenceFailure(
           StoryRepository.name,
         ),
-        _: identity,
-      });
-  }
-
-  /** @inheritdoc */
-  public getAll(): Task<
-    NonEmptyArray<Story<'persisted'>>,
-    AggregatePersistenceFailure | AggregateNotFoundFailure | StoryFailure
-  > {
-    return this.persistence
-      .getAll()
-      .mapError(this.errorPolicy.translate('getAll'))
-      .validate(guardEmptyArray(StoryRepository.name))
-      .matchFailure({
-        EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name),
-        _: identity,
-      })
-      .flatMap(stories => StoryRehydrator.rehydrateList(stories).toTask())
-      .refine(guardEmptyArray(StoryRepository.name))
-      .matchFailure({
-        EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name),
         _: identity,
       });
   }
