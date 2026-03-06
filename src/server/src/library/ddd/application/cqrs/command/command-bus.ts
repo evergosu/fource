@@ -21,8 +21,7 @@ export class InMemoryCommandBus {
     string,
     CommandHandler<object, unknown, unknown>
   >();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readonly middleware: CommandMiddleware<any>[] = [];
+  private readonly middleware: CommandMiddleware[] = [];
 
   /**
    * ---
