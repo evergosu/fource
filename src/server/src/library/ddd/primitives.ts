@@ -8,7 +8,8 @@ export * from './domain/objects/time';
 export * from './domain/rules/policy';
 export * from './domain/entity';
 
-export * from './application/use-case/use-case';
+export * from './application/use-case/command-use-case';
+export * from './application/use-case/query-use-case';
 
 export * from './infrastructure/repository/adapters/serializer';
 export * from './infrastructure/repository/adapters/rehydrator';
