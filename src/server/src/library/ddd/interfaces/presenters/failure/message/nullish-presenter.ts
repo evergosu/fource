@@ -1,4 +1,4 @@
-import type { UndefinedFailure } from 'server/library/ddd/domain/invariants/undefined/undefined';
+import type { NullishFailure } from 'server/library/ddd/domain/invariants/defined/defined';
 
 /**
  * ---
@@ -6,6 +6,6 @@ import type { UndefinedFailure } from 'server/library/ddd/domain/invariants/unde
  * ---
  * @param failure - Failure with violation of an invariant.
  */
-export function presentUndefinedFailure(failure: UndefinedFailure): string {
+export function presentNullishFailure(failure: NullishFailure): string {
   return `${failure.name} must be defined`;
 }
