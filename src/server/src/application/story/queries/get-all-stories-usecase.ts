@@ -1,5 +1,7 @@
 import type { Task } from 'server/library/ddd/primitives';
 
+import { QueryUseCase } from 'server/library/ddd/application/use-case/query-use-case';
+
 import type { StoryView } from './story-view';
 
 import { GetAllStoriesFailure } from './get-all-stories-failure';
@@ -13,15 +15,20 @@ import { StoryQueryMapper } from './story-query-mapper';
  * This use case belongs to the query side of CQRS
  * and therefore performs **read-only operations**.
  */
-export class GetAllStoriesUseCase {
+export class GetAllStoriesUseCase extends QueryUseCase<
+  void,
+  StoryView[],
+  GetAllStoriesFailure
+> {
   /**
    * ---
    *  Constructs new instance of GetAllStoriesUseCase.
    * ---
    * @param repository - query repository of story domain.
    */
-  // eslint-disable-next-line prettier/prettier
-  constructor(private readonly repository: StoryQueryRepository) { }
+  constructor(private readonly repository: StoryQueryRepository) {
+    super();
+  }
   /**
    * ---
    * Executes story retrieval.
