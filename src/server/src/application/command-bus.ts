@@ -14,7 +14,7 @@ import { CreateStoryUseCase } from './story/commands/create-story-usecase';
  * The command bus coordinates command dispatching and
  * executes middleware pipelines.
  */
-const bus = new InMemoryCommandBus();
+export const commandBus = new InMemoryCommandBus();
 
 /**
  * ---
@@ -23,13 +23,13 @@ const bus = new InMemoryCommandBus();
  * This middleware ensures that every command execution
  * runs inside a database transaction.
  */
-bus.use(new UnitOfWorkMiddleware(new DrizzleUnitOfWork(database)));
+commandBus.use(new UnitOfWorkMiddleware(new DrizzleUnitOfWork(database)));
 
 /**
  * ---
  * Register command handler responsible for story creation.
  */
-bus.register(
+commandBus.register(
   CreateStoryCommand,
   new CreateStoryCommandHandler(new CreateStoryUseCase()),
 );
