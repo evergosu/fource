@@ -1,68 +1,53 @@
-import type { InfrastructureFailure } from '../../infrastructure/infrastructure-error';
-import type { UseCase as UC } from '../../application/use-case/use-case';
-import type { DomainFailure } from '../../domain/domain-error';
-import type { Result } from '../../types/result';
-import type { Either } from '../../types/either';
-import type { Option } from '../../types/option';
+import type { Task } from 'server/library/ddd/primitives';
 
 /**
  * ---
- * Base class for all controllers, responsible for formatting responses and
- * converting domain-layer objects into transport-layer payloads.
+ * Base transport controller.
  *
- * Provides utility methods to handle `Result`, `Either`, and `Option` objects,
- * making it easier to write controllers that follow CQRS and DDD principles.
- *
- * This class provides a consistent `execute` entrypoint that handles
- * boilerplate request/response logic, including error handling and result mapping.
+ * This class acts as an **application boundary adapter**
+ * between external transport protocols (HTTP, RPC, CLI)
+ * and the application layer.
  * ---
- * Concrete subclasses must provide `implement`.
+ * Responsibilities:
+ * - Execute application use cases
+ * - Convert `Task` results into transport responses
+ * - Provide consistent error mapping
+ * ---
+ * The controller **does not contain domain logic**.
+ * It only coordinates request parsing and response formatting.
+ * ---
+ * @template Request - incoming transport request
+ * @template Response - outgoing transport response
  */
-export abstract class Controller<
-  Request,
-  Response,
-  UseCase extends UC<unknown, unknown>,
-> {
+export abstract class Controller<Request, Response> {
   /**
    * ---
-   * Constructor must be implemented by all subclasses with required arguments.
+   * Entry point executed by transport adapters.
+   *
+   * Wraps controller execution with error handling
+   * and ensures consistent response formatting.
    * ---
-   * @param useCase - Use case to use inside implement method.
+   * @param request - incoming request object
+   * @param response - outgoing response object
    */
-  // eslint-disable-next-line prettier/prettier
-  constructor(protected readonly useCase: UseCase) { }
-  /**
-   * ---
-   * Template method. Concrete controllers must override this.
-   * ---
-   * @param response - The output response object (generic).
-   * @param status - The HTTP status code.
-   * @param payload - The payload to send.
-   */
-  protected abstract send(
-    response: Response,
-    status: number,
-    payload: unknown,
-  ): void;
-
-  /**
-   * ---
-   * Wrap core controller logic with surrounding logic (adapter responsibility).
-   * ---
-   * - this method is intended to be called by protocol-specific subclasses.
-   * ---
-   * @param request - The input request object (generic).
-   * @param response - The output response object (generic).
-   */
-  public async execute(request: Request, response: Response): Promise<void> {
+  async execute(request: Request, response: Response): Promise<void> {
     try {
-      const result = await this.implement(request);
+      await this.handle(request)
+        .match({
+          fail: error => {
+            const [status, payload] = this.handleFailure(error);
 
-      const [status, payload] = this.handleResult(result);
+            this.send(response, status, payload);
+          },
+          ok: value => {
+            const [status, payload] = this.handleSuccess(value);
 
-      this.send(response, status, payload);
+            this.send(response, status, payload);
+          },
+        })
+        .run();
     } catch (error) {
-      const [status, payload] = this.handleUnexpectedError(error);
+      const [status, payload] = this.handleUnexpected(error);
 
       this.send(response, status, payload);
     }
@@ -70,102 +55,60 @@ export abstract class Controller<
 
   /**
    * ---
-   * Template method. Concrete controllers must override this.
+   * Executes controller logic.
    * ---
-   * @param request - The input request object (generic).
-   * @returns A domain-specific result or response payload.
+   * Implementations typically:
+   * - construct commands/queries
+   * - call command/query buses
+   * ---
+   * @param request - transport request
    */
-  protected abstract implement(request: Request): Promise<Result<unknown>>;
+  protected abstract handle(request: Request): Task<unknown, unknown>;
 
   /**
    * ---
-   * Handle a `Result` object and return an appropriate HTTP response.
+   * Converts successful result into response payload.
    * ---
-   * @param result - The result to handle.
-   * @param onSuccessStatus - Status code to return on success (defaults to 200).
-   * @returns A tuple of [status code, payload].
+   * @param value - successful result
    */
-
-  protected handleResult<T>(
-    result: Result<T>,
-    onSuccessStatus = 200,
-  ): [number, unknown] {
-    return result.match({
-      fail: () => this.handleError(result.error),
-      ok: () => [onSuccessStatus, result.value],
-    });
+  protected handleSuccess(value: unknown): [number, unknown] {
+    return [200, value];
   }
 
   /**
    * ---
-   * Handle an `Either` object and return an HTTP response.
+   * Converts application failures into HTTP responses.
    * ---
-   * @param either - The either to handle.
-   * @param onRightStatus - Status code to return on success (defaults to 200).
-   * @returns A tuple of [status code, payload].
+   * @param failure - application failure
    */
-  protected handleEither<
-    L extends InfrastructureFailure | DomainFailure | string,
-    R,
-  >(either: Either<L, R>, onRightStatus = 200): [number, unknown] {
-    return either.fold(
-      () => this.handleError(either.getLeft()),
-      () => [onRightStatus, either.getRight()],
-    );
+  protected handleFailure(failure: unknown): [number, unknown] {
+    return [400, { message: String(failure) }];
   }
 
   /**
    * ---
-   * Handle an `Option` object and return an HTTP response.
+   * Handles unexpected runtime errors.
    * ---
-   * @param option - The option to handle.
-   * @param onSomeStatus - Status code to return if value is present (defaults to 200).
-   * @returns A tuple of [status code, payload].
+   * @param error - thrown exception
    */
-  protected handleOption<T>(
-    option: Option<T>,
-    onSomeStatus = 200,
-  ): [number, unknown] {
-    return option.isSome()
-      ? [onSomeStatus, option.get()]
-      : this.handleError('Not found', 404);
+  protected handleUnexpected(error: unknown): [number, unknown] {
+    return [500, { message: String(error) }];
   }
 
   /**
    * ---
-   * Default error handling. Can be overridden in subclasses to provide
-   * custom status codes or error mapping logic.
+   * Sends the final response.
+   *
+   * Implemented by transport-specific controllers
+   * (HTTP, GraphQL, RPC, etc.).
    * ---
-   * @param error - The domain error to handle.
-   * @param statusCode - Status code to return (defaults to 400).
-   * @returns A tuple of [status code, payload].
+   * @param response - response object
+   * @param status - HTTP status code
+   * @param payload - serialized payload
    */
-  protected handleError(
-    error: InfrastructureFailure | DomainFailure | string,
-    statusCode?: number,
-  ): [number, unknown] {
-    const message = typeof error === 'string' ? error : error.message;
-
-    return [
-      statusCode ?? 400,
-      { message: message.length > 0 ? message : 'Bad request' },
-    ];
-  }
-
-  /**
-   * ---
-   * Default error handling. Can be overridden in subclasses to provide
-   * custom status codes or error mapping logic.
-   * ---
-   * @param error - The domain error to handle.
-   * @returns A tuple of [status code, payload].
-   */
-  protected handleUnexpectedError(error: unknown): [number, unknown] {
-    const message = error instanceof Error ? error.message : String(error);
-
-    return [
-      500,
-      { message: message.length > 0 ? message : 'Internal server error' },
-    ];
-  }
+  protected abstract send(
+    response: Response,
+    status: number,
+    payload: unknown,
+  ): void;
 }
