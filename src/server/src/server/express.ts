@@ -1,7 +1,10 @@
 import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
+import { createStoryRouter } from 'server/application/story/story-router';
 import { getEnvironment } from 'server/library/environment';
+import { commandBus } from 'server/application/command-bus';
+import { queryBus } from 'server/application/query-bus';
 import express from 'express';
 
 import type { DatabaseContext } from '../database/clients/client';
@@ -10,7 +13,6 @@ import { rateLimitByEnvironment } from './middlewares/rate-limit';
 import { createErrorHandler } from './middlewares/error-handler';
 import { helmetByEnvironment } from './middlewares/helmet';
 import { morganByEnvironment } from './middlewares/morgan';
-import { createStoryRouter } from '../router/router';
 import { allowCorsFor } from './middlewares/cors';
 
 export interface ServerContext {
@@ -45,7 +47,7 @@ export function startServer(
     .use(...morganByEnvironment)
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use('/api', createStoryRouter(database))
+    .use('/api', createStoryRouter(commandBus, queryBus))
     .use(createErrorHandler(logger))
     .listen(port === 'random' ? 0 : environment.server.url.port, () => {
       logger.info(`Server running at http://localhost:${getPort(server)}`);
