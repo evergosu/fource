@@ -1,11 +1,4 @@
-import type {
-  InferRehydratorFailure,
-  InferRehydratorDomain,
-  Rehydrator as R,
-  Specification,
-  Entity,
-  Task,
-} from 'server/library/ddd/primitives';
+import type { Specification, Task } from 'server/library/ddd/primitives';
 
 import type {
   RepositoryFailureMap as RFM,
@@ -13,7 +6,6 @@ import type {
 } from '../repository-error-policy';
 import type { AggregateSpecificationFailure } from '../repository-errors';
 import type { NonEmptyArray } from '../../invariants/array/empty-array';
-import type { DomainFailure } from '../../issues/failure';
 
 /**
  * ---
@@ -21,12 +13,8 @@ import type { DomainFailure } from '../../issues/failure';
  * ---
  * Specifications encapsulate domain filtering logic and can be combined.
  */
-export interface DomainGetBySpecification<
-  Rehydrator extends R<unknown, Domain, DomainFailures>,
-  FailureMap extends RFM,
-  Domain extends Entity<unknown> = InferRehydratorDomain<Rehydrator>,
-  DomainFailures extends DomainFailure = InferRehydratorFailure<Rehydrator>,
-> extends RequiresErrorPolicy<GET_BY_SPECIFICATION_OPERATION, FailureMap> {
+export interface DomainGetBySpecification<Output, FailureMap extends RFM>
+  extends RequiresErrorPolicy<GET_BY_SPECIFICATION_OPERATION, FailureMap> {
   /**
    * ---
    * Retrieves all aggregates that satisfy a given specification.
@@ -34,12 +22,10 @@ export interface DomainGetBySpecification<
    * @param specification - A specification that defines a business rule or filter.
    */
   getBySpecification(
-    specification: Specification<Domain>,
+    specification: Specification<Output>,
   ): Task<
-    NonEmptyArray<Domain>,
-    | FailureMap[GET_BY_SPECIFICATION_OPERATION]
-    | AggregateSpecificationFailure
-    | DomainFailures
+    NonEmptyArray<Output>,
+    FailureMap[GET_BY_SPECIFICATION_OPERATION] | AggregateSpecificationFailure
   >;
 }
 
