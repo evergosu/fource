@@ -1,7 +1,7 @@
 import type { Query } from 'server/library/ddd/application/cqrs/query/query';
 
 import type { GetAllStoriesFailure } from './get-all-stories-failure';
-import type { StoryView } from './story-read-model';
+import type { StoryView } from './story-view';
 
 /**
  * ---

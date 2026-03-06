@@ -1,6 +1,6 @@
 import type { Task } from 'server/library/ddd/primitives';
 
-import type { StoryView } from './story-read-model';
+import type { StoryView } from './story-view';
 
 import { GetAllStoriesFailure } from './get-all-stories-failure';
 import { StoryQueryRepository } from '../story-query-repository';

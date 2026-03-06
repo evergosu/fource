@@ -3,7 +3,7 @@ import type { QueryHandler } from 'server/library/ddd/application/cqrs/query/que
 import type { Task } from 'server/library/ddd/primitives';
 
 import type { GetAllStoriesFailure } from './get-all-stories-failure';
-import type { StoryView } from './story-read-model';
+import type { StoryView } from './story-view';
 
 import { GetAllStoriesUseCase } from './get-all-stories-usecase';
 import { GetAllStoriesQuery } from './get-all-stories-query';
