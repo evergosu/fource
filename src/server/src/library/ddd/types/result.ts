@@ -276,7 +276,7 @@ export class Result<T, E = Failure> {
    * ---
    * @param fa - container to apply.
    */
-  public ap<U, E2>(
+  public ap<T, U, E2>(
     this: Result<(value: T) => U, E>,
     fa: Result<T, E2>,
   ): Result<U, E2 | E> {
