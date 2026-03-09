@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-nested-functions */
 /* eslint-disable prettier/prettier */
 import {
   type DomainFailure,
@@ -98,37 +99,63 @@ export class Story<State extends StoryState> extends AggregateRoot<
    * ---
    * Factory method to create a new story.
    * ---
+   * @param title - story title.
+   * @returns `Result` wrapping new `Story`.
+   */
+  private static readonly createNew =
+    (title: StoryTitle) => (body: StoryBody) => (authorId: StoryAuthorId) =>
+      new Story<'new'>({
+        authorId,
+        title,
+        body,
+      });
+
+  /**
+   * ---
+   * Factory method to create a persisted story.
+   * ---
+   * @param id - story identifier.
+   * @returns `Result` wrapping persisted `Story`.
+   */
+  private static readonly createPersisted =
+    (id: UniqueIdentifier) =>
+      (version: number) =>
+        (title: StoryTitle) =>
+          (body: StoryBody) =>
+            (authorId: StoryAuthorId) =>
+              (createdAt: StoryCreatedAt) =>
+                (expiresAt: StoryExpiresAt) =>
+                  new Story<'persisted'>(
+                    {
+                      createdAt,
+                      expiresAt,
+                      authorId,
+                      title,
+                      body,
+                    },
+                    id,
+                    version,
+                  );
+
+  /**
+   * ---
+   * Factory method to create a new story.
+   * ---
    * @param properties - A raw object to reconstruct `Story` from.
    * @returns `Result` wrapping the `Story` rehydrated from a raw input.
    */
   public static rehydrate(properties: RehydrateStoryProperties) {
-    const id = UniqueIdentifier.create(properties.id);
-    const body = StoryBody.create(properties.body);
-    const title = StoryTitle.create(properties.title);
-    const authorId = StoryAuthorId.create(properties.authorId);
     const createdAt = StoryCreatedAt.fromDate(properties.createdAt);
-    const expiresAt = StoryExpiresAt.fromDate(properties.expiresAt, [
-      createdAt.value,
-    ]);
 
-    return Result.combine([title, body, createdAt, expiresAt, authorId, id])
-      .mapError(x => x)
-      .matchFailure({ _: f => StoryFailure(this.name)(f) })
-      .mapError(x => x)
-      .map(
-        () =>
-          new Story<'persisted'>(
-            {
-              createdAt: createdAt.value,
-              expiresAt: expiresAt.value,
-              authorId: authorId.value,
-              title: title.value,
-              body: body.value,
-            },
-            id.value,
-            properties.version,
-          ),
-      );
+    return Result.ok(this.createPersisted)
+      .ap(UniqueIdentifier.create(properties.id))
+      .ap(Result.ok(properties.version))
+      .ap(StoryTitle.create(properties.title))
+      .ap(StoryBody.create(properties.body))
+      .ap(StoryAuthorId.create(properties.authorId))
+      .ap(createdAt)
+      .ap(StoryExpiresAt.fromDate(properties.createdAt, [createdAt]))
+      .matchFailure({ _: StoryFailure(this.name) });
   }
 
   /**
@@ -139,20 +166,11 @@ export class Story<State extends StoryState> extends AggregateRoot<
    * @returns `Result` wrapping new `Story`.
    */
   public static create(properties: CreateStoryProperties) {
-    const body = StoryBody.create(properties.body);
-    const title = StoryTitle.create(properties.title);
-    const authorId = StoryAuthorId.create(properties.authorId);
-
-    const result = Result.combine([body, title, authorId]);
-
-    return result.matchFailure({ _: StoryFailure(this.name) }).map(
-      () =>
-        new Story<'new'>({
-          authorId: authorId.value,
-          title: title.value,
-          body: body.value,
-        }),
-    );
+    return Result.ok(this.createNew)
+      .ap(StoryTitle.create(properties.title))
+      .ap(StoryBody.create(properties.body))
+      .ap(StoryAuthorId.create(properties.authorId))
+      .matchFailure({ _: StoryFailure(this.name) });
   }
 
   /**
