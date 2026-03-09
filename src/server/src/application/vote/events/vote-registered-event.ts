@@ -32,7 +32,7 @@ export class VoteRegisteredEvent implements DomainEvent {
   constructor(
     public readonly aggregateId: UniqueIdentifier,
     public readonly payload: {
-      storyId: Story<'persisted' | 'new'>['id'];
+      storyId: Story<'persisted'>['id'];
       voterId: UniqueIdentifier;
     },
     // eslint-disable-next-line prettier/prettier
