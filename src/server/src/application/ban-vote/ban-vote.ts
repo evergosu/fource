@@ -11,22 +11,22 @@ import {
 
 import type { Story } from '../story/story';
 
-import { VoteRegisteredEvent } from './events/vote-registered-event';
+import { BanVoteRegisteredEvent } from './events/ban-vote-registered-event';
 
 /**
  * ---
- * Raw properties required to create a `Vote`.
+ * Raw properties required to create a `BanVote`.
  */
-interface CreateVoteProperties {
+interface CreateBanVoteProperties {
   voterId: string;
   storyId: string;
 }
 
 /**
  * ---
- * Raw properties required to rehydrate a `Vote`.
+ * Raw properties required to rehydrate a `BanVote`.
  */
-interface RehydrateVoteProperties {
+interface RehydrateBanVoteProperties {
   voterId: string;
   storyId: string;
   id: string;
@@ -34,7 +34,7 @@ interface RehydrateVoteProperties {
 
 /**
  * ---
- * Properties of a brand new in-memory `Vote`.
+ * Properties of a brand new in-memory `BanVote`.
  */
 interface Properties {
   storyId: Story<'persisted'>['id'];
@@ -48,7 +48,7 @@ interface Properties {
  * `Stories` include metadata and content and are the root of emoji reactions,
  * Fource actions, and moderation signals.
  */
-export class Vote extends AggregateRoot<Properties> {
+export class BanVote extends AggregateRoot<Properties> {
   /**
    * ---
    * Private constructor. Use `.create()` factory method instead.
@@ -65,11 +65,11 @@ export class Vote extends AggregateRoot<Properties> {
    * Factory method to create a new vote.
    * ---
    * @param storyId - identifier of story under vote
-   * @returns `Result` wrapping new `Vote`.
+   * @returns `Result` wrapping new `BanVote`.
    */
   private static readonly createNew =
     (storyId: Story<'persisted'>['id']) => (voterId: UniqueIdentifier) =>
-      new Vote({
+      new BanVote({
         storyId,
         voterId,
       });
@@ -79,13 +79,13 @@ export class Vote extends AggregateRoot<Properties> {
    * Factory method to create a persisted vote.
    * ---
    * @param id - vote identifier
-   * @returns `Result` wrapping persisted `Vote`.
+   * @returns `Result` wrapping persisted `BanVote`.
    */
   private static readonly createPersisted =
     (id: UniqueIdentifier) =>
       (storyId: Story<'persisted'>['id']) =>
         (voterId: UniqueIdentifier) =>
-          new Vote(
+          new BanVote(
             {
               storyId,
               voterId,
@@ -97,55 +97,55 @@ export class Vote extends AggregateRoot<Properties> {
    * ---
    * Factory method to create a new vote.
    * ---
-   * @param properties - A raw object to reconstruct `Vote` from.
-   * @returns `Result` wrapping the `Vote` rehydrated from a raw input.
+   * @param properties - A raw object to reconstruct `BanVote` from.
+   * @returns `Result` wrapping the `BanVote` rehydrated from a raw input.
    */
-  public static rehydrate(properties: RehydrateVoteProperties) {
+  public static rehydrate(properties: RehydrateBanVoteProperties) {
     return Result.ok(this.createPersisted)
       .ap(UniqueIdentifier.create(properties.id))
       .ap(UniqueIdentifier.create(properties.storyId))
       .ap(UniqueIdentifier.create(properties.voterId))
-      .matchFailure({ _: VoteFailure(this.name) });
+      .matchFailure({ _: BanVoteFailure(this.name) });
   }
 
   /**
    * ---
    * Factory method to create a new vote.
    * ---
-   * @param properties - A raw object to construct `Vote` from.
-   * @returns `Result` wrapping new `Vote`.
+   * @param properties - A raw object to construct `BanVote` from.
+   * @returns `Result` wrapping new `BanVote`.
    */
-  public static create(properties: CreateVoteProperties) {
+  public static create(properties: CreateBanVoteProperties) {
     return Result.ok(this.createNew)
       .ap(UniqueIdentifier.create(properties.storyId))
       .ap(UniqueIdentifier.create(properties.voterId))
-      .matchFailure({ _: VoteFailure(this.name) });
+      .matchFailure({ _: BanVoteFailure(this.name) });
   }
 
   /**
    * ---
    * Registers a vote and produces a domain event.
    */
-  public register(): VoteRegisteredEvent {
-    return new VoteRegisteredEvent(this.id, {
+  public register(): BanVoteRegisteredEvent {
+    return new BanVoteRegisteredEvent(this.id, {
       storyId: this.properties.storyId,
       voterId: this.properties.voterId,
     });
   }
 }
 
-export type VoteFailure = {
+export type BanVoteFailure = {
+  readonly _tag: 'BanVoteFailure';
   readonly cause: DomainFailure;
-  readonly _tag: 'VoteFailure';
   readonly name: string;
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const VoteFailure =
+export const BanVoteFailure =
   (name: string) =>
-    (cause: DomainFailure): VoteFailure =>
+    (cause: DomainFailure): BanVoteFailure =>
       domainFailure({
-        _tag: 'VoteFailure',
+        _tag: 'BanVoteFailure',
         cause,
         name,
       });

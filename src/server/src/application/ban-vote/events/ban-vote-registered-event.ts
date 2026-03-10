@@ -9,7 +9,7 @@ import {
  * ---
  * Event emitted when a vote for banning a story is registered.
  */
-export class VoteRegisteredEvent implements DomainEvent {
+export class BanVoteRegisteredEvent implements DomainEvent {
   /**
    * ---
    * Globally `unique identifier` for the event.
@@ -19,10 +19,10 @@ export class VoteRegisteredEvent implements DomainEvent {
    * ---
    * The concrete type of the domain event.
    */
-  public readonly type = 'VoteRegisteredEvent';
+  public readonly type = 'BanVoteRegisteredEvent';
   /**
    * ---
-   * Constructs new `VoteRegisteredEvent` instance.
+   * Constructs new `BanVoteRegisteredEvent` instance.
    * ---
    * @param aggregateId - The `unique identifier` of an aggregate dispatched the event.
    * @param payload - The usefull payload carried by the domain event.
