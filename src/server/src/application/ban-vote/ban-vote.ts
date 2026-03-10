@@ -157,6 +157,30 @@ export class BanVote<State extends BanVoteState> extends AggregateRoot<
       voterId: this.properties.voterId,
     });
   }
+
+  /**
+   * ---
+   * An `Identifier` of the `Story` which casted the vote on.
+   */
+  get storyId(): Story<'persisted'>['id'] {
+    return this.properties.storyId;
+  }
+
+  /**
+   * ---
+   * An `Identifier` of the `User` who casted the vote.
+   */
+  get voterId(): UniqueIdentifier {
+    return this.properties.voterId;
+  }
+
+  /**
+   * ---
+   * `Date` when the `BanVote` was created.
+   */
+  public createdAt(this: BanVote<'persisted'>): BanVoteCreatedAt {
+    return this.properties.createdAt;
+  }
 }
 
 export type BanVoteFailure = {
