@@ -4,8 +4,11 @@ import { DrizzleUnitOfWork } from 'server/database/orm/unit-of-work/drizzle-unit
 import { database } from 'server/database/clients/postgresql';
 
 import { CreateStoryCommandHandler } from './story/commands/create-story-handler';
+import { VoteBanCommandHandler } from './ban-vote/commands/vote-ban-handler';
 import { CreateStoryCommand } from './story/commands/create-story-command';
 import { CreateStoryUseCase } from './story/commands/create-story-usecase';
+import { VoteBanCommand } from './ban-vote/commands/vote-ban-command';
+import { VoteBanUseCase } from './ban-vote/commands/vote-ban-usecase';
 
 /**
  * ---
@@ -32,4 +35,13 @@ commandBus.use(new UnitOfWorkMiddleware(new DrizzleUnitOfWork(database)));
 commandBus.register(
   CreateStoryCommand,
   new CreateStoryCommandHandler(new CreateStoryUseCase()),
+);
+
+/**
+ * ---
+ * Register command handler responsible for ban voting.
+ */
+commandBus.register(
+  VoteBanCommand,
+  new VoteBanCommandHandler(new VoteBanUseCase()),
 );

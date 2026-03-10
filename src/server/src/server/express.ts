@@ -1,6 +1,7 @@
 import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
+import { createBanRouter } from 'server/application/ban-vote/ban-vote-router';
 import { createStoryRouter } from 'server/application/story/story-router';
 import { getEnvironment } from 'server/library/environment';
 import { commandBus } from 'server/application/command-bus';
@@ -47,7 +48,11 @@ export function startServer(
     .use(...morganByEnvironment)
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use('/api', createStoryRouter(commandBus, queryBus))
+    .use(
+      '/api/story',
+      createStoryRouter(commandBus, queryBus),
+      createBanRouter(commandBus),
+    )
     .use(createErrorHandler(logger))
     .listen(port === 'random' ? 0 : environment.server.url.port, () => {
       logger.info(`Server running at http://localhost:${getPort(server)}`);
