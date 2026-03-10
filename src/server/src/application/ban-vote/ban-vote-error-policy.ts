@@ -86,7 +86,7 @@ const banVoteErrorHandlers: BanVoteErrorHandlers = {
     error._tag === 'UniqueViolationFailure'
       ? AggregateAlreadyExistsFailure(BanVote.name)(error)
       : AggregatePersistenceFailure(BanVote.name)(error),
-  countByStoryId: readFailures,
+  countByStoryId: AggregatePersistenceFailure(BanVote.name),
   delete: readFailures,
 };
 

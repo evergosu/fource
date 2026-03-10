@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
 import type { DomainDelete } from 'server/library/ddd/domain/repository/capabilities/delete';
