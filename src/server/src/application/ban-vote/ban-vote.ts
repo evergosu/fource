@@ -9,6 +9,7 @@ import {
   Result,
 } from 'server/library/ddd/primitives';
 
+import type { BanVoteCreatedAt } from './ban-vote-created-at';
 import type { Story } from '../story/story';
 
 import { BanVoteRegisteredEvent } from './events/ban-vote-registered-event';
@@ -27,6 +28,7 @@ interface CreateBanVoteProperties {
  * Raw properties required to rehydrate a `BanVote`.
  */
 interface RehydrateBanVoteProperties {
+  createdAt: Date;
   voterId: string;
   storyId: string;
   id: string;
@@ -36,19 +38,36 @@ interface RehydrateBanVoteProperties {
  * ---
  * Properties of a brand new in-memory `BanVote`.
  */
-interface Properties {
+interface NewBanVoteProperties {
   storyId: Story<'persisted'>['id'];
   voterId: UniqueIdentifier;
 }
 
 /**
  * ---
- * Represents a short-lived user-generated vote in the platform.
- * ---
- * `Stories` include metadata and content and are the root of emoji reactions,
- * Fource actions, and moderation signals.
+ * Properties of a persisted `BanVote`.
  */
-export class BanVote extends AggregateRoot<Properties> {
+interface PersistedBanVoteProperties extends NewBanVoteProperties {
+  createdAt: BanVoteCreatedAt;
+}
+
+type BanVoteState = 'persisted' | 'new';
+
+/**
+ * ---
+ * Lifecycle properties of a `BanVote`.
+ */
+type Properties<State extends BanVoteState> = State extends 'new'
+  ? NewBanVoteProperties
+  : PersistedBanVoteProperties;
+
+/**
+ * ---
+ * Represents a ban vote in the platform.
+ */
+export class BanVote<State extends BanVoteState> extends AggregateRoot<
+  Properties<State>
+> {
   /**
    * ---
    * Private constructor. Use `.create()` factory method instead.
@@ -56,7 +75,10 @@ export class BanVote extends AggregateRoot<Properties> {
    * @param properties An inner properties of an aggregate.
    * @param identifier An optional `UniqueIdentifier` of an `AggregateRoot` to rehydrate from.
    */
-  private constructor(properties: Properties, identifier?: UniqueIdentifier) {
+  private constructor(
+    properties: Properties<State>,
+    identifier?: UniqueIdentifier,
+  ) {
     super(properties, identifier);
   }
 
@@ -69,7 +91,7 @@ export class BanVote extends AggregateRoot<Properties> {
    */
   private static readonly createNew =
     (storyId: Story<'persisted'>['id']) => (voterId: UniqueIdentifier) =>
-      new BanVote({
+      new BanVote<'new'>({
         storyId,
         voterId,
       });
@@ -85,13 +107,15 @@ export class BanVote extends AggregateRoot<Properties> {
     (id: UniqueIdentifier) =>
       (storyId: Story<'persisted'>['id']) =>
         (voterId: UniqueIdentifier) =>
-          new BanVote(
-            {
-              storyId,
-              voterId,
-            },
-            id,
-          );
+          (createdAt: BanVoteCreatedAt) =>
+            new BanVote<'persisted'>(
+              {
+                createdAt,
+                storyId,
+                voterId,
+              },
+              id,
+            );
 
   /**
    * ---
@@ -126,8 +150,9 @@ export class BanVote extends AggregateRoot<Properties> {
    * ---
    * Registers a vote and produces a domain event.
    */
-  public register(): BanVoteRegisteredEvent {
+  public register(this: BanVote<'persisted'>): BanVoteRegisteredEvent {
     return new BanVoteRegisteredEvent(this.id, {
+      createdAt: this.properties.createdAt,
       storyId: this.properties.storyId,
       voterId: this.properties.voterId,
     });

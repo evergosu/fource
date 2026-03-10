@@ -5,6 +5,8 @@ import {
   type DomainEvent,
 } from 'server/library/ddd/primitives';
 
+import type { BanVoteCreatedAt } from '../ban-vote-created-at';
+
 /**
  * ---
  * Event emitted when a vote for banning a story is registered.
@@ -28,11 +30,13 @@ export class BanVoteRegisteredEvent implements DomainEvent {
    * @param payload - The usefull payload carried by the domain event.
    * @param payload.storyId - Identifier of the story receiving the vote.
    * @param payload.voterId - Identifier of the user who cast the vote.
+   * @param payload.createdAt - Ban vote creation time.
    */
   constructor(
     public readonly aggregateId: UniqueIdentifier,
     public readonly payload: {
       storyId: Story<'persisted'>['id'];
+      createdAt: BanVoteCreatedAt;
       voterId: UniqueIdentifier;
     },
     // eslint-disable-next-line prettier/prettier
