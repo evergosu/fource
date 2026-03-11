@@ -22,6 +22,7 @@ export const StorySerializer: StorySerializer = {
     serialize(story) {
       return Result.ok({
         authorId: story.authorId.authorId,
+        isBanned: story.isBanned(),
         title: story.title.title,
         id: story.id.toString(),
         version: story.version,

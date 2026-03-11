@@ -15,6 +15,7 @@ describe('story serializers', () => {
     id: '00000000-0000-0000-0000-000000000002',
     body: 'This is the body',
     title: 'Test story',
+    isBanned: false,
     version: 0,
     createdAt,
     expiresAt,

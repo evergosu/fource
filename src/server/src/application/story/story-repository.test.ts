@@ -1,3 +1,4 @@
+import type { StorySelectSchema } from 'server/database/schema/story';
 import type { DatabaseTransaction } from 'server/database/database';
 
 /* eslint-disable sonarjs/no-nested-functions */
@@ -16,7 +17,10 @@ import {
 import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
 import { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
 
+import { StoryQueryRepository } from './story-query-repository';
 import { StoryRepository } from './story-repository';
+import { StoryRehydrator } from './story-rehydrator';
+import { StoryDatabase } from './story-database';
 import { Story } from './story';
 
 describe('story repository', () => {
@@ -40,9 +44,9 @@ describe('story repository', () => {
   });
 
   describe('.getBySpecification()', () => {
-    class IsShortSpecification extends Specification<Story<'persisted'>> {
-      isSatisfiedBy(candidate: Story<'persisted'>): boolean {
-        return candidate.body.body.length < 20;
+    class IsShortSpecification extends Specification<StorySelectSchema> {
+      isSatisfiedBy(candidate: StorySelectSchema): boolean {
+        return candidate.body.length < 20;
       }
     }
 
@@ -50,20 +54,28 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const specification = new IsShortSpecification();
 
         await Task.all([
           Story.create(storyFirst)
             .toTask()
-            .flatMap(story => repository.create(story)),
+            .flatMap(story => commandRepository.create(story)),
           Story.create(storySecond)
             .toTask()
-            .flatMap(story => repository.create(story)),
+            .flatMap(story => commandRepository.create(story)),
         ]).run();
 
-        const result = await repository.getBySpecification(specification).run();
+        const result = await queryRepository
+          .getBySpecification(specification)
+          .run();
 
         expect(result.isSuccess()).toBe(true);
         expect(result.value.length).toBe(1);
@@ -77,17 +89,25 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const specification = new IsShortSpecification();
 
         await Task.all([
           Story.create(storySecond)
             .toTask()
-            .flatMap(story => repository.create(story)),
+            .flatMap(story => commandRepository.create(story)),
         ]).run();
 
-        const result = await repository.getBySpecification(specification).run();
+        const result = await queryRepository
+          .getBySpecification(specification)
+          .run();
 
         expect(result.isFailure()).toBe(true);
         expect(result.error._tag).toBe(AggregateSpecificationFailure);
@@ -145,23 +165,30 @@ describe('story repository', () => {
   describe('.delete()', () => {
     it('should delete an existing story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const story = Story.create(storyFirst);
 
         await story
           .toTask()
-          .flatMap(story => repository.create(story))
+          .flatMap(story => commandRepository.create(story))
           .run();
 
-        const first = await repository
+        const first = await queryRepository
           .getAll()
           .refine(guardEmptyArray('test'))
           .map(ss => ss[0])
-          .flatMap(s => repository.delete(s))
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
+          .flatMap(s => commandRepository.delete(s))
           .run();
 
-        const isEmpty = await repository.getAll().run();
+        const isEmpty = await queryRepository.getAll().run();
 
         expect(first.isSuccess()).toBeTruthy();
         expect(isEmpty.isFailure()).toBeTruthy();
@@ -175,24 +202,35 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const story = Story.create(storyFirst);
 
         await story
           .toTask()
-          .flatMap(story => repository.create(story))
+          .flatMap(story => commandRepository.create(story))
           .run();
 
-        const first = repository
+        const first = queryRepository
           .getAll()
           .refine(guardEmptyArray('test'))
           .map(ss => ss[0]);
 
-        await first.flatMap(story => repository.delete(story)).run();
+        await first
+
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
+          .flatMap(story => commandRepository.delete(story))
+          .run();
 
         const result = await first
-          .flatMap(story => repository.delete(story))
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
+          .flatMap(story => commandRepository.delete(story))
           .run();
 
         expect(result.isFailure()).toBeTruthy();
@@ -206,17 +244,23 @@ describe('story repository', () => {
   describe('.getAll()', () => {
     it('should return all stories from @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const result = await Task.all([
           Story.create(storyFirst)
             .toTask()
-            .flatMap(story => repository.create(story)),
+            .flatMap(story => commandRepository.create(story)),
           Story.create(storySecond)
             .toTask()
-            .flatMap(story => repository.create(story)),
+            .flatMap(story => commandRepository.create(story)),
         ])
-          .flatMap(() => repository.getAll())
+          .flatMap(() => queryRepository.getAll())
           .run();
 
         expect(result.isSuccess()).toBe(true);
@@ -230,9 +274,11 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
-        const result = await repository.getAll().run();
+        const result = await queryRepository.getAll().run();
 
         expect(result.isFailure()).toBe(true);
         expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
@@ -287,29 +333,36 @@ describe('story repository', () => {
   describe('.updateWithLock()', () => {
     it('should update an existing story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const story = Story.create(storyFirst);
 
         await story
           .toTask()
-          .flatMap(story => repository.create(story))
+          .flatMap(story => commandRepository.create(story))
           .run();
 
-        const first = repository
+        const first = queryRepository
           .getAll()
           .refine(guardEmptyArray('test'))
           .map(ss => ss[0]);
 
         await first
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
           .flatMap(s => s.updateTitle('Brand new updated title').toTask())
-          .flatMap(s => repository.updateWithLock(s))
+          .flatMap(s => commandRepository.updateWithLock(s))
           .run();
 
         const updatedFirst = await first.run();
 
         expect(updatedFirst.isSuccess()).toBeTruthy();
-        expect(updatedFirst.value.title.title).toBe('Brand new updated title');
+        expect(updatedFirst.value.title).toBe('Brand new updated title');
 
         transaction.rollback();
       });
@@ -319,25 +372,35 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const story = Story.create(storyFirst);
 
         await story
           .toTask()
-          .flatMap(story => repository.create(story))
+          .flatMap(story => commandRepository.create(story))
           .run();
 
-        const first = repository
+        const first = queryRepository
           .getAll()
           .refine(guardEmptyArray('test'))
           .map(ss => ss[0]);
 
-        await first.flatMap(story => repository.delete(story)).run();
+        await first
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
+          .flatMap(story => commandRepository.delete(story))
+          .run();
 
         const result = await first
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
           .flatMap(s => s.updateTitle('Brand new updated title').toTask())
-          .flatMap(s => repository.updateWithLock(s))
+          .flatMap(s => commandRepository.updateWithLock(s))
           .run();
 
         expect(result.isFailure()).toBeTruthy();
@@ -351,24 +414,31 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const repository = StoryRepository.new(createEnvironment(transaction));
+        const commandRepository = StoryRepository.new(
+          createEnvironment(transaction),
+        );
+
+        const queryRepository = new StoryQueryRepository(
+          new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
+        );
 
         const story = Story.create(storyFirst);
 
         await story
           .toTask()
-          .flatMap(story => repository.create(story))
+          .flatMap(story => commandRepository.create(story))
           .run();
 
-        const first = repository
+        const first = queryRepository
           .getAll()
           .refine(guardEmptyArray('test'))
           .map(ss => ss[0]);
 
         const result = await first
+          .flatMap(s => StoryRehydrator.rehydrate(s).toTask())
           .flatMap(s => s.updateTitle('Brand new updated title').toTask())
           .flatMap(s => s.updateTitle('Brand new updated title').toTask())
-          .flatMap(s => repository.updateWithLock(s))
+          .flatMap(s => commandRepository.updateWithLock(s))
           .run();
 
         expect(result.isFailure()).toBeTruthy();

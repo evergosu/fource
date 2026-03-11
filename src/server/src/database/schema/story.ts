@@ -3,6 +3,7 @@ import {
   pgTable,
   varchar,
   integer,
+  boolean,
   index,
   check,
   uuid,
@@ -31,6 +32,7 @@ export const story = pgTable(
     })
       .defaultNow()
       .notNull(),
+    isBanned: boolean('is_banned').default(false).notNull(),
     title: varchar('title', { length: 255 }).notNull(),
     version: integer('version').notNull(),
     id: uuid('id').primaryKey().notNull(),
@@ -64,6 +66,7 @@ export const storySelectSchema = createSelectSchema(story);
 export const storyInsertSchema = createInsertSchema(story).omit({
   createdAt: true,
   expiresAt: true,
+  isBanned: true,
 });
 
 /**

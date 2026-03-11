@@ -1,5 +1,5 @@
-/* eslint-disable sonarjs/no-nested-functions */
 /* eslint-disable prettier/prettier */
+/* eslint-disable sonarjs/no-nested-functions */
 import {
   type DomainFailure,
   domainFailure,
@@ -31,6 +31,7 @@ interface CreateStoryProperties {
  * Raw properties required to rehydrate a `Story`.
  */
 interface RehydrateStoryProperties {
+  isBanned: boolean;
   authorId: string;
   createdAt: Date;
   expiresAt: Date;
@@ -57,6 +58,7 @@ interface NewStoryProperties {
 interface PersistedStoryProperties extends NewStoryProperties {
   createdAt: StoryCreatedAt;
   expiresAt: StoryExpiresAt;
+  isBanned: boolean;
 }
 
 type StoryState = 'persisted' | 'new';
@@ -120,22 +122,24 @@ export class Story<State extends StoryState> extends AggregateRoot<
   private static readonly createPersisted =
     (id: UniqueIdentifier) =>
       (version: number) =>
-        (title: StoryTitle) =>
-          (body: StoryBody) =>
-            (authorId: StoryAuthorId) =>
-              (createdAt: StoryCreatedAt) =>
-                (expiresAt: StoryExpiresAt) =>
-                  new Story<'persisted'>(
-                    {
-                      createdAt,
-                      expiresAt,
-                      authorId,
-                      title,
-                      body,
-                    },
-                    id,
-                    version,
-                  );
+        (isBanned: boolean) =>
+          (title: StoryTitle) =>
+            (body: StoryBody) =>
+              (authorId: StoryAuthorId) =>
+                (createdAt: StoryCreatedAt) =>
+                  (expiresAt: StoryExpiresAt) =>
+                    new Story<'persisted'>(
+                      {
+                        createdAt,
+                        expiresAt,
+                        isBanned,
+                        authorId,
+                        title,
+                        body,
+                      },
+                      id,
+                      version,
+                    );
 
   /**
    * ---
@@ -150,6 +154,7 @@ export class Story<State extends StoryState> extends AggregateRoot<
     return Result.ok(this.createPersisted)
       .ap(UniqueIdentifier.create(properties.id))
       .ap(Result.ok(properties.version))
+      .ap(Result.ok(properties.isBanned))
       .ap(StoryTitle.create(properties.title))
       .ap(StoryBody.create(properties.body))
       .ap(StoryAuthorId.create(properties.authorId))
@@ -175,7 +180,7 @@ export class Story<State extends StoryState> extends AggregateRoot<
 
   /**
    * ---
-   * Factory method to update a story title.
+   * Update a story title.
    * ---
    * @param title - A new title for current `Story`.
    * @returns `Result` wrapping new `Story`.
@@ -186,6 +191,22 @@ export class Story<State extends StoryState> extends AggregateRoot<
         title: newTitle,
       }),
     );
+  }
+
+  /**
+   * ---
+   * Ban a story.
+   */
+  public ban(this: Story<'persisted'>) {
+    return this.evolve({ isBanned: true });
+  }
+
+  /**
+   * ---
+   * A short title of the `Story`.
+   */
+  isBanned(this: Story<'persisted'>): boolean {
+    return this.properties.isBanned;
   }
 
   /**

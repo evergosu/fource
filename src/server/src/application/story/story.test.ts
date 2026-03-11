@@ -22,6 +22,7 @@ describe('story', () => {
         id: '0000-00000-0000-999999',
         authorId: 'John Doe',
         title: 'Test Story',
+        isBanned: false,
         version: 0,
       };
 
@@ -43,6 +44,7 @@ describe('story', () => {
         title: undefined as unknown as string,
         id: '0000-00000-0000-999999',
         authorId: 'John Doe',
+        isBanned: false,
         version: 0,
       };
 

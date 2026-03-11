@@ -8,6 +8,7 @@ describe('story database', () => {
     id: UniqueIdentifier.create().value.toString(),
     title: 'Title number one',
     body: 'Body number one',
+    isBanned: false,
     version: 0,
   };
 
@@ -16,6 +17,7 @@ describe('story database', () => {
     id: UniqueIdentifier.create().value.toString(),
     body: 'Body number two and too long',
     title: 'Title number two',
+    isBanned: false,
     version: 0,
   };
 
