@@ -3,8 +3,8 @@ import type { TransactionEnvironment } from 'server/library/ddd/application/unit
 import { CommandUseCase, type Task } from 'server/library/ddd/primitives';
 
 import { CreateStoryFailure } from './create-story-failure';
-import { StoryRepository } from '../story-repository';
-import { Story } from '../story';
+import { StoryRepository } from '../../story-repository';
+import { Story } from '../../story';
 
 /**
  * ---
