@@ -93,19 +93,4 @@ export class BanVoteRepository
       .flatMap(s => this.persistence.create(s))
       .mapError(this.errorPolicy.translate('create'));
   }
-
-  /**
-   * ---
-   * Counts how many ban votes exist for a given story.
-   * ---
-   * @param id - Identifier of the story whose votes should be counted.
-   * @returns number of votes associated with the story.
-   */
-  public countByStoryId(
-    id: BanVote<'persisted'>['storyId'],
-  ): Task<number, AggregatePersistenceFailure> {
-    return this.persistence
-      .countById(id.toString())
-      .mapError(this.errorPolicy.translate('countByStoryId'));
-  }
 }

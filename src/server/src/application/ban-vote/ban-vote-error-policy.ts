@@ -23,7 +23,7 @@ import { BanVote } from './ban-vote';
 export interface BanVoteFailureMap {
   create: AggregateAlreadyExistsFailure | AggregatePersistenceFailure;
   delete: AggregatePersistenceFailure | AggregateNotFoundFailure;
-  countByStoryId: AggregatePersistenceFailure;
+  countById: AggregatePersistenceFailure;
 }
 
 export type _BanVoteFailureMapCheck = Exact<
@@ -86,7 +86,7 @@ const banVoteErrorHandlers: BanVoteErrorHandlers = {
     error._tag === 'UniqueViolationFailure'
       ? AggregateAlreadyExistsFailure(BanVote.name)(error)
       : AggregatePersistenceFailure(BanVote.name)(error),
-  countByStoryId: AggregatePersistenceFailure(BanVote.name),
+  countById: AggregatePersistenceFailure(BanVote.name),
   delete: readFailures,
 };
 
