@@ -20,7 +20,7 @@ interface BanVoteRepositoryEnvironment {
  * ---
  * Provides actions over persistence using Drizzle ORM.
  */
-export class BanVoteRepository implements DomainCountById<BanVoteFailureMap> {
+export class BanVoteQueryRepository implements DomainCountById<BanVoteFailureMap> {
   readonly errorPolicy = BanVoteErrorPolicy;
 
   /**
@@ -38,7 +38,7 @@ export class BanVoteRepository implements DomainCountById<BanVoteFailureMap> {
    * @param environment - environment in which instance should be created.
    */
   static new(environment: BanVoteRepositoryEnvironment) {
-    return new BanVoteRepository(environment.provider.get(BanVoteDatabase));
+    return new BanVoteQueryRepository(environment.provider.get(BanVoteDatabase));
   }
 
   /**
