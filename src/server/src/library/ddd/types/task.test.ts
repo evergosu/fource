@@ -113,9 +113,9 @@ describe('Task', () => {
     });
   });
 
-  describe('.all()', () => {
+  describe('.sequence()', () => {
     test('should run sequentially', async () => {
-      const result = await Task.all([Task.ok(1), Task.ok(2)]).run();
+      const result = await Task.sequence([Task.ok(1), Task.ok(2)]).run();
 
       expect(result.value).toEqual([1, 2]);
     });

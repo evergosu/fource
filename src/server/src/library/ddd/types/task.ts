@@ -554,12 +554,91 @@ export class Task<A, E> {
 
   /**
    * ---
+   * Traverses a collection while sequencing asynchronous effects.
+   * ---
+   * Applies a function producing a {@link Task} to each element
+   * of an array and collects the results.
+   *
+   * - executes tasks sequentially
+   * - fails fast on first failure
+   * - preserves order
+   * ---
+   * Typical uses:
+   * - processing outbox events
+   * - executing command batches
+   * - transforming query results
+   * ---
+   * @param values collection to traverse
+   * @param f effectful mapping function
+   *
+   * ---
+   * ```ts
+   * Task.traverse([1,2,3], n => Task.ok(n * 2))
+   * // Task<[2,4,6], never>
+   */
+  static traverse<A, B, E>(
+    values: A[],
+    f: (value: A, index: number) => Task<B, E>,
+  ): Task<B[], E> {
+    return new Task(async () => {
+      const results: B[] = [];
+
+      for (const [index, value] of values.entries()) {
+        const task = f(value, index);
+
+        const result = await task.run();
+
+        if (result.isFailure()) {
+          return Result.fail(result.error);
+        }
+
+        results.push(result.value);
+      }
+
+      return Result.ok(results);
+    });
+  }
+
+  /**
+   * ---
+   * Traverses a collection in parallel.
+   * ---
+   * All tasks start concurrently.
+   * Fails fast if any task fails.
+   * ---
+   * @param values collection to traverse
+   * @param f effectful mapping function
+   */
+  static traverseParallel<A, B, E>(
+    values: A[],
+    f: (value: A, index: number) => Task<B, E>,
+  ): Task<B[], E> {
+    return new Task(async () => {
+      const results = await Promise.all(
+        values.map(async (value, index) => {
+          const result = await f(value, index).run();
+
+          if (result.isFailure()) {
+            // eslint-disable-next-line @typescript-eslint/only-throw-error
+            throw result.error;
+          }
+
+          return result.value;
+        }),
+      );
+
+      return Result.ok(results);
+    }).mapError(x => x as E);
+  }
+
+  /**
+   * ---
    * Runs multiple tasks sequentially and collects results.
    * Fails fast on first failure.
    * ---
    * @param tasks array of tasks to run in secuence
    */
-  static all<A, E>(tasks: Task<A, E>[]): Task<A[], E> {
+  static sequence<A, E>(tasks: Task<A, E>[]): Task<A[], E> {
     return new Task(async () => {
       const results: A[] = [];
 
