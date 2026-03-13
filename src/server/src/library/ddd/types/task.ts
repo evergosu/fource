@@ -601,6 +601,35 @@ export class Task<A, E> {
 
   /**
    * ---
+   * Traverses a collection and discards produced values.
+   * ---
+   * Executes tasks sequentially and fails fast on the first failure.
+   * Unlike {@link Task.traverse}, this combinator does not accumulate
+   * results and therefore returns `Task<void, E>`.
+   *
+   * ---
+   * @param values collection to traverse
+   * @param f effectful mapping function
+   */
+  static traverseDiscard<A, E>(
+    values: A[],
+    f: (value: A, index: number) => Task<unknown, E>,
+  ): Task<void, E> {
+    return new Task(async () => {
+      for (const [index, value] of values.entries()) {
+        const result = await f(value, index).run();
+
+        if (result.isFailure()) {
+          return Result.fail(result.error);
+        }
+      }
+
+      return Result.ok();
+    });
+  }
+
+  /**
+   * ---
    * Traverses a collection in parallel.
    * ---
    * All tasks start concurrently.
