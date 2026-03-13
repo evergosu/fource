@@ -1,39 +1,95 @@
-import type { UniqueIdentifier } from '../identifiers/unique-identifier';
+import type { Json } from 'drizzle-zod';
+
+import type { Result } from '../../primitives';
+
+import { UniqueIdentifier } from '../identifiers/unique-identifier';
+import { Exception } from '../issues/exception';
 
 /**
  * ---
- * Represents an immutable domain event emitted by an aggregate.
+ * Base class for all domain events.
+ *
+ * Domain events represent immutable facts that occurred within the domain
+ * model. They are produced by aggregates and later dispatched to policies,
+ * projections or integration handlers.
  * ---
- * Domain events are:
- * - Created inside aggregates
- * - Collected inside a transaction
- * - Persisted into the Outbox table
- * - Later dispatched asynchronously
+ * The base class provides:
+ * - A globally unique identifier for the event
+ * - The aggregate identifier that emitted the event
+ * - The event occurrence timestamp
+ * - A static rehydration contract used by the infrastructure layer
  * ---
- * Invariants:
- * - id must be globally unique
- * - occurredAt must represent event creation time
- * - payload must be serializable
+ * Concrete domain events must extend this class and implement the static
+ * `rehydrate` method so that infrastructure components (such as the
+ * Outbox processor) can reconstruct event instances from persisted data.
+ * ---
+ * ```ts
+ * export class UserRegisteredEvent extends DomainEvent<UserRegisteredPayload> {
+ *   public static readonly type = 'UserRegisteredEvent';
+ *
+ *   static rehydrate(properties: {aggregateId: UniqueIdentifier, payload: unknown, occurredAt: Date, id: UniqueIdentifier}): UserRegisteredEvent {
+ *     return new UserRegisteredEvent(aggregateId, payload as UserRegisteredPayload, occurredAt, id);
+ *   }
+ * }
+ * ```
+ * ---
+ * @template Payload Type of payload carried by the event.
  */
-export interface DomainEvent {
+export abstract class DomainEvent<Payload = unknown> {
   /**
    * ---
-   * Globally `unique identifier` for the event.
+   * Event type identifier. Concrete events must override the static `type` property.
    */
-  readonly id: UniqueIdentifier;
+  public static readonly type: string;
+
   /**
    * ---
-   * The usefull payload carried by the domain event.
+   * Constructs a new domain event.
+   * ---
+   * @param aggregateId - Identifier of the aggregate that produced the event.
+   * @param payload     - Event payload containing event-specific data.
+   * @param occurredAt  - Timestamp when the event occurred.
+   * @param id          - Globally unique identifier of the event instance.
+   *                      Each emitted event receives a unique identifier to ensure that
+   *                      event processing systems can safely detect duplicates and maintain
+   *                      idempotent event handling.
    */
-  readonly payload: unknown;
+  protected constructor(
+    public readonly aggregateId: UniqueIdentifier,
+    public readonly payload: Payload,
+    public readonly occurredAt: Date = new Date(),
+    public readonly id: UniqueIdentifier = UniqueIdentifier.create().value,
+    // eslint-disable-next-line prettier/prettier
+  ) { }
+
   /**
    * ---
-   * The concrete type of the domain event.
-   */
-  readonly type: string;
-  /**
+   * Rehydrates event instance from serialized storage representation.
+   *
+   * Infrastructure layers such as the Outbox processor use this method
+   * to reconstruct domain events from persisted rows.
+   *
+   * Concrete event classes must implement this method.
    * ---
-   * The `unique identifier` of an aggregate dispatched the event.
+   * @param properties event properties
+   * @param properties.aggregateId - Aggregate identifier.
+   * @param properties.payload     - Serialized payload.
+   * @param properties.occurredAt  - Timestamp when event originally occurred.
+   * @param properties.id          - Globally unique identifier of the event instance.
    */
-  readonly aggregateId: UniqueIdentifier;
+  public static rehydrate(properties: {
+    aggregateId: string;
+    occurredAt: Date;
+    payload: Json;
+    id: string;
+  }): Result<DomainEvent> {
+    console.log('', properties);
+
+    throw new EventRehydrationException(
+      `DomainEvent.rehydrate must be implemented by subclasses`,
+    );
+  }
 }
+
+// eslint-disable-next-line prettier/prettier
+class EventRehydrationException extends Exception { }
