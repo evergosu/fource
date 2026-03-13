@@ -1,0 +1,61 @@
+/* eslint-disable sonarjs/no-nested-functions */
+import type { DomainEventRegistry } from 'server/library/ddd/domain/events/domain-event-registry';
+import type { DrizzleUnitOfWork } from 'server/database/orm/unit-of-work/drizzle-unit-of-work';
+import type { InMemoryEventBus } from 'server/library/ddd/application/event-bus';
+
+import { Task } from 'server/library/ddd/primitives';
+
+import { OutboxQueryRepository } from './outbox-query-repository';
+import { OutboxRepository } from './outbox-repository';
+
+/**
+ * ---
+ * Processes stored outbox events.
+ * ---
+ * Responsibilities:
+ * - load unprocessed events
+ * - deserialize them
+ * - publish through event bus
+ * - mark them processed
+ */
+export class OutboxProcessor {
+  /**
+   * ---
+   * Creates new OutboxProcessor instance
+   * ---
+   * @param uow - unit of work
+   * @param registry - domain event registry
+   * @param bus - in-memory event bus
+   */
+  constructor(
+    private readonly uow: DrizzleUnitOfWork,
+    private readonly registry: DomainEventRegistry,
+    private readonly bus: InMemoryEventBus,
+    // eslint-disable-next-line prettier/prettier
+  ) { }
+
+  /**
+   * ---
+   * Processes a batch of outbox events.
+   * ---
+   * @param limit Maximum batch size.
+   */
+  process(limit: number) {
+    this.uow.execute(({ provider }) =>
+      OutboxQueryRepository.new({ provider })
+        .getUnprocessed(limit)
+        .flatMap(events =>
+          Task.traverse(events, record =>
+            this.registry
+              .get(record.type)
+              .rehydrate(record)
+              .toTask()
+              .map(event => this.bus.publish(event))
+              .flatMap(() =>
+                OutboxRepository.new({ provider }).markProcessed(record.id),
+              ),
+          ),
+        ),
+    );
+  }
+}
