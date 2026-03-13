@@ -1,44 +1,59 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable sonarjs/no-nested-functions */
 import type { Story } from 'server/application/story/story';
 
 import {
   UniqueIdentifier,
-  type DomainEvent,
+  DomainEvent,
+  Result,
 } from 'server/library/ddd/primitives';
 
-import type { BanVoteCreatedAt } from '../ban-vote-created-at';
+import { BanVoteCreatedAt } from '../ban-vote-created-at';
+
+interface Payload {
+  storyId: Story<'persisted'>['id'];
+  createdAt: BanVoteCreatedAt;
+  voterId: UniqueIdentifier;
+}
 
 /**
  * ---
  * Event emitted when a vote for banning a story is registered.
  */
-export class BanVoteRegisteredEvent implements DomainEvent {
-  /**
-   * ---
-   * Globally `unique identifier` for the event.
-   */
-  public readonly id: UniqueIdentifier = UniqueIdentifier.create().value;
-  /**
-   * ---
-   * The concrete type of the domain event.
-   */
-  public readonly type = 'BanVoteRegisteredEvent';
-  /**
-   * ---
-   * Constructs new `BanVoteRegisteredEvent` instance.
-   * ---
-   * @param aggregateId - The `unique identifier` of an aggregate dispatched the event.
-   * @param payload - The usefull payload carried by the domain event.
-   * @param payload.storyId - Identifier of the story receiving the vote.
-   * @param payload.voterId - Identifier of the user who cast the vote.
-   * @param payload.createdAt - Ban vote creation time.
-   */
-  constructor(
-    public readonly aggregateId: UniqueIdentifier,
-    public readonly payload: {
-      storyId: Story<'persisted'>['id'];
-      createdAt: BanVoteCreatedAt;
-      voterId: UniqueIdentifier;
-    },
-    // eslint-disable-next-line prettier/prettier
-  ) { }
+export class BanVoteRegisteredEvent extends DomainEvent<Payload> {
+  private static create =
+    (aggregateId: UniqueIdentifier) =>
+      (storyId: UniqueIdentifier) =>
+        (voterId: UniqueIdentifier) =>
+          (createdAt: BanVoteCreatedAt) =>
+            (occurredAt: Date) =>
+              (id: UniqueIdentifier) =>
+                new BanVoteRegisteredEvent(
+                  aggregateId,
+                  { createdAt, storyId, voterId },
+                  occurredAt,
+                  id,
+                );
+
+  public static override readonly type = 'BanVoteRegisteredEvent';
+
+  /** @inheritdoc */
+  public static override rehydrate(properties: {
+    payload: {
+      storyId: string;
+      voterId: string;
+      createdAt: Date;
+    };
+    aggregateId: string;
+    occurredAt: Date;
+    id: string;
+  }) {
+    return Result.ok(this.create)
+      .ap(UniqueIdentifier.create(properties.aggregateId))
+      .ap(UniqueIdentifier.create(properties.payload.storyId))
+      .ap(UniqueIdentifier.create(properties.payload.voterId))
+      .ap(BanVoteCreatedAt.fromDate(properties.payload.createdAt))
+      .ap(Result.ok(new Date(properties.occurredAt)))
+      .ap(UniqueIdentifier.create(properties.id));
+  }
 }
