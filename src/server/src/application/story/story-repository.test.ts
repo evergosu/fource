@@ -64,7 +64,7 @@ describe('story repository', () => {
 
         const specification = new IsShortSpecification();
 
-        await Task.all([
+        await Task.sequence([
           Story.create(storyFirst)
             .toTask()
             .flatMap(story => commandRepository.create(story)),
@@ -99,7 +99,7 @@ describe('story repository', () => {
 
         const specification = new IsShortSpecification();
 
-        await Task.all([
+        await Task.sequence([
           Story.create(storySecond)
             .toTask()
             .flatMap(story => commandRepository.create(story)),
@@ -252,7 +252,7 @@ describe('story repository', () => {
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
         );
 
-        const result = await Task.all([
+        const result = await Task.sequence([
           Story.create(storyFirst)
             .toTask()
             .flatMap(story => commandRepository.create(story)),
