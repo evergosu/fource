@@ -8,6 +8,7 @@ import type { Exact } from 'server/library/ddd/types/exact';
 import {
   AggregateAlreadyExistsFailure,
   AggregatePersistenceFailure,
+  AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
 
 /**
@@ -18,7 +19,9 @@ import {
  * that may be produced after infrastructure error translation.
  */
 export interface OutboxFailureMap {
+  getUnprocessedBatch: AggregatePersistenceFailure | AggregateNotFoundFailure;
   createBatch: AggregateAlreadyExistsFailure | AggregatePersistenceFailure;
+  markProcessed: AggregatePersistenceFailure;
 }
 
 export type _OutboxFailureMapCheck = Exact<
@@ -60,10 +63,15 @@ type OutboxErrorHandlers = {
  * a compile-time error until a corresponding handler is defined here.
  */
 const outboxErrorHandlers: OutboxErrorHandlers = {
+  getUnprocessedBatch: error =>
+    error._tag === 'ForeignKeyViolationFailure'
+      ? AggregateNotFoundFailure('Outbox')(error)
+      : AggregatePersistenceFailure('Outbox')(error),
   createBatch: error =>
     error._tag === 'UniqueViolationFailure'
       ? AggregateAlreadyExistsFailure('Outbox')(error)
       : AggregatePersistenceFailure('Outbox')(error),
+  markProcessed: AggregatePersistenceFailure('Outbox'),
 };
 
 /**

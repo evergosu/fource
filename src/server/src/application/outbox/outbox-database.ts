@@ -2,9 +2,14 @@ import type { DatabaseCreateBatch } from 'server/library/ddd/infrastructure/repo
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
 import type { DatabaseTransaction } from 'server/database/database';
 
+import {
+  type OutboxInsertSchema,
+  type OutboxSelectSchema,
+  outbox,
+} from 'server/database/schema/outbox';
 import { decodePostgresError } from 'server/database/clients/postgres/decode-error';
-import { type OutboxInsertSchema, outbox } from 'server/database/schema/outbox';
 import { Task } from 'server/library/ddd/primitives';
+import { isNull, asc, eq } from 'drizzle-orm';
 
 /**
  * ---
@@ -30,5 +35,50 @@ export class OutboxDatabase implements DatabaseCreateBatch<OutboxInsertSchema> {
     return Task.fromPromise(async () => {
       await this.transaction.insert(outbox).values(rows);
     }).mapError(error => decodePostgresError(error));
+  }
+
+  /**
+   * ---
+   * Fetches a batch of unprocessed outbox events.
+   *
+   * Uses row-level locking to ensure multiple workers can safely
+   * process the outbox concurrently without duplicating work.
+   *
+   * Behavior:
+   * - rows already locked by another worker are skipped
+   * - rows returned by this query become locked for the current transaction
+   * ---
+   * @param limit - Maximum number of events to retrieve.
+   * @returns Task resolving to a list of outbox rows.
+   */
+  public getUnprocessedBatch(
+    limit: number,
+  ): Task<OutboxSelectSchema[], InfrastructureFailures> {
+    return Task.fromPromise(async () => {
+      return this.transaction
+        .select()
+        .from(outbox)
+        .where(isNull(outbox.processedAt))
+        .orderBy(asc(outbox.occurredAt))
+        .limit(limit)
+        .for('update', { skipLocked: true });
+    }).mapError(decodePostgresError);
+  }
+
+  /**
+   * ---
+   * Marks an outbox event as processed.
+   * ---
+   * @param id - Identifier of the processed event.
+   */
+  public markProcessed(id: string): Task<void, InfrastructureFailures> {
+    return Task.fromPromise(async () => {
+      await this.transaction
+        .update(outbox)
+        .set({
+          processedAt: new Date(),
+        })
+        .where(eq(outbox.id, id));
+    }).mapError(decodePostgresError);
   }
 }

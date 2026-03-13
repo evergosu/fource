@@ -48,6 +48,23 @@ export class OutboxRepository
 
   /**
    * ---
+   * Marks an outbox event as processed.
+   *
+   * This method is called after an event has been successfully
+   * delivered to the event bus.
+   *
+   * ---
+   * @param id - Identifier of the outbox event.
+   * @returns Task resolving when the record has been updated.
+   */
+  public markProcessed(id: string): Task<void, AggregatePersistenceFailure> {
+    return this.persistence
+      .markProcessed(id)
+      .mapError(this.errorPolicy.translate('markProcessed'));
+  }
+
+  /**
+   * ---
    * Factory method for safely creating an `OutboxRepository` instance.
    * ---
    * @param environment - environment in which instance should be created.
