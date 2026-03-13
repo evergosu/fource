@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { DomainCountById } from 'server/library/ddd/domain/repository/capabilities/count-by-id';
 
 import { AggregatePersistenceFailure } from 'server/library/ddd/domain/repository/repository-errors';
@@ -12,9 +11,6 @@ import {
 import { BanVoteDatabase } from './ban-vote-database';
 import { type BanVote } from './ban-vote';
 
-interface BanVoteRepositoryEnvironment {
-  provider: TransactionalDatabaseProvider;
-}
 
 /**
  * ---
@@ -29,17 +25,7 @@ export class BanVoteQueryRepository implements DomainCountById<BanVoteFailureMap
    * ---
    * @param persistence - persistence source of actions.
    */
-  private constructor(private readonly persistence: BanVoteDatabase) { }
-
-  /**
-   * ---
-   * Factory method for safely creating an `BanVoteRepository` instance.
-   * ---
-   * @param environment - environment in which instance should be created.
-   */
-  static new(environment: BanVoteRepositoryEnvironment) {
-    return new BanVoteQueryRepository(environment.provider.get(BanVoteDatabase));
-  }
+  constructor(private readonly persistence: BanVoteDatabase) { }
 
   /**
    * ---
