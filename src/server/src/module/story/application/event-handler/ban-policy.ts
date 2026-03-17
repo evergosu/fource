@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-import type { BanVoteRegisteredEvent } from 'server/application/ban-vote/events/ban-vote-registered-event';
-import type { BanVoteQueryRepository } from 'server/application/ban-vote/ban-vote-query-repository';
+import type { BanVoteQueryRepository } from 'server/module/ban-vote/infrastructure/ban-vote-query-repository';
+import type { BanVoteRegisteredEvent } from 'server/module/ban-vote/domain/event/ban-vote-registered-event';
 import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import type { Failure } from 'server/library/ddd/domain/issues/failure';
 
 import { Task } from 'server/library/ddd/primitives';
 
 import { BanStoryCommand } from '../command/ban/ban-story-command';
-
 
 /**
  * ---

@@ -1,11 +1,9 @@
 import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
+import type { VoteBanInput } from 'server/module/ban-vote/application/commands/vote-ban-usecase';
 import type { Request } from 'express';
 
+import { VoteBanCommand } from 'server/module/ban-vote/application/commands/vote-ban-command';
 import { ExpressController } from 'server/library/ddd/primitives';
-
-import type { VoteBanInput } from '../commands/vote-ban-usecase';
-
-import { VoteBanCommand } from '../commands/vote-ban-command';
 
 interface VoteBanRequest extends Request {
   body: VoteBanInput;

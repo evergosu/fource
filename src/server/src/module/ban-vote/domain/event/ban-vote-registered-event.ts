@@ -8,7 +8,7 @@ import {
   Result,
 } from 'server/library/ddd/primitives';
 
-import { BanVoteCreatedAt } from '../ban-vote-created-at';
+import { BanVoteCreatedAt } from '../value-object/ban-vote-created-at';
 
 interface Payload {
   storyId: Story<'persisted'>['id'];

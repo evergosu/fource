@@ -4,12 +4,13 @@ import type { DomainCountById } from 'server/library/ddd/domain/repository/capab
 import { AggregatePersistenceFailure } from 'server/library/ddd/domain/repository/repository-errors';
 import { Task } from 'server/library/ddd/primitives';
 
+import type { BanVote } from '../domain/ban-vote';
+
 import {
   type BanVoteFailureMap,
   BanVoteErrorPolicy,
 } from './ban-vote-error-policy';
 import { BanVoteDatabase } from './ban-vote-database';
-import { type BanVote } from './ban-vote';
 
 
 /**

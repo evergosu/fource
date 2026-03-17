@@ -11,9 +11,9 @@ import {
   Result,
 } from 'server/library/ddd/primitives';
 
-import type { BanVoteCreatedAt } from './ban-vote-created-at';
+import type { BanVoteCreatedAt } from './value-object/ban-vote-created-at';
 
-import { BanVoteRegisteredEvent } from './events/ban-vote-registered-event';
+import { BanVoteRegisteredEvent } from './event/ban-vote-registered-event';
 
 /**
  * ---

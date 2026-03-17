@@ -11,7 +11,7 @@ import {
   AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
 
-import { BanVote } from './ban-vote';
+import { BanVote } from '../domain/ban-vote';
 
 /**
  * ---

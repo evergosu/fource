@@ -3,7 +3,7 @@ import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/com
 import { asyncHandler } from 'server/router/async-handler';
 import { Router } from 'express';
 
-import { VoteBanController } from './controllers/vote-ban-controller';
+import { VoteBanController } from './controller/vote-ban-controller';
 
 /**
  * ---
