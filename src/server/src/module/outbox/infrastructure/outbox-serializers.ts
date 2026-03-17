@@ -1,5 +1,5 @@
+import type { OutboxInsertSchema } from 'server/infrastructure/database/schema/outbox';
 import type { DomainEvent } from 'server/library/ddd/domain/events/domain-event';
-import type { OutboxInsertSchema } from 'server/database/schema/outbox';
 
 import {
   type Serializer,

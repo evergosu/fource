@@ -1,4 +1,4 @@
-import type { StorySelectSchema } from 'server/database/schema/story';
+import type { StorySelectSchema } from 'server/infrastructure/database/schema/story';
 
 import { StorySerializer } from './story-serializer';
 import { Story } from '../domain/story';

@@ -1,7 +1,7 @@
 import type {
-  StoryInsertSchema,
   StoryUpdateSchema,
-} from 'server/database/schema/story';
+  StoryInsertSchema,
+} from 'server/infrastructure/database/schema/story';
 
 import {
   type Serializer,

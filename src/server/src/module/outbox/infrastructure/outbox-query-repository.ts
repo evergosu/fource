@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
-import type { OutboxSelectSchema } from 'server/database/schema/outbox';
+import type { OutboxSelectSchema } from 'server/infrastructure/database/schema/outbox';
 
 import {
   AggregatePersistenceFailure,

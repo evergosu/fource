@@ -1,4 +1,4 @@
-import { createPostgresLiteContext } from 'server/database/clients/pglite';
+import { createPostgresLiteContext } from 'server/infrastructure/database/clients/pglite';
 import { getEnvironment } from 'server/library/environment';
 import { startServer } from 'server/server/express';
 import { Logger } from 'library/tools/logger';

@@ -18,6 +18,7 @@ const mock = () => {
       title: faker.lorem.word({ length: 15 }),
       authorId: faker.string.uuid(),
       id: faker.string.uuid(),
+      isBanned: false,
       version: 0,
       createdAt,
       expiresAt,

@@ -3,13 +3,16 @@ import type { DatabaseCountById } from 'server/library/ddd/infrastructure/reposi
 import type { DatabaseCreate } from 'server/library/ddd/infrastructure/repository/capabilities/create';
 import type { DatabaseDelete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
-import type { DatabaseTransaction, Database } from 'server/database/database';
+import type {
+  DatabaseTransaction,
+  Database,
+} from 'server/infrastructure/database/database';
 
 import {
   type BanVoteInsertSchema,
   banVote,
-} from 'server/database/schema/ban-vote';
-import { decodePostgresError } from 'server/database/clients/postgres/decode-error';
+} from 'server/infrastructure/database/schema/ban-vote';
+import { decodePostgresError } from 'server/infrastructure/database/clients/postgres/decode-error';
 import { Task } from 'server/library/ddd/primitives';
 import { count, eq } from 'drizzle-orm';
 

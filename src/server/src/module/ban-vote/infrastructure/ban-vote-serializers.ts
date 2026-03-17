@@ -1,4 +1,4 @@
-import type { BanVoteInsertSchema } from 'server/database/schema/ban-vote';
+import type { BanVoteInsertSchema } from 'server/infrastructure/database/schema/ban-vote';
 
 import {
   type Serializer,

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import type { DomainGetAll } from 'server/library/ddd/domain/repository/capabilities/get-all';
-import type { StorySelectSchema } from 'server/database/schema/story';
+import type { StorySelectSchema } from 'server/infrastructure/database/schema/story';
 
 import {
   AggregateSpecificationFailure,

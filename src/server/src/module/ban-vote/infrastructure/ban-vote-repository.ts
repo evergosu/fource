@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
+import type { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
 import type { DomainDelete } from 'server/library/ddd/domain/repository/capabilities/delete';
-import type { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
 
 import {
   AggregateAlreadyExistsFailure,

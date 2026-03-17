@@ -1,14 +1,13 @@
+import type { DatabaseContext } from 'server/infrastructure/database/clients/client';
 import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
-import { createBanRouter } from 'server/application/ban-vote/ban-vote-router';
-import { createStoryRouter } from 'server/application/story/story-router';
+import { createBanRouter } from 'server/module/ban-vote/interface/http/ban-vote-router';
+import { createStoryRouter } from 'server/module/story/interface/http/story-router';
 import { getEnvironment } from 'server/library/environment';
 import { commandBus } from 'server/application/command-bus';
 import { queryBus } from 'server/application/query-bus';
 import express from 'express';
-
-import type { DatabaseContext } from '../database/clients/client';
 
 import { rateLimitByEnvironment } from './middlewares/rate-limit';
 import { createErrorHandler } from './middlewares/error-handler';

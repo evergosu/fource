@@ -1,4 +1,4 @@
-import type { Database } from 'server/database/database';
+import type { Database } from 'server/infrastructure/database/database';
 
 declare module 'vitest' {
   export interface TestContext {

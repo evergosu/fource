@@ -1,7 +1,7 @@
-import type { StorySelectSchema } from 'server/database/schema/story';
-import type { DatabaseTransaction } from 'server/database/database';
-
 /* eslint-disable sonarjs/no-nested-functions */
+import type { StorySelectSchema } from 'server/infrastructure/database/schema/story';
+import type { DatabaseTransaction } from 'server/infrastructure/database/database';
+
 import {
   AggregateSpecificationFailure,
   AggregateAlreadyExistsFailure,
@@ -14,8 +14,8 @@ import {
   Specification,
   Task,
 } from 'server/library/ddd/primitives';
+import { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
-import { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
 
 import { StoryQueryRepository } from './story-query-repository';
 import { StoryRepository } from './story-repository';

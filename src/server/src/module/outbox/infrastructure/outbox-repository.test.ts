@@ -1,4 +1,4 @@
-import type { DatabaseTransaction } from 'server/database/database';
+import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import { AggregateAlreadyExistsFailure } from 'server/library/ddd/domain/repository/repository-errors';

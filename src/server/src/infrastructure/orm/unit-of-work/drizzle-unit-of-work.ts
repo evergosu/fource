@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import type { Database } from 'server/database/database';
+import type { Database } from 'server/infrastructure/database/database';
 
 import {
   type TransactionEnvironment,
@@ -7,7 +7,7 @@ import {
   type UnitOfWork,
 } from 'server/library/ddd/application/unit-of-work/unit-of-work';
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
-import { OutboxRepository } from 'server/application/outbox/outbox-repository';
+import { OutboxRepository } from 'server/module/outbox/infrastructure/outbox-repository';
 import { Task } from 'server/library/ddd/primitives';
 
 import { AggregateTracker } from './aggregate-tracker';

@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-nested-functions */
+import type { DrizzleUnitOfWork } from 'server/infrastructure/orm/unit-of-work/drizzle-unit-of-work';
 import type { DomainEventRegistry } from 'server/library/ddd/domain/events/domain-event-registry';
-import type { DrizzleUnitOfWork } from 'server/database/orm/unit-of-work/drizzle-unit-of-work';
 import type { InMemoryEventBus } from 'server/library/ddd/application/event-bus';
 
 import { Task } from 'server/library/ddd/primitives';

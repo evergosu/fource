@@ -6,16 +6,19 @@ import type { DatabaseCreate } from 'server/library/ddd/infrastructure/repositor
 import type { DatabaseDelete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
 import type { DatabaseUpdate } from 'server/library/ddd/infrastructure/repository/capabilities/update';
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
-import type { DatabaseTransaction, Database } from 'server/database/database';
+import type {
+  DatabaseTransaction,
+  Database,
+} from 'server/infrastructure/database/database';
 
 import {
-  type StoryInsertSchema,
   type StorySelectSchema,
+  type StoryInsertSchema,
   type StoryUpdateSchema,
   story,
-} from 'server/database/schema/story';
+} from 'server/infrastructure/database/schema/story';
+import { decodePostgresError } from 'server/infrastructure/database/clients/postgres/decode-error';
 import { DrizzleOptimisticLockExecutor } from 'server/library/ddd/infrastructure/orm/drizzle-lock';
-import { decodePostgresError } from 'server/database/clients/postgres/decode-error';
 import { Task } from 'server/library/ddd/primitives';
 import { eq } from 'drizzle-orm';
 

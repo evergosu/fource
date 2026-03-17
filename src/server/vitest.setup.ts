@@ -1,7 +1,7 @@
-import type { DatabaseContext } from 'server/database/clients/client';
+import type { DatabaseContext } from 'server/infrastructure/database/clients/client';
 
+import { createPostgresLiteContext } from 'server/infrastructure/database/clients/pglite';
 import { type TestContext, beforeEach, beforeAll, afterAll } from 'vitest';
-import { createPostgresLiteContext } from 'server/database/clients/pglite';
 import { Logger } from 'library/tools/logger';
 
 let database: DatabaseContext;

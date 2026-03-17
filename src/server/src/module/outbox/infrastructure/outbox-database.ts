@@ -1,13 +1,13 @@
 import type { DatabaseCreateBatch } from 'server/library/ddd/infrastructure/repository/capabilities/create-batch';
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
-import type { DatabaseTransaction } from 'server/database/database';
+import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
 import {
   type OutboxInsertSchema,
   type OutboxSelectSchema,
   outbox,
-} from 'server/database/schema/outbox';
-import { decodePostgresError } from 'server/database/clients/postgres/decode-error';
+} from 'server/infrastructure/database/schema/outbox';
+import { decodePostgresError } from 'server/infrastructure/database/clients/postgres/decode-error';
 import { Task } from 'server/library/ddd/primitives';
 import { isNull, asc, eq } from 'drizzle-orm';
 

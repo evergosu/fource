@@ -1,4 +1,4 @@
-import type { StorySelectSchema } from 'server/database/schema/story';
+import type { StorySelectSchema } from 'server/infrastructure/database/schema/story';
 
 import { StoryRehydrator } from './story-rehydrator';
 import { Story } from '../domain/story';
