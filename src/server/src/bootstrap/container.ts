@@ -17,8 +17,8 @@ import { VoteBanCommand } from 'server/module/ban-vote/application/commands/vote
 import { VoteBanUseCase } from 'server/module/ban-vote/application/commands/vote-ban-usecase';
 import { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import { DomainEventRegistry } from 'server/library/ddd/domain/events/domain-event-registry';
-import { StoryBanHandler } from 'server/module/story/application/handler/story-ban-handler';
 import { BanVoteDatabase } from 'server/module/ban-vote/infrastructure/ban-vote-database';
+import { StoryBanHandler } from 'server/module/story/application/event/story-ban-handler';
 import { InMemoryQueryBus } from 'server/library/ddd/application/cqrs/query/query-bus';
 import { StoryBanPolicy } from 'server/module/story/domain/policy/story-ban-policy';
 import { StoryDatabase } from 'server/module/story/infrastructure/story-database';
