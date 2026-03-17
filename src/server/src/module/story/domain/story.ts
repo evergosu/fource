@@ -10,11 +10,11 @@ import {
   Result,
 } from 'server/library/ddd/primitives';
 
-import { StoryExpiresAt } from './story-expires-at';
-import { StoryCreatedAt } from './story-created-at';
-import { StoryAuthorId } from './story-author-id';
-import { StoryTitle } from './story-title';
-import { StoryBody } from './story-body';
+import { StoryCreatedAt } from './value-object/story-created-at';
+import { StoryExpiresAt } from './value-object/story-expires-at';
+import { StoryAuthorId } from './value-object/story-author-id';
+import { StoryTitle } from './value-object/story-title';
+import { StoryBody } from './value-object/story-body';
 
 /**
  * ---

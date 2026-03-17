@@ -21,7 +21,7 @@ import { StoryQueryRepository } from './story-query-repository';
 import { StoryRepository } from './story-repository';
 import { StoryRehydrator } from './story-rehydrator';
 import { StoryDatabase } from './story-database';
-import { Story } from './story';
+import { Story } from '../domain/story';
 
 describe('story repository', () => {
   const storyFirst = {

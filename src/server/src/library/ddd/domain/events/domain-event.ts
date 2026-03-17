@@ -1,5 +1,3 @@
-import type { Json } from 'drizzle-zod';
-
 import type { Result } from '../../primitives';
 
 import { UniqueIdentifier } from '../identifiers/unique-identifier';
@@ -42,8 +40,8 @@ export abstract class DomainEvent<Payload = unknown> {
    * ---
    * @param aggregateId - Identifier of the aggregate that produced the event.
    * @param payload     - Event payload containing event-specific data.
-   * @param occurredAt  - Timestamp when the event occurred.
    * @param type        - Event type identifier. Concrete events must override the static `type` property.
+   * @param occurredAt  - Timestamp when the event occurred.
    * @param id          - Globally unique identifier of the event instance.
    *                      Each emitted event receives a unique identifier to ensure that
    *                      event processing systems can safely detect duplicates and maintain
@@ -52,8 +50,8 @@ export abstract class DomainEvent<Payload = unknown> {
   protected constructor(
     public readonly aggregateId: UniqueIdentifier,
     public readonly payload: Payload,
-    public readonly occurredAt: Date = new Date(),
     public readonly type: string,
+    public readonly occurredAt: Date = new Date(),
     public readonly id: UniqueIdentifier = UniqueIdentifier.create().value,
     // eslint-disable-next-line prettier/prettier
   ) { }
@@ -77,7 +75,7 @@ export abstract class DomainEvent<Payload = unknown> {
   public static rehydrate(properties: {
     aggregateId: string;
     occurredAt: Date;
-    payload: Json;
+    payload: never;
     type: string;
     id: string;
   }): Result<DomainEvent> {

@@ -5,8 +5,8 @@ import {
   CommandUseCase,
   type Task,
 } from 'server/library/ddd/primitives';
+import { StoryRepository } from 'server/module/story/infrastructure/story-repository';
 
-import { StoryRepository } from '../../story-repository';
 import { BanStoryFailure } from './ban-story-failure';
 
 /**

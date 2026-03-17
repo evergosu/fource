@@ -6,7 +6,8 @@ import type { Failure } from 'server/library/ddd/domain/issues/failure';
 
 import { Task } from 'server/library/ddd/primitives';
 
-import { BanStoryCommand } from '../commands/ban/ban-story-command';
+import { BanStoryCommand } from '../command/ban/ban-story-command';
+
 
 /**
  * ---

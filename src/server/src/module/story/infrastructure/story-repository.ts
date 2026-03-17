@@ -17,9 +17,9 @@ import { UniqueIdentifier, Task } from 'server/library/ddd/primitives';
 import { identity } from 'server/library/ddd/types/identity';
 
 import { type StoryFailureMap, StoryErrorPolicy } from './story-error-policy';
-import { StorySerializer } from './story-serializers';
+import { StoryFailure, Story } from '../domain/story';
+import { StorySerializer } from './story-serializer';
 import { StoryRehydrator } from './story-rehydrator';
-import { StoryFailure, type Story } from './story';
 import { StoryDatabase } from './story-database';
 
 interface StoryRepositoryEnvironment {

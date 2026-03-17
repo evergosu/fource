@@ -1,11 +1,9 @@
+import type { CreateStoryInput } from 'server/module/story/application/command/create/create-story-usecase';
 import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import type { Request } from 'express';
 
+import { CreateStoryCommand } from 'server/module/story/application/command/create/create-story-command';
 import { ExpressController } from 'server/library/ddd/primitives';
-
-import type { CreateStoryInput } from '../commands/create/create-story-usecase';
-
-import { CreateStoryCommand } from '../commands/create/create-story-command';
 
 interface CreateStoryRequest extends Request {
   body: CreateStoryInput;

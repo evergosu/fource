@@ -1,3 +1,4 @@
+import type { StoryQueryRepository } from 'server/module/story/infrastructure/story-query-repository';
 import type { Task } from 'server/library/ddd/primitives';
 
 import { QueryUseCase } from 'server/library/ddd/application/use-case/query-use-case';
@@ -5,7 +6,6 @@ import { QueryUseCase } from 'server/library/ddd/application/use-case/query-use-
 import type { StoryView } from './story-view';
 
 import { GetAllStoriesFailure } from './get-all-stories-failure';
-import { StoryQueryRepository } from '../story-query-repository';
 import { StoryQueryMapper } from './story-query-mapper';
 
 /**

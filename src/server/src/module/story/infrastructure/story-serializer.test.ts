@@ -1,7 +1,7 @@
 import type { StorySelectSchema } from 'server/database/schema/story';
 
-import { StorySerializer } from './story-serializers';
-import { Story } from './story';
+import { StorySerializer } from './story-serializer';
+import { Story } from '../domain/story';
 
 describe('story serializers', () => {
   const createdAt = new Date();

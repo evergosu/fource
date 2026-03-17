@@ -1,10 +1,10 @@
 import type { TransactionEnvironment } from 'server/library/ddd/application/unit-of-work/unit-of-work';
 
+import { StoryRepository } from 'server/module/story/infrastructure/story-repository';
 import { CommandUseCase, type Task } from 'server/library/ddd/primitives';
+import { Story } from 'server/module/story/domain/story';
 
 import { CreateStoryFailure } from './create-story-failure';
-import { StoryRepository } from '../../story-repository';
-import { Story } from '../../story';
 
 /**
  * ---

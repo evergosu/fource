@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+import type { Story } from 'server/module/story/domain/story';
+
 import {
   type DomainFailure,
   domainFailure,
@@ -10,7 +12,6 @@ import {
 } from 'server/library/ddd/primitives';
 
 import type { BanVoteCreatedAt } from './ban-vote-created-at';
-import type { Story } from '../story/story';
 
 import { BanVoteRegisteredEvent } from './events/ban-vote-registered-event';
 

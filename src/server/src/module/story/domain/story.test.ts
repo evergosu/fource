@@ -1,6 +1,6 @@
 import { NullishFailure } from 'server/library/ddd/domain/invariants/defined/defined';
 
-import { StoryTitle } from './story-title';
+import { StoryTitle } from './value-object/story-title';
 import { Story } from './story';
 
 describe('story', () => {

@@ -1,7 +1,7 @@
 import type { StorySelectSchema } from 'server/database/schema/story';
 
 import { StoryRehydrator } from './story-rehydrator';
-import { Story } from './story';
+import { Story } from '../domain/story';
 
 describe('story rehydrator', () => {
   const createdAt = new Date();

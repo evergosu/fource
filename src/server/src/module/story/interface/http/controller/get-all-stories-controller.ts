@@ -1,9 +1,8 @@
 import type { InMemoryQueryBus } from 'server/library/ddd/application/cqrs/query/query-bus';
 import type { Request } from 'express';
 
+import { GetAllStoriesQuery } from 'server/module/story/application/query/get-all-stories-query';
 import { ExpressController } from 'server/library/ddd/primitives';
-
-import { GetAllStoriesQuery } from '../queries/get-all-stories-query';
 
 /**
  * ---
