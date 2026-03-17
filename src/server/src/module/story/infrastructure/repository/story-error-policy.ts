@@ -12,7 +12,8 @@ import {
   AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
 
-import { Story } from '../domain/story';
+import { Story } from '../../domain/story';
+
 
 
 /**

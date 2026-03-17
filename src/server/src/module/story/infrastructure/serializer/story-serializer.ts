@@ -9,7 +9,7 @@ import {
   Result,
 } from 'server/library/ddd/primitives';
 
-import { Story } from '../domain/story';
+import { Story } from '../../domain/story';
 
 interface StorySerializer {
   update: Serializer<Story<'persisted'>, StoryUpdateSchema>;

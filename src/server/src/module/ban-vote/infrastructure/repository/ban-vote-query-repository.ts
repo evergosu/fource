@@ -4,7 +4,7 @@ import type { DomainCountById } from 'server/library/ddd/domain/repository/capab
 import { AggregatePersistenceFailure } from 'server/library/ddd/domain/repository/repository-errors';
 import { Task } from 'server/library/ddd/primitives';
 
-import type { BanVote } from '../domain/ban-vote';
+import type { BanVote } from '../../domain/ban-vote';
 
 import {
   type BanVoteFailureMap,
@@ -12,12 +12,12 @@ import {
 } from './ban-vote-error-policy';
 import { BanVoteDatabase } from './ban-vote-database';
 
-
 /**
  * ---
  * Provides actions over persistence using Drizzle ORM.
  */
-export class BanVoteQueryRepository implements DomainCountById<BanVoteFailureMap> {
+export class BanVoteQueryRepository
+  implements DomainCountById<BanVoteFailureMap> {
   readonly errorPolicy = BanVoteErrorPolicy;
 
   /**

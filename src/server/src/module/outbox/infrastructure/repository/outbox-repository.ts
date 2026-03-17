@@ -13,7 +13,7 @@ import {
   type OutboxFailureMap,
   OutboxErrorPolicy,
 } from './outbox-error-policy';
-import { OutboxSerializer } from './outbox-serializers';
+import { OutboxSerializer } from '../serializer/outbox-serializer';
 import { OutboxDatabase } from './outbox-database';
 
 interface OutboxRepositoryEnvironment {

@@ -6,7 +6,7 @@ import {
   Result,
 } from 'server/library/ddd/primitives';
 
-import type { BanVote } from '../domain/ban-vote';
+import type { BanVote } from '../../domain/ban-vote';
 
 interface BanVoteSerializer {
   insert: Serializer<BanVote<'new'>, BanVoteInsertSchema>;

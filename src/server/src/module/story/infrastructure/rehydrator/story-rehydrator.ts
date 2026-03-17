@@ -8,7 +8,7 @@ import {
   combineResults,
 } from 'server/library/ddd/primitives';
 
-import { Story } from '../domain/story';
+import { Story } from '../../domain/story';
 
 type StoryRehydrateResult = ReturnType<typeof Story.rehydrate>;
 

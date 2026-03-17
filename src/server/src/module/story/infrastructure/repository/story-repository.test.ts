@@ -17,11 +17,11 @@ import {
 import { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
 
+import { StoryRehydrator } from '../rehydrator/story-rehydrator';
 import { StoryQueryRepository } from './story-query-repository';
 import { StoryRepository } from './story-repository';
-import { StoryRehydrator } from './story-rehydrator';
 import { StoryDatabase } from './story-database';
-import { Story } from '../domain/story';
+import { Story } from '../../domain/story';
 
 describe('story repository', () => {
   const storyFirst = {

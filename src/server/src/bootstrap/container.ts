@@ -1,27 +1,27 @@
 import type { Database } from 'server/infrastructure/database/database';
 
 import { UnitOfWorkMiddleware } from 'server/library/ddd/application/cqrs/command/middlewares/unit-of-work-middleware';
+import { BanVoteQueryRepository } from 'server/module/ban-vote/infrastructure/repository/ban-vote-query-repository';
 import { CreateStoryCommandHandler } from 'server/module/story/application/command/create/create-story-handler';
+import { StoryQueryRepository } from 'server/module/story/infrastructure/repository/story-query-repository';
 import { GetAllStoriesQueryHandler } from 'server/module/story/application/query/get-all-stories-handler';
 import { CreateStoryCommand } from 'server/module/story/application/command/create/create-story-command';
 import { CreateStoryUseCase } from 'server/module/story/application/command/create/create-story-usecase';
-import { BanVoteQueryRepository } from 'server/module/ban-vote/infrastructure/ban-vote-query-repository';
 import { BanVoteRegisteredEvent } from 'server/module/ban-vote/domain/event/ban-vote-registered-event';
 import { VoteBanCommandHandler } from 'server/module/ban-vote/application/commands/vote-ban-handler';
 import { GetAllStoriesUseCase } from 'server/module/story/application/query/get-all-stories-usecase';
+import { BanVoteDatabase } from 'server/module/ban-vote/infrastructure/repository/ban-vote-database';
 import { GetAllStoriesQuery } from 'server/module/story/application/query/get-all-stories-query';
-import { StoryQueryRepository } from 'server/module/story/infrastructure/story-query-repository';
 import { DrizzleUnitOfWork } from 'server/infrastructure/orm/unit-of-work/drizzle-unit-of-work';
 import { OutboxProcessor } from 'server/module/outbox/application/processor/outbox-processor';
 import { VoteBanCommand } from 'server/module/ban-vote/application/commands/vote-ban-command';
 import { VoteBanUseCase } from 'server/module/ban-vote/application/commands/vote-ban-usecase';
 import { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import { DomainEventRegistry } from 'server/library/ddd/domain/events/domain-event-registry';
-import { BanVoteDatabase } from 'server/module/ban-vote/infrastructure/ban-vote-database';
+import { StoryDatabase } from 'server/module/story/infrastructure/repository/story-database';
 import { StoryBanHandler } from 'server/module/story/application/event/story-ban-handler';
 import { InMemoryQueryBus } from 'server/library/ddd/application/cqrs/query/query-bus';
 import { StoryBanPolicy } from 'server/module/story/domain/policy/story-ban-policy';
-import { StoryDatabase } from 'server/module/story/infrastructure/story-database';
 import { InMemoryEventBus } from 'server/library/ddd/application/event-bus';
 
 /**

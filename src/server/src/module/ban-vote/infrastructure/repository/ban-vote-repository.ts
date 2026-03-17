@@ -13,13 +13,13 @@ import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empt
 import { identity } from 'server/library/ddd/types/identity';
 import { Task } from 'server/library/ddd/primitives';
 
-import type { BanVote } from '../domain/ban-vote';
+import type { BanVote } from '../../domain/ban-vote';
 
 import {
   type BanVoteFailureMap,
   BanVoteErrorPolicy,
 } from './ban-vote-error-policy';
-import { BanVoteSerializer } from './ban-vote-serializers';
+import { BanVoteSerializer } from '../serializer/ban-vote-serializer';
 import { BanVoteDatabase } from './ban-vote-database';
 
 interface BanVoteRepositoryEnvironment {
