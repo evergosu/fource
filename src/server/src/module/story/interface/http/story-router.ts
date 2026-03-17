@@ -1,7 +1,7 @@
 import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import type { InMemoryQueryBus } from 'server/library/ddd/application/cqrs/query/query-bus';
 
-import { asyncHandler } from 'server/router/async-handler';
+import { asyncHandler } from 'server/interface/http/router/async-handler';
 import { Router } from 'express';
 
 import { GetAllStoriesController } from './controller/get-all-stories-controller';

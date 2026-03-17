@@ -3,17 +3,16 @@ import type { Logger } from 'library/tools/logger';
 import type { Server } from 'node:http';
 
 import { createBanRouter } from 'server/module/ban-vote/interface/http/ban-vote-router';
+import { rateLimitByEnvironment } from 'server/interface/http/middlewares/rate-limit';
+import { createErrorHandler } from 'server/interface/http/middlewares/error-handler';
 import { createStoryRouter } from 'server/module/story/interface/http/story-router';
+import { helmetByEnvironment } from 'server/interface/http/middlewares/helmet';
+import { morganByEnvironment } from 'server/interface/http/middlewares/morgan';
+import { allowCorsFor } from 'server/interface/http/middlewares/cors';
 import { getEnvironment } from 'server/library/environment';
 import { commandBus } from 'server/application/command-bus';
 import { queryBus } from 'server/application/query-bus';
 import express from 'express';
-
-import { rateLimitByEnvironment } from './middlewares/rate-limit';
-import { createErrorHandler } from './middlewares/error-handler';
-import { helmetByEnvironment } from './middlewares/helmet';
-import { morganByEnvironment } from './middlewares/morgan';
-import { allowCorsFor } from './middlewares/cors';
 
 export interface ServerContext {
   shutdown: (reason: string) => ReturnType<typeof shutdown>;

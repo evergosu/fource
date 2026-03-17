@@ -1,6 +1,6 @@
 import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 
-import { asyncHandler } from 'server/router/async-handler';
+import { asyncHandler } from 'server/interface/http/router/async-handler';
 import { Router } from 'express';
 
 import { VoteBanController } from './controller/vote-ban-controller';
