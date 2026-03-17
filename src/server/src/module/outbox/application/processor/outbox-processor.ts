@@ -5,8 +5,8 @@ import type { InMemoryEventBus } from 'server/library/ddd/application/event-bus'
 
 import { Task } from 'server/library/ddd/primitives';
 
-import { OutboxQueryRepository } from './outbox-query-repository';
-import { OutboxRepository } from './outbox-repository';
+import { OutboxQueryRepository } from '../../infrastructure/outbox-query-repository';
+import { OutboxRepository } from '../../infrastructure/outbox-repository';
 
 /**
  * ---
