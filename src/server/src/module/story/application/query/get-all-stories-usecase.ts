@@ -3,10 +3,10 @@ import type { Task } from 'server/library/ddd/primitives';
 
 import { QueryUseCase } from 'server/library/ddd/application/use-case/query-use-case';
 
-import type { StoryView } from './story-view';
+import type { StoryView } from './view/story-view';
 
 import { GetAllStoriesFailure } from './get-all-stories-failure';
-import { StoryQueryMapper } from './story-query-mapper';
+import { StoryQueryMapper } from './mapper/story-query-mapper';
 
 /**
  * ---

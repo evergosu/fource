@@ -2,7 +2,7 @@ import type { StorySelectSchema } from 'server/infrastructure/database/schema/st
 
 import { QueryMapper } from 'server/library/ddd/application/cqrs/query/query-mapper';
 
-import type { StoryView } from './story-view';
+import type { StoryView } from '../view/story-view';
 
 /**
  * ---
