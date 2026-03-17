@@ -10,8 +10,8 @@ import { helmetByEnvironment } from 'server/interface/http/middlewares/helmet';
 import { morganByEnvironment } from 'server/interface/http/middlewares/morgan';
 import { allowCorsFor } from 'server/interface/http/middlewares/cors';
 import { getEnvironment } from 'server/library/environment';
-import { commandBus } from 'server/application/command-bus';
-import { queryBus } from 'server/application/query-bus';
+import { commandBus } from 'server/bootstrap/command-bus';
+import { queryBus } from 'server/bootstrap/query-bus';
 import express from 'express';
 
 export interface ServerContext {

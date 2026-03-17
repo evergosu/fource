@@ -1,14 +1,13 @@
 import { UnitOfWorkMiddleware } from 'server/library/ddd/application/cqrs/command/middlewares/unit-of-work-middleware';
+import { CreateStoryCommandHandler } from 'server/module/story/application/command/create/create-story-handler';
+import { CreateStoryCommand } from 'server/module/story/application/command/create/create-story-command';
+import { CreateStoryUseCase } from 'server/module/story/application/command/create/create-story-usecase';
+import { VoteBanCommandHandler } from 'server/module/ban-vote/application/commands/vote-ban-handler';
+import { DrizzleUnitOfWork } from 'server/infrastructure/orm/unit-of-work/drizzle-unit-of-work';
+import { VoteBanCommand } from 'server/module/ban-vote/application/commands/vote-ban-command';
+import { VoteBanUseCase } from 'server/module/ban-vote/application/commands/vote-ban-usecase';
 import { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
-import { DrizzleUnitOfWork } from 'server/database/orm/unit-of-work/drizzle-unit-of-work';
-import { database } from 'server/database/clients/postgresql';
-
-import { CreateStoryCommandHandler } from './story/commands/create/create-story-handler';
-import { CreateStoryCommand } from './story/commands/create/create-story-command';
-import { CreateStoryUseCase } from './story/commands/create/create-story-usecase';
-import { VoteBanCommandHandler } from './ban-vote/commands/vote-ban-handler';
-import { VoteBanCommand } from './ban-vote/commands/vote-ban-command';
-import { VoteBanUseCase } from './ban-vote/commands/vote-ban-usecase';
+import { database } from 'server/infrastructure/database/clients/postgresql';
 
 /**
  * ---

@@ -1,5 +1,5 @@
-/* eslint-disable sonarjs/no-nested-functions */
 /* eslint-disable prettier/prettier */
+/* eslint-disable sonarjs/no-nested-functions */
 import type { Story } from 'server/module/story/domain/story';
 
 import {
@@ -34,6 +34,7 @@ export class BanVoteRegisteredEvent extends DomainEvent<Payload> {
                   occurredAt,
                   id,
                 );
+  public static readonly type = 'BanVoteRegisteredEvent';
 
   /** @inheritdoc */
   constructor(
@@ -42,7 +43,7 @@ export class BanVoteRegisteredEvent extends DomainEvent<Payload> {
     occurredAt?: Date,
     id?: UniqueIdentifier,
   ) {
-    super(aggregateId, payload, 'BanVoteRegisteredEvent', occurredAt, id);
+    super(aggregateId, payload, BanVoteRegisteredEvent.type, occurredAt, id);
   }
 
   /** @inheritdoc */

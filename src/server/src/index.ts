@@ -1,1 +1,1 @@
-import './server/instances/node-postgresql';
+import './bootstrap/servers/node-postgresql';

@@ -1,11 +1,11 @@
+import { BanVoteQueryRepository } from 'server/module/ban-vote/infrastructure/ban-vote-query-repository';
+import { BanVoteRegisteredEvent } from 'server/module/ban-vote/domain/event/ban-vote-registered-event';
 import { DomainEventRegistry } from 'server/library/ddd/domain/events/domain-event-registry';
+import { BanVoteDatabase } from 'server/module/ban-vote/infrastructure/ban-vote-database';
+import { StoryBanPolicy } from 'server/module/story/application/event-handler/ban-policy';
+import { database } from 'server/infrastructure/database/clients/postgresql';
 import { InMemoryEventBus } from 'server/library/ddd/application/event-bus';
-import { database } from 'server/database/clients/postgresql';
 
-import { BanVoteRegisteredEvent } from './ban-vote/events/ban-vote-registered-event';
-import { BanVoteQueryRepository } from './ban-vote/ban-vote-query-repository';
-import { BanVoteDatabase } from './ban-vote/ban-vote-database';
-import { StoryBanPolicy } from './story/policies/ban-policy';
 import { commandBus } from './command-bus';
 
 export const eventRegistry = new DomainEventRegistry();

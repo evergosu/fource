@@ -1,11 +1,11 @@
 import '@testing-library/jest-dom/vitest';
 
-import type { DatabaseContext } from 'server/database/clients/client';
+import type { DatabaseContext } from 'server/infrastructure/database/clients/client';
 
 import {
   type ServerContext as ApplicationServerContext,
   startServer as startApplicationServer,
-} from 'server/server/express';
+} from 'server/bootstrap/express';
 import {
   type ServerContext as NextServerContext,
   startServer as startNextServer,
@@ -17,7 +17,7 @@ import {
   beforeAll,
   afterAll,
 } from 'vitest';
-import { createPostgresLiteContext } from 'server/database/clients/pglite';
+import { createPostgresLiteContext } from 'server/infrastructure/database/clients/pglite';
 import { Logger } from 'library/tools/logger';
 
 vi.mock('next/font/google', () => ({
@@ -95,6 +95,7 @@ function isFirstStepOfScenario(task: RunnerTaskBase) {
   return hasSuite(task) ? task.suite.tasks.at(0)?.name === task.name : false;
 }
 
-function hasSuite(task: unknown): task is { suite: RunnerTaskBase } {
+// eslint-disable-next-line prettier/prettier
+function hasSuite(task: unknown): task is { suite: RunnerTaskBase; } {
   return !!task && typeof task === 'object' && 'suite' in task;
 }
