@@ -10,9 +10,9 @@ import { helmetByEnvironment } from 'server/interface/http/middlewares/helmet';
 import { morganByEnvironment } from 'server/interface/http/middlewares/morgan';
 import { allowCorsFor } from 'server/interface/http/middlewares/cors';
 import { getEnvironment } from 'server/library/environment';
-import { commandBus } from 'server/bootstrap/command-bus';
-import { queryBus } from 'server/bootstrap/query-bus';
 import express from 'express';
+
+import { Container } from './container';
 
 export interface ServerContext {
   shutdown: (reason: string) => ReturnType<typeof shutdown>;
@@ -32,6 +32,8 @@ export function startServer(
   port: 'environment' | 'random' = 'environment',
 ): ServerContext {
   const environment = getEnvironment();
+
+  const { commandBus, queryBus } = new Container(database.getClient());
 
   const server = express()
     .set('trust proxy', 1)

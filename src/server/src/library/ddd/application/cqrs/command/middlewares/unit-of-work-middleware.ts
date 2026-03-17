@@ -1,8 +1,11 @@
 /* eslint-disable prettier/prettier */
-import type { DrizzleUnitOfWork } from 'server/database/orm/unit-of-work/drizzle-unit-of-work';
+import type { DrizzleUnitOfWork } from 'server/infrastructure/orm/unit-of-work/drizzle-unit-of-work';
 import type { Task } from 'server/library/ddd/primitives';
 
-import type { TransactionEnvironment, UnitOfWorkFailure } from '../../../unit-of-work/unit-of-work';
+import type {
+  TransactionEnvironment,
+  UnitOfWorkFailure,
+} from '../../../unit-of-work/unit-of-work';
 import type { CommandMiddleware } from '../command-middleware';
 import type { Command } from '../command';
 
@@ -57,6 +60,6 @@ export class UnitOfWorkMiddleware
     _command: Command<unknown, unknown>,
     next: (environment: TransactionEnvironment) => Task<O, F>,
   ): Task<O, UnitOfWorkFailure | F> {
-    return this.uow.execute((environment) => next(environment));
+    return this.uow.execute(environment => next(environment));
   }
 }

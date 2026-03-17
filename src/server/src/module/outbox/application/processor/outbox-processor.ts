@@ -23,14 +23,14 @@ export class OutboxProcessor {
    * ---
    * Creates new OutboxProcessor instance
    * ---
-   * @param uow - unit of work
+   * @param unitOfWork - unit of work
    * @param registry - domain event registry
-   * @param bus - in-memory event bus
+   * @param eventBus - in-memory event bus
    */
   constructor(
-    private readonly uow: DrizzleUnitOfWork,
+    private readonly unitOfWork: DrizzleUnitOfWork,
     private readonly registry: DomainEventRegistry,
-    private readonly bus: InMemoryEventBus,
+    private readonly eventBus: InMemoryEventBus,
     // eslint-disable-next-line prettier/prettier
   ) { }
 
@@ -41,7 +41,7 @@ export class OutboxProcessor {
    * @param limit Maximum batch size.
    */
   process(limit: number) {
-    this.uow.execute(({ provider }) =>
+    this.unitOfWork.execute(({ provider }) =>
       OutboxQueryRepository.new({ provider })
         .getUnprocessed(limit)
         .flatMap(events =>
@@ -50,7 +50,7 @@ export class OutboxProcessor {
               .get(record.type)
               .rehydrate(record)
               .toTask()
-              .map(event => this.bus.publish(event))
+              .map(event => this.eventBus.publish(event))
               .flatMap(() =>
                 OutboxRepository.new({ provider }).markProcessed(record.id),
               ),
