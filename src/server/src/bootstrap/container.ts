@@ -17,9 +17,10 @@ import { VoteBanCommand } from 'server/module/ban-vote/application/commands/vote
 import { VoteBanUseCase } from 'server/module/ban-vote/application/commands/vote-ban-usecase';
 import { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import { DomainEventRegistry } from 'server/library/ddd/domain/events/domain-event-registry';
+import { StoryBanHandler } from 'server/module/story/application/handler/story-ban-handler';
 import { BanVoteDatabase } from 'server/module/ban-vote/infrastructure/ban-vote-database';
-import { StoryBanPolicy } from 'server/module/story/application/event-handler/ban-policy';
 import { InMemoryQueryBus } from 'server/library/ddd/application/cqrs/query/query-bus';
+import { StoryBanPolicy } from 'server/module/story/domain/policy/story-ban-policy';
 import { StoryDatabase } from 'server/module/story/infrastructure/story-database';
 import { InMemoryEventBus } from 'server/library/ddd/application/event-bus';
 
@@ -103,10 +104,10 @@ export class Container {
 
     this.eventBus.register(
       BanVoteRegisteredEvent.type,
-      new StoryBanPolicy(
+      new StoryBanHandler(
         new BanVoteQueryRepository(new BanVoteDatabase(this.database)),
         this.commandBus,
-        100,
+        new StoryBanPolicy(100),
       ),
     );
   }
