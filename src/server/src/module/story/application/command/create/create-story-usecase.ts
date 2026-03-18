@@ -1,6 +1,6 @@
 import type { TransactionEnvironment } from 'server/library/ddd/application/unit-of-work/unit-of-work';
 
-import { StoryRepository } from 'server/module/story/infrastructure/story-repository';
+import { StoryRepository } from 'server/module/story/infrastructure/repository/story-repository';
 import { CommandUseCase, type Task } from 'server/library/ddd/primitives';
 import { Story } from 'server/module/story/domain/story';
 

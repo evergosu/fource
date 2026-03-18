@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-parameters */
 import type { AggregateRoot } from '../aggregate-root';
-import type { DomainFailure } from '../domain-error';
+import type { DomainFailure } from '../issues/failure';
 
 import { Result } from '../../types/result';
 

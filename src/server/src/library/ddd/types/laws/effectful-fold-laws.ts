@@ -21,14 +21,14 @@ export function effectfulFoldLaws<F, A, E, R>(
   match: (fa: F, fail: (error: E) => R, ok: (value: A) => R) => F,
 ) {
   return {
-    async leftConsistency(error: E, f: (error: E) => R, g: (value: A) => R) {
+    async leftConsistency(_error: E, f: (error: E) => R, g: (value: A) => R) {
       const folded = await runtime.run(match(fa, f, g));
       const expected = await runtime.run(match(fa, f, g));
 
       return runtime.equals(folded, expected);
     },
 
-    async rightConsistency(value: A, f: (error: E) => R, g: (value: A) => R) {
+    async rightConsistency(_value: A, f: (error: E) => R, g: (value: A) => R) {
       const folded = await runtime.run(match(fa, f, g));
       const expected = await runtime.run(match(fa, f, g));
 

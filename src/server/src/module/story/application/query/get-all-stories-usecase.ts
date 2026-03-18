@@ -1,4 +1,4 @@
-import type { StoryQueryRepository } from 'server/module/story/infrastructure/story-query-repository';
+import type { StoryQueryRepository } from '../../infrastructure/repository/story-query-repository';
 import type { Task } from 'server/library/ddd/primitives';
 
 import { QueryUseCase } from 'server/library/ddd/application/use-case/query-use-case';

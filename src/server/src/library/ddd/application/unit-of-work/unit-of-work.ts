@@ -1,4 +1,4 @@
-import type { AggregateTracker } from 'server/database/orm/unit-of-work/aggregate-tracker';
+import type { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import type { Task } from 'server/library/ddd/primitives';
 
 import type { TransactionalDatabaseProvider } from '../../domain/repository/repository-provider';

@@ -1,4 +1,4 @@
-import type { DatabaseTransaction } from 'server/database/database';
+import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
 export type DatabaseConstructor<T> = new (
   transaction: DatabaseTransaction,

@@ -1,6 +1,5 @@
-import type { Database } from 'server/database/database';
-
 import type { InfrastructureErrorTranslator } from './infrastructure-error-translator';
+import type { Database } from 'server/infrastructure/database/database';
 import type { InfrastructureFailures } from './infrastructure-errors';
 import type { DomainFailure } from '../domain/issues/failure';
 

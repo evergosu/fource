@@ -1,11 +1,18 @@
 import { UniqueIdentifier } from './identifiers/unique-identifier';
-import { type DomainEvent, DomainEvents } from './domain-events';
 import { AggregateRoot } from './aggregate-root';
+import { DomainEvent } from '../primitives';
 
-class PostCreatedEvent implements DomainEvent {
-  public readonly occurredAt = new Date();
+class PostCreatedEvent extends DomainEvent<null> {
+  public static readonly type = 'PostCreatedEvent';
 
-  constructor(public readonly aggregateId: UniqueIdentifier) {}
+  /** @inheritdoc */
+  constructor(
+    aggregateId: UniqueIdentifier,
+    occurredAt?: Date,
+    id?: UniqueIdentifier,
+  ) {
+    super(aggregateId, null, PostCreatedEvent.type, occurredAt, id);
+  }
 }
 
 interface Properties {
@@ -23,9 +30,6 @@ class Post extends AggregateRoot<Properties> {
 }
 
 describe('aggregate root', () => {
-  beforeEach(() => {
-    DomainEvents.clear();
-  });
 
   it('should create an aggregate root with an unique identifier', () => {
     const post = new Post({ title: 'foo' });
@@ -38,24 +42,12 @@ describe('aggregate root', () => {
   it('should track domain events', () => {
     const post = new Post({ title: 'foo' });
 
-    expect(post.domainEvents).toHaveLength(0);
+    expect(post['domainEvents']).toHaveLength(0);
 
     post.create();
 
-    expect(post.domainEvents).toHaveLength(1);
+    expect(post['domainEvents']).toHaveLength(1);
 
-    expect(post.domainEvents[0]).toBeInstanceOf(PostCreatedEvent);
-  });
-
-  it('should register itself for dispatch on adding an event', () => {
-    const post = new Post({ title: 'foo' });
-
-    const spy = vi.spyOn(DomainEvents, 'markAggregateForDispatch');
-
-    post.create();
-
-    expect(spy).toHaveBeenCalledOnce();
-
-    expect(spy).toHaveBeenCalledWith(post);
+    expect(post['domainEvents'][0]).toBeInstanceOf(PostCreatedEvent);
   });
 });

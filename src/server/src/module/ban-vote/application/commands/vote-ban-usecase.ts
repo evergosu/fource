@@ -2,7 +2,7 @@ import type { TransactionEnvironment } from 'server/library/ddd/application/unit
 
 import { CommandUseCase, type Task } from 'server/library/ddd/primitives';
 
-import { BanVoteRepository } from '../../infrastructure/ban-vote-repository';
+import { BanVoteRepository } from '../../infrastructure/repository/ban-vote-repository';
 import { VoteBanFailure } from './vote-ban-failure';
 import { BanVote } from '../../domain/ban-vote';
 

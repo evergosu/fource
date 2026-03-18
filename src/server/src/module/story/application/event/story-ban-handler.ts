@@ -1,4 +1,4 @@
-import type { BanVoteQueryRepository } from 'server/module/ban-vote/infrastructure/ban-vote-query-repository';
+import type { BanVoteQueryRepository } from 'server/module/ban-vote/infrastructure/repository/ban-vote-query-repository';
 import type { BanVoteRegisteredEvent } from 'server/module/ban-vote/domain/event/ban-vote-registered-event';
 import type { InMemoryCommandBus } from 'server/library/ddd/application/cqrs/command/command-bus';
 import type { EventHandler } from 'server/library/ddd/domain/events/domain-event-handler';
