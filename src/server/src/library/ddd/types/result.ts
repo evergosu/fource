@@ -133,9 +133,7 @@ export class Result<T, E = Failure> {
    *@returns A formatted string.
    */
   public toString(): string {
-    return this.isSuccess()
-      ? `Success(${JSON.stringify(this.value)})`
-      : `Failure(${JSON.stringify(this.error)})`;
+    return this.isSuccess() ? `Success(${JSON.stringify(this.value)})` : `Failure(${JSON.stringify(this.error)})`;
   }
 
   /**
@@ -160,9 +158,7 @@ export class Result<T, E = Failure> {
    * @param cases.ok - callback for success state
    */
   public match<U>(cases: { fail: (error: E) => U; ok: (value: T) => U; }): U {
-    return this.state.tag === 'success'
-      ? cases.ok(this.state.value)
-      : cases.fail(this.state.error);
+    return this.state.tag === 'success' ? cases.ok(this.state.value) : cases.fail(this.state.error);
   }
 
   /**
@@ -212,9 +208,7 @@ export class Result<T, E = Failure> {
    *   .validate(GuardMinimumLength(v, 'name', 3))
    * ```
    */
-  validate<F extends Failure, B extends T>(
-    guard: Guard<T, B, F>,
-  ): Result<T, E | F> {
+  validate<F extends Failure, B extends T>(guard: Guard<T, B, F>): Result<T, E | F> {
     return this.flatMap(value =>
       guard.validate(value).match({
         fail: error => Result.fail(error),
@@ -247,9 +241,7 @@ export class Result<T, E = Failure> {
    *   .refine(GuardNonEmptyString(v, 'title'))
    * ```
    */
-  refine<F extends Failure, B extends T>(
-    guard: Guard<T, B, F>,
-  ): Result<B, E | F> {
+  refine<F extends Failure, B extends T>(guard: Guard<T, B, F>): Result<B, E | F> {
     return this.flatMap(value =>
       guard.refine(value).match({
         ok: refined => Result.ok(refined),
@@ -276,10 +268,7 @@ export class Result<T, E = Failure> {
    * ---
    * @param fa - container to apply.
    */
-  public ap<T, U, E2>(
-    this: Result<(value: T) => U, E>,
-    fa: Result<T, E2>,
-  ): Result<U, E2 | E> {
+  public ap<T, U, E2>(this: Result<(value: T) => U, E>, fa: Result<T, E2>): Result<U, E2 | E> {
     if (this.isFailure()) {
       return Result.fail(this.error);
     }
@@ -318,9 +307,7 @@ export class Result<T, E = Failure> {
    * @returns Corresponding `Option`
    */
   public toOption(): Option<T> {
-    return this.state.tag === 'success'
-      ? Option.some<T>(this.state.value)
-      : Option.none();
+    return this.state.tag === 'success' ? Option.some<T>(this.state.value) : Option.none();
   }
 
   /* ------------------------------------------------------------------ */
@@ -361,11 +348,7 @@ export class Result<T, E = Failure> {
   // eslint-disable-next-line jsdoc/require-jsdoc
   static fromBoolean<T, E>(condition: boolean, fail: E, ok: T): Result<T, E>;
   // eslint-disable-next-line jsdoc/require-jsdoc
-  static fromBoolean<E, T = void>(
-    condition: boolean,
-    fail: E,
-    ok?: T,
-  ): Result<T, E> {
+  static fromBoolean<E, T = void>(condition: boolean, fail: E, ok?: T): Result<T, E> {
     // eslint-disable-next-line sonarjs/no-selector-parameter
     return condition ? Result.ok(ok) : Result.fail(fail);
   }
@@ -377,10 +360,7 @@ export class Result<T, E = Failure> {
    * @param value Value under checks.
    * @param fail Failure to return in case of failure.
    */
-  static fromNullable<T, F>(
-    value: undefined | null | T,
-    fail: F,
-  ): Result<T, F> {
+  static fromNullable<T, F>(value: undefined | null | T, fail: F): Result<T, F> {
     return value == undefined ? Result.fail(fail) : Result.ok(value);
   }
 
@@ -392,10 +372,7 @@ export class Result<T, E = Failure> {
    * @param onError - The function to invoke on error state.
    * @returns A `Result.ok()` on success, `Result.fail()` otherwise.
    */
-  public static fromThrowable<T, E>(
-    f: () => T,
-    onError: (error: unknown) => E,
-  ): Result<T, E> {
+  public static fromThrowable<T, E>(f: () => T, onError: (error: unknown) => E): Result<T, E> {
     try {
       return Result.ok(f());
     } catch (error) {
@@ -452,9 +429,7 @@ export class Result<T, E = Failure> {
    * ---
    * @param f - Function producing an alternative result from the failure
    */
-  orElse<B, E2 extends Failure>(
-    f: (error: E) => Result<B, E2>,
-  ): Result<T | B, E2 | E> {
+  orElse<B, E2 extends Failure>(f: (error: E) => Result<B, E2>): Result<T | B, E2 | E> {
     return this.isFailure() ? f(this.error) : this;
   }
 
@@ -512,9 +487,7 @@ export class Result<T, E = Failure> {
    * @returns A new `Result<U, E>` containing the transformed value, or the current failure.
    */
   public map<U>(f: (value: T) => U): Result<U, E> {
-    return this.isSuccess()
-      ? Result.ok(f(this.value))
-      : Result.fail(this.error);
+    return this.isSuccess() ? Result.ok(f(this.value)) : Result.fail(this.error);
   }
 
   /**
@@ -530,9 +503,7 @@ export class Result<T, E = Failure> {
    */
   public mapError<E2>(f: (error: E) => E2): Result<T, E2> {
     // It is safe type cast to please TS. We know that error type is phantom.
-    return this.isFailure()
-      ? Result.fail(f(this.error))
-      : (this as unknown as Result<T, E2>);
+    return this.isFailure() ? Result.fail(f(this.error)) : (this as unknown as Result<T, E2>);
   }
 
   /**
@@ -584,10 +555,7 @@ export class Result<T, E = Failure> {
    * });
    * ```
    */
-  public matchFailure<
-    F extends Failure,
-    Cases extends FailureCasesWithDefault<F>,
-  >(
+  public matchFailure<F extends Failure, Cases extends FailureCasesWithDefault<F>>(
     this: Result<T, F>,
     cases: Cases,
   ): Result<T, DefaultReturn<F, Cases> | ExplicitReturn<Cases>>;
@@ -616,15 +584,13 @@ export class Result<T, E = Failure> {
    * });
    * ```
    */
-  public matchFailure<
-    F extends Failure,
-    Cases extends FailureCasesWithDefault<F> | FailureCases<F>,
-  >(this: Result<T, F>, cases: Cases): Result<T> {
+  public matchFailure<F extends Failure, Cases extends FailureCasesWithDefault<F> | FailureCases<F>>(
+    this: Result<T, F>,
+    cases: Cases,
+  ): Result<T> {
     return this.match({
       fail: failure => {
-        const explicit = (cases as Partial<FailureCases<F>>)[
-          failure._tag as F['_tag']
-        ];
+        const explicit = (cases as Partial<FailureCases<F>>)[failure._tag as F['_tag']];
 
         if (explicit) {
           return Result.fail(explicit(failure as ExtractByTag<F, F['_tag']>));
@@ -682,10 +648,7 @@ export class Result<T, E = Failure> {
    * // result is Err("Error: boom")
    * ```
    */
-  public bimap<U, E2>(
-    onSuccess: (value: T) => U,
-    onFailure: (error: E) => E2,
-  ): Result<U, E2> {
+  public bimap<U, E2>(onSuccess: (value: T) => U, onFailure: (error: E) => E2): Result<U, E2> {
     // It is safe type cast to please TS. We know that error type is phantom.
     return this.isSuccess()
       ? (Result.ok(onSuccess(this.value)) as unknown as Result<U, E2>)
@@ -720,9 +683,7 @@ type ExcludeHandled<F extends Failure, C> = F extends { _tag: infer Tag; }
   : never;
 
 type ExplicitReturn<C> = {
-  [K in Exclude<keyof C, '_'>]: C[K] extends (...as: unknown[]) => infer R
-  ? R
-  : never;
+  [K in Exclude<keyof C, '_'>]: C[K] extends (...as: unknown[]) => infer R ? R : never;
 }[Exclude<keyof C, '_'>];
 
 type DefaultReturn<F extends Failure, C> = C extends { _: Identity; }

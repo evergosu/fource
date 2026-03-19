@@ -37,9 +37,7 @@ describe('story database', () => {
       });
     });
 
-    it('should fail when story does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when story does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -71,9 +69,7 @@ describe('story database', () => {
       });
     });
 
-    it('should fail when a row does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when a row does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -133,9 +129,7 @@ describe('story database', () => {
       });
     });
 
-    it('should fail when the row already exists in @database', async ({
-      database,
-    }) => {
+    it('should fail when the row already exists in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -178,9 +172,7 @@ describe('story database', () => {
       });
     });
 
-    it('should fail when row does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when row does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -224,9 +216,7 @@ describe('story database', () => {
       });
     });
 
-    it('should fail when row does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when row does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -244,9 +234,7 @@ describe('story database', () => {
       });
     });
 
-    it('should fail when row is already concurrently updated in @database', async ({
-      database,
-    }) => {
+    it('should fail when row is already concurrently updated in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 

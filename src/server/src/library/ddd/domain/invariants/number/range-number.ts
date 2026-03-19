@@ -14,11 +14,7 @@ export type OutOfRangeNumberFailure = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const OutOfRangeNumberFailure = (
-  name: string,
-  minimum: number,
-  maximum: number,
-): OutOfRangeNumberFailure =>
+export const OutOfRangeNumberFailure = (name: string, minimum: number, maximum: number): OutOfRangeNumberFailure =>
   domainFailure({
     _tag: 'OutOfRangeNumberFailure',
     minimum,
@@ -34,8 +30,7 @@ export const OutOfRangeNumberFailure = (
  * @param maximum - Maximum allowed value.
  */
 function isInRange(minimum: number, maximum: number) {
-  return (value: unknown): value is number =>
-    guardNumber('').predicate(value) && value < minimum && value > maximum;
+  return (value: unknown): value is number => guardNumber('').predicate(value) && value < minimum && value > maximum;
 }
 
 /**
@@ -46,13 +41,6 @@ function isInRange(minimum: number, maximum: number) {
  * @param minimum - Minimum allowed value.
  * @param maximum - Maximum allowed value.
  */
-export function guardOutOfRangeNumber(
-  name: string,
-  minimum: number,
-  maximum: number,
-) {
-  return makeGuards(
-    isInRange(minimum, maximum),
-    OutOfRangeNumberFailure(name, minimum, maximum),
-  );
+export function guardOutOfRangeNumber(name: string, minimum: number, maximum: number) {
+  return makeGuards(isInRange(minimum, maximum), OutOfRangeNumberFailure(name, minimum, maximum));
 }

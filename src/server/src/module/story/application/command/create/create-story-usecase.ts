@@ -47,11 +47,7 @@ export interface CreateStoryInput {
  * Persistence concerns are delegated to the repository resolved
  * from the provided execution environment.
  */
-export class CreateStoryUseCase extends CommandUseCase<
-  CreateStoryInput,
-  string,
-  CreateStoryFailure
-> {
+export class CreateStoryUseCase extends CommandUseCase<CreateStoryInput, string, CreateStoryFailure> {
   /**
    * ---
    * Executes the story creation workflow.
@@ -68,10 +64,7 @@ export class CreateStoryUseCase extends CommandUseCase<
    * @param input - Input payload required to create the story.
    * @param environment - Transaction-scoped execution environment.
    */
-  execute(
-    input: CreateStoryInput,
-    environment: TransactionEnvironment,
-  ): Task<string, CreateStoryFailure> {
+  execute(input: CreateStoryInput, environment: TransactionEnvironment): Task<string, CreateStoryFailure> {
     return Story.create({
       authorId: input.authorId,
       title: input.title,

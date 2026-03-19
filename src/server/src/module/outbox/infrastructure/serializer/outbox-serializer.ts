@@ -1,11 +1,7 @@
 import type { OutboxInsertSchema } from 'server/infrastructure/database/schema/outbox';
 import type { DomainEvent } from 'server/library/ddd/domain/events/domain-event';
 
-import {
-  type Serializer,
-  combineResults,
-  Result,
-} from 'server/library/ddd/primitives';
+import { type Serializer, combineResults, Result } from 'server/library/ddd/primitives';
 
 interface OutboxSerializer {
   insert: Serializer<DomainEvent, OutboxInsertSchema>;

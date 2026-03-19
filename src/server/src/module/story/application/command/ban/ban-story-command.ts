@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { Command } from 'server/library/ddd/application/cqrs/command/command';
 
 import type { BanStoryFailure } from './ban-story-failure';
@@ -21,13 +20,13 @@ import type { BanStoryInput } from './ban-story-usecase';
  * The command itself **contains no logic** and is treated as
  * a serializable message.
  */
-export class BanStoryCommand
-  implements Command<string, BanStoryFailure>, BanStoryInput {
+export class BanStoryCommand implements Command<string, BanStoryFailure>, BanStoryInput {
   /**
    * ---
    * Creates a new BanStoryCommand instance.
    * ---
    * @param storyId - Identifier of the story to ban.
    */
+  // eslint-disable-next-line prettier/prettier
   constructor(readonly storyId: string) { }
 }

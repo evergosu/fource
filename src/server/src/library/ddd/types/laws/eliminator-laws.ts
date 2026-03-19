@@ -7,10 +7,7 @@
  * @param fa Container under tests
  * @param match Container implementation of match operation
  */
-export function eliminatorLaws<F, A, E, R>(
-  fa: F,
-  match: (fa: F, fail: (error: E) => R, ok: (a: A) => R) => R,
-) {
+export function eliminatorLaws<F, A, E, R>(fa: F, match: (fa: F, fail: (error: E) => R, ok: (a: A) => R) => R) {
   return {
     leftConsistency(error: E, f: (error: E) => R, g: (a: A) => R) {
       return match(fa, f, g) === f(error);

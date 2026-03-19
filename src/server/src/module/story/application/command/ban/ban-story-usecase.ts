@@ -1,10 +1,6 @@
 import type { TransactionEnvironment } from 'server/library/ddd/application/unit-of-work/unit-of-work';
 
-import {
-  UniqueIdentifier,
-  CommandUseCase,
-  type Task,
-} from 'server/library/ddd/primitives';
+import { UniqueIdentifier, CommandUseCase, type Task } from 'server/library/ddd/primitives';
 import { StoryRepository } from 'server/module/story/infrastructure/repository/story-repository';
 
 import { BanStoryFailure } from './ban-story-failure';
@@ -38,11 +34,7 @@ export interface BanStoryInput {
  * Persistence concerns are delegated to the repository resolved
  * from the provided execution environment.
  */
-export class BanStoryUseCase extends CommandUseCase<
-  BanStoryInput,
-  void,
-  BanStoryFailure
-> {
+export class BanStoryUseCase extends CommandUseCase<BanStoryInput, void, BanStoryFailure> {
   /**
    * ---
    * Executes the story ban workflow.
@@ -58,10 +50,7 @@ export class BanStoryUseCase extends CommandUseCase<
    * @param input - Input payload required to Ban the story.
    * @param environment - Transaction-scoped execution environment.
    */
-  execute(
-    input: BanStoryInput,
-    environment: TransactionEnvironment,
-  ): Task<void, BanStoryFailure> {
+  execute(input: BanStoryInput, environment: TransactionEnvironment): Task<void, BanStoryFailure> {
     const repository = StoryRepository.new(environment);
 
     return UniqueIdentifier.create(input.storyId)

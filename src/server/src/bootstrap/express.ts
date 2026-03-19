@@ -37,22 +37,13 @@ export function startServer(
 
   const server = express()
     .set('trust proxy', 1)
-    .use(
-      allowCorsFor([
-        environment.server.url.origin,
-        environment.client.url.origin,
-      ]),
-    )
+    .use(allowCorsFor([environment.server.url.origin, environment.client.url.origin]))
     .use(...helmetByEnvironment)
     .use(...rateLimitByEnvironment)
     .use(...morganByEnvironment)
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use(
-      '/api/story',
-      createStoryRouter(commandBus, queryBus),
-      createBanRouter(commandBus),
-    )
+    .use('/api/story', createStoryRouter(commandBus, queryBus), createBanRouter(commandBus))
     .use(createErrorHandler(logger))
     .listen(port === 'random' ? 0 : environment.server.url.port, () => {
       logger.info(`Server running at http://localhost:${getPort(server)}`);
@@ -89,12 +80,7 @@ function sendReady() {
  * @param database The database connection to gracefully drop.
  * @param logger - The custom logger to print system messages.
  */
-async function shutdown(
-  reason: string,
-  server: Server,
-  database: DatabaseContext,
-  logger: Logger,
-): Promise<void> {
+async function shutdown(reason: string, server: Server, database: DatabaseContext, logger: Logger): Promise<void> {
   logger.info(`Gracefully shutting down, because ${reason}.`);
 
   const timeout = setTimeout(() => {

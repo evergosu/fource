@@ -10,8 +10,6 @@ const logger = new Logger({
   level: environment.node === 'development' ? 'info' : 'error',
 });
 
-export default await startServer(logger, environment.server.url).catch(
-  (error: unknown) => {
-    logger.error('Error during NextJS start.', error);
-  },
-);
+export default await startServer(logger, environment.server.url).catch((error: unknown) => {
+  logger.error('Error during NextJS start.', error);
+});

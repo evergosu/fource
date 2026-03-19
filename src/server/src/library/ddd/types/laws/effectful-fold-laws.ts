@@ -35,12 +35,7 @@ export function effectfulFoldLaws<F, A, E, R>(
       return runtime.equals(folded, expected);
     },
 
-    async naturality(
-      f: (error: E) => R,
-      g: (value: A) => R,
-      h: (r: R) => R,
-      map: (fa: F, f: (r: R) => R) => F,
-    ) {
+    async naturality(f: (error: E) => R, g: (value: A) => R, h: (r: R) => R, map: (fa: F, f: (r: R) => R) => F) {
       const left = await runtime.run(map(match(fa, f, g), h));
 
       const right = await runtime.run(

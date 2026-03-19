@@ -9,11 +9,7 @@ import {
   AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
-import {
-  UniqueIdentifier,
-  Specification,
-  Task,
-} from 'server/library/ddd/primitives';
+import { UniqueIdentifier, Specification, Task } from 'server/library/ddd/primitives';
 import { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import { guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
 
@@ -50,13 +46,9 @@ describe('story repository', () => {
       }
     }
 
-    it('should return all stories from @database matching specification', async ({
-      database,
-    }) => {
+    it('should return all stories from @database matching specification', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -73,9 +65,7 @@ describe('story repository', () => {
             .flatMap(story => commandRepository.create(story)),
         ]).run();
 
-        const result = await queryRepository
-          .getBySpecification(specification)
-          .run();
+        const result = await queryRepository.getBySpecification(specification).run();
 
         expect(result.isSuccess()).toBe(true);
         expect(result.value.length).toBe(1);
@@ -89,9 +79,7 @@ describe('story repository', () => {
       database,
     }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -105,9 +93,7 @@ describe('story repository', () => {
             .flatMap(story => commandRepository.create(story)),
         ]).run();
 
-        const result = await queryRepository
-          .getBySpecification(specification)
-          .run();
+        const result = await queryRepository.getBySpecification(specification).run();
 
         expect(result.isFailure()).toBe(true);
         expect(result.error._tag).toBe(AggregateSpecificationFailure);
@@ -118,9 +104,7 @@ describe('story repository', () => {
   });
 
   describe('.getById()', () => {
-    it('should return a story by its id from @database', async ({
-      database,
-    }) => {
+    it('should return a story by its id from @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = StoryRepository.new(createEnvironment(transaction));
 
@@ -143,9 +127,7 @@ describe('story repository', () => {
       });
     });
 
-    it('should fail when story does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when story does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = StoryRepository.new(createEnvironment(transaction));
 
@@ -165,9 +147,7 @@ describe('story repository', () => {
   describe('.delete()', () => {
     it('should delete an existing story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -198,13 +178,9 @@ describe('story repository', () => {
       });
     });
 
-    it('should fail when story does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when story does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -244,9 +220,7 @@ describe('story repository', () => {
   describe('.getAll()', () => {
     it('should return all stories from @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -270,9 +244,7 @@ describe('story repository', () => {
       });
     });
 
-    it('should fail when no stories exists in @database', async ({
-      database,
-    }) => {
+    it('should fail when no stories exists in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -304,9 +276,7 @@ describe('story repository', () => {
       });
     });
 
-    it('should fail when the story already exists in @database', async ({
-      database,
-    }) => {
+    it('should fail when the story already exists in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = StoryRepository.new(createEnvironment(transaction));
 
@@ -333,9 +303,7 @@ describe('story repository', () => {
   describe('.updateWithLock()', () => {
     it('should update an existing story in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -368,13 +336,9 @@ describe('story repository', () => {
       });
     });
 
-    it('should fail when story does not exist in @database', async ({
-      database,
-    }) => {
+    it('should fail when story does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),
@@ -410,13 +374,9 @@ describe('story repository', () => {
       });
     });
 
-    it('should fail when story is already concurrently updated in @database', async ({
-      database,
-    }) => {
+    it('should fail when story is already concurrently updated in @database', async ({ database }) => {
       await database.transaction(async transaction => {
-        const commandRepository = StoryRepository.new(
-          createEnvironment(transaction),
-        );
+        const commandRepository = StoryRepository.new(createEnvironment(transaction));
 
         const queryRepository = new StoryQueryRepository(
           new TransactionalDatabaseProvider(transaction).get(StoryDatabase),

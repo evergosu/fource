@@ -26,10 +26,7 @@ export interface BanVoteFailureMap {
   countById: AggregatePersistenceFailure;
 }
 
-export type _BanVoteFailureMapCheck = Exact<
-  BanVoteFailureMap,
-  RepositoryFailureMap
->;
+export type _BanVoteFailureMapCheck = Exact<BanVoteFailureMap, RepositoryFailureMap>;
 
 /**
  * ---
@@ -48,9 +45,7 @@ export type _BanVoteFailureMapCheck = Exact<
  * - Elimination of generic narrowing casts in the policy.
  */
 type BanVoteErrorHandlers = {
-  [K in keyof BanVoteFailureMap]: (
-    error: InfrastructureFailures,
-  ) => BanVoteFailureMap[K];
+  [K in keyof BanVoteFailureMap]: (error: InfrastructureFailures) => BanVoteFailureMap[K];
 };
 
 /**
@@ -112,7 +107,6 @@ export const BanVoteErrorPolicy: RepositoryErrorPolicy<BanVoteFailureMap> = {
    * @param operation - Operation being executed.
    */
   translate<K extends keyof BanVoteFailureMap>(operation: K) {
-    return (error: InfrastructureFailures): BanVoteFailureMap[K] =>
-      banVoteErrorHandlers[operation](error);
+    return (error: InfrastructureFailures): BanVoteFailureMap[K] => banVoteErrorHandlers[operation](error);
   },
 };

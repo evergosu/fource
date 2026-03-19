@@ -30,18 +30,8 @@ export const helmetByEnvironment: RequestHandler[] = [
       })
     : helmet.contentSecurityPolicy({
         directives: {
-          defaultSrc: [
-            "'self'",
-            "'unsafe-inline'",
-            "'unsafe-eval'",
-            'localhost:*',
-          ],
-          scriptSrc: [
-            "'self'",
-            "'unsafe-inline'",
-            "'unsafe-eval'",
-            'localhost:*',
-          ],
+          defaultSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost:*'],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'localhost:*'],
           styleSrc: ["'self'", "'unsafe-inline'", 'localhost:*'],
           // eslint-disable-next-line sonarjs/no-clear-text-protocols
           connectSrc: ["'self'", 'ws:', 'http://localhost:*'],

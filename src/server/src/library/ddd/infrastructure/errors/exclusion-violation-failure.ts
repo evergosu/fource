@@ -1,7 +1,4 @@
-import {
-  type InfrastructureFailure,
-  infrastructureFailure,
-} from '../../domain/issues/failure';
+import { type InfrastructureFailure, infrastructureFailure } from '../../domain/issues/failure';
 
 /**
  * ---

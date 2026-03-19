@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { Failure } from 'server/library/ddd/domain/issues/failure';
 
 import { Task } from 'server/library/ddd/primitives';
@@ -15,11 +14,11 @@ const testFailure: Failure = {
 type TestFailure = typeof testFailure;
 
 class TestCommand implements Command<void, TestFailure> {
+  // eslint-disable-next-line prettier/prettier
   constructor(public readonly id: string) { }
 }
 
-class TestCommandHandler
-  implements CommandHandler<TestCommand, void, TestFailure> {
+class TestCommandHandler implements CommandHandler<TestCommand, void, TestFailure> {
   handle(command: TestCommand): Task<void, TestFailure> {
     return command.id ? Task.ok() : Task.fail(testFailure);
   }

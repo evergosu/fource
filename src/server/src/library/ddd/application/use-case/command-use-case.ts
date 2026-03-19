@@ -37,8 +37,5 @@ export abstract class CommandUseCase<
    * @param input - Input payload.
    * @param environment - Transaction-scoped execution environment.
    */
-  protected abstract execute(
-    input: Input,
-    environment: TransactionEnvironment,
-  ): Task<Output, Failure>;
+  protected abstract execute(input: Input, environment: TransactionEnvironment): Task<Output, Failure>;
 }

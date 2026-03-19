@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { QueryHandler } from 'server/library/ddd/application/cqrs/query/query-handler';
 import type { Task } from 'server/library/ddd/primitives';
 
@@ -12,14 +11,14 @@ import { GetAllStoriesQuery } from './get-all-stories-query';
  * ---
  * Handles GetAllStoriesQuery execution.
  */
-export class GetAllStoriesQueryHandler
-  implements QueryHandler<GetAllStoriesQuery, StoryView[], GetAllStoriesFailure> {
+export class GetAllStoriesQueryHandler implements QueryHandler<GetAllStoriesQuery, StoryView[], GetAllStoriesFailure> {
   /**
    * ---
    * Constructs a new CreateStoryCommandHandler.
    * ---
    * @param useCase - Application use case implementing story retrive logic.
    */
+  // eslint-disable-next-line prettier/prettier
   constructor(private readonly useCase: GetAllStoriesUseCase) { }
 
   /**

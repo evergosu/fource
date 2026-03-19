@@ -7,6 +7,4 @@ import type { Postgres } from './clients/postgresql';
 
 export type Database = PostgresLite | Postgres;
 
-export type DatabaseTransaction =
-  | PgliteTransaction<any, any>
-  | PgTransaction<any, any>;
+export type DatabaseTransaction = PgliteTransaction<any, any> | PgTransaction<any, any>;

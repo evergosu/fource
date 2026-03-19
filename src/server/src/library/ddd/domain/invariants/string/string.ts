@@ -31,14 +31,10 @@ export const StringFailure = (name: string): StringFailure =>
  * @param value - The value to check.
  */
 function isString(value: unknown): value is string {
-  return (
-    typeof value === 'string' ||
-    Object.prototype.toString.call(value) === '[object String]'
-  );
+  return typeof value === 'string' || Object.prototype.toString.call(value) === '[object String]';
 }
 
-export const guardString = (name: string) =>
-  makeGuards(isString, StringFailure(name));
+export const guardString = (name: string) => makeGuards(isString, StringFailure(name));
 
 export type StringFailures =
   | MinimumLengthStringFailure

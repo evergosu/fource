@@ -1,7 +1,6 @@
 import * as resolver from 'eslint-import-resolver-typescript';
 import { configs, config, parser } from 'typescript-eslint';
 import prettier from 'eslint-plugin-prettier/recommended';
-import perfectionist from 'eslint-plugin-perfectionist';
 import { fixupConfigRules } from '@eslint/compat';
 import * as regexp from 'eslint-plugin-regexp';
 import _import from 'eslint-plugin-import-x';
@@ -26,7 +25,6 @@ export default config(
   ...configs.stylisticTypeChecked,
   ...fixupConfigRules(_import.flatConfigs.recommended),
   ...fixupConfigRules(_import.flatConfigs.typescript),
-  perfectionist.configs['recommended-line-length'],
   sonarjs.configs.recommended,
   unicorn.configs['flat/recommended'],
   regexp.configs['flat/recommended'],
@@ -52,30 +50,14 @@ export default config(
         {
           patterns: [
             {
-              message:
-                'Do not import directly from src — use client/*, server/*, tests/*, etc.',
+              message: 'Do not import directly from src — use client/*, server/*, tests/*, etc.',
               group: ['src/*'],
             },
             {
-              message:
-                'Avoid deep relative imports into src. Use proper aliases instead.',
+              message: 'Avoid deep relative imports into src. Use proper aliases instead.',
               group: ['../*/src/*', '../../*/src/*'],
             },
           ],
-        },
-      ],
-
-      'import-x/no-extraneous-dependencies': [
-        'error',
-        {
-          devDependencies: [
-            '*.config.{mjs,ts}',
-            'vitest.setup.ts',
-            '**/*.spec.*',
-            '**/*.test.*',
-          ],
-          peerDependencies: true,
-          packageDir: __dirname,
         },
       ],
       '@typescript-eslint/naming-convention': [
@@ -87,6 +69,14 @@ export default config(
           types: ['boolean'],
         },
       ],
+      'import-x/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: ['*.config.{mjs,ts}', 'vitest.setup.ts', '**/*.spec.*', '**/*.test.*'],
+          peerDependencies: true,
+          packageDir: __dirname,
+        },
+      ],
       'prettier/prettier': [
         'error',
         {
@@ -94,6 +84,7 @@ export default config(
           bracketSpacing: true,
           trailingComma: 'all',
           singleQuote: true,
+          printWidth: 120,
           semi: true,
         },
       ],
@@ -130,6 +121,14 @@ export default config(
           capIsNewExceptions: ['Router'],
         },
       ],
+
+      'function-paren-newline': 'off',
+      'object-curly-spacing': 'off',
+      'multiline-ternary': 'off',
+      'arrow-body-style': 'off',
+      'no-extra-parens': 'off',
+      indent: 'off',
+
       'import-x/newline-after-import': 'error',
       'sonarjs/no-empty-test-file': 'off',
       'import-x/no-duplicates': 'error',
@@ -142,36 +141,6 @@ export default config(
       'import-x/namespace': 'off',
       'import-x/default': 'off',
       'import-x/named': 'off',
-    },
-    settings: {
-      'import-x/parsers': {
-        '@typescript-eslint/parser': [
-          '.ts',
-          '.tsx',
-          '.cts',
-          '.mts',
-          '.js',
-          '.jsx',
-          '.cjs',
-          '.mjs',
-        ],
-      },
-      'import-x/resolver': {
-        options: {
-          tsconfigRootDir: __dirname,
-          alwaysTryTypes: true,
-        },
-        name: 'typescript',
-        resolver: resolver,
-        node: true,
-      },
-      perfectionist: {
-        partitionByComment: true,
-        partitionByNewLine: true,
-        type: 'line-length',
-      },
-      vitest: { typecheck: true },
-      next: { rootDir: '.' },
     },
     languageOptions: {
       parserOptions: {
@@ -190,6 +159,22 @@ export default config(
       ecmaVersion: 'latest',
       sourceType: 'module',
       parser: parser,
+    },
+    settings: {
+      'import-x/resolver': {
+        options: {
+          tsconfigRootDir: __dirname,
+          alwaysTryTypes: true,
+        },
+        name: 'typescript',
+        resolver: resolver,
+        node: true,
+      },
+      'import-x/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx', '.cts', '.mts', '.js', '.jsx', '.cjs', '.mjs'],
+      },
+      vitest: { typecheck: true },
+      next: { rootDir: '.' },
     },
     linterOptions: { reportUnusedDisableDirectives: true },
   },

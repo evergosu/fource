@@ -36,12 +36,7 @@ export interface DomainEventConstructor<E extends DomainEvent = DomainEvent> {
    * @param properties.occurredAt time when the event occurred
    * @param properties.id unique event identifier
    */
-  rehydrate(properties: {
-    aggregateId: string;
-    payload: unknown;
-    occurredAt: Date;
-    id: string;
-  }): Result<E>;
+  rehydrate(properties: { aggregateId: string; payload: unknown; occurredAt: Date; id: string }): Result<E>;
 }
 
 /**

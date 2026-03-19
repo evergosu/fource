@@ -56,21 +56,13 @@ describe('category theory', () => {
 
   describe('bifunctor laws', () => {
     it('should satisfy identity', async () => {
-      const laws = bifunctorLaws(
-        createResultRuntime<number, string>(),
-        Result.ok(42),
-        (fa, f, g) => fa.bimap(f, g),
-      );
+      const laws = bifunctorLaws(createResultRuntime<number, string>(), Result.ok(42), (fa, f, g) => fa.bimap(f, g));
 
       expect(await laws.identity()).toBe(true);
     });
 
     it('should satisfy composition on success', async () => {
-      const laws = bifunctorLaws(
-        createResultRuntime<number, string>(),
-        Result.ok(10),
-        (fa, f, g) => fa.bimap(f, g),
-      );
+      const laws = bifunctorLaws(createResultRuntime<number, string>(), Result.ok(10), (fa, f, g) => fa.bimap(f, g));
 
       expect(
         await laws.composition(
@@ -83,10 +75,8 @@ describe('category theory', () => {
     });
 
     it('should satisfy composition on failure', async () => {
-      const laws = bifunctorLaws(
-        createResultRuntime<number, string>(),
-        Result.fail('err'),
-        (fa, f, g) => fa.bimap(f, g),
+      const laws = bifunctorLaws(createResultRuntime<number, string>(), Result.fail('err'), (fa, f, g) =>
+        fa.bimap(f, g),
       );
 
       expect(
@@ -103,13 +93,7 @@ describe('category theory', () => {
   describe('applicative laws', () => {
     const runtime = createResultRuntime<number, string>();
 
-    const laws = applicativeLaws<
-      number,
-      number,
-      number,
-      string,
-      Result<unknown, string>
-    >(
+    const laws = applicativeLaws<number, number, number, string, Result<unknown, string>>(
       runtime,
       n => Result.ok(n),
       (ff, fa) => ff.ap(fa),
@@ -210,14 +194,11 @@ describe('category theory', () => {
   describe('natural transformation laws', () => {
     const runtimeTask = createTaskRuntime<number, string>();
 
-    const mapResult = <A, B>(fa: Result<A, string>, f: (a: A) => B) =>
-      fa.map(x => f(x));
+    const mapResult = <A, B>(fa: Result<A, string>, f: (a: A) => B) => fa.map(x => f(x));
 
-    const mapTask = <A, B>(fa: Task<A, string>, f: (a: A) => B) =>
-      fa.map(x => f(x));
+    const mapTask = <A, B>(fa: Task<A, string>, f: (a: A) => B) => fa.map(x => f(x));
 
-    const lift = <A>(fa: Result<A, string>): Task<A, string> =>
-      Task.fromResult(fa);
+    const lift = <A>(fa: Result<A, string>): Task<A, string> => Task.fromResult(fa);
 
     it('should satisfy naturality on success', async () => {
       const laws = naturalTransformationLaws(
@@ -253,40 +234,20 @@ describe('category theory', () => {
 
     const ofTask = <A>(a: A): Task<A, string> => Task.ok(a);
 
-    const flatMapResult = <A, B>(
-      fa: Result<A, string>,
-      f: (a: A) => Result<B, string>,
-    ) => fa.flatMap(x => f(x));
+    const flatMapResult = <A, B>(fa: Result<A, string>, f: (a: A) => Result<B, string>) => fa.flatMap(x => f(x));
 
-    const flatMapTask = <A, B>(
-      fa: Task<A, string>,
-      f: (a: A) => Task<B, string>,
-    ) => fa.flatMap(x => f(x));
+    const flatMapTask = <A, B>(fa: Task<A, string>, f: (a: A) => Task<B, string>) => fa.flatMap(x => f(x));
 
     const lift = <A>(fa: Result<A, string>) => Task.fromResult(fa);
 
     it('should preserve of', async () => {
-      const laws = monadMorphismLaws(
-        runtime,
-        ofResult,
-        ofTask,
-        flatMapResult,
-        flatMapTask,
-        lift,
-      );
+      const laws = monadMorphismLaws(runtime, ofResult, ofTask, flatMapResult, flatMapTask, lift);
 
       expect(await laws.preserveOf(1)).toBe(true);
     });
 
     it('should preserve flatMap', async () => {
-      const laws = monadMorphismLaws(
-        runtime,
-        ofResult,
-        ofTask,
-        flatMapResult,
-        flatMapTask,
-        lift,
-      );
+      const laws = monadMorphismLaws(runtime, ofResult, ofTask, flatMapResult, flatMapTask, lift);
 
       const fa = Result.ok(1);
       const f = (n: number) => Result.ok(n + 1);
@@ -327,10 +288,7 @@ describe('category theory', () => {
     it('should satisfy naturality', () => {
       const fa = Result.ok<number>(3);
 
-      const laws = eliminatorLaws<typeof fa, number, string, number>(
-        fa,
-        (r, fail, ok) => r.match({ fail, ok }),
-      );
+      const laws = eliminatorLaws<typeof fa, number, string, number>(fa, (r, fail, ok) => r.match({ fail, ok }));
 
       expect(
         laws.naturality(

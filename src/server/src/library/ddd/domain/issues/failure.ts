@@ -34,9 +34,7 @@ export type InfrastructureFailure = {
  * ---
  * @param payload - meaningful payload.
  */
-export function domainFailure<T extends Failure>(
-  payload: T,
-): DomainFailure & T {
+export function domainFailure<T extends Failure>(payload: T): DomainFailure & T {
   return payload as DomainFailure & T;
 }
 
@@ -46,9 +44,7 @@ export function domainFailure<T extends Failure>(
  * ---
  * @param payload - meaningful payload.
  */
-export function applicationFailure<T extends Failure>(
-  payload: T,
-): ApplicationFailure & T {
+export function applicationFailure<T extends Failure>(payload: T): ApplicationFailure & T {
   return payload as ApplicationFailure & T;
 }
 
@@ -58,8 +54,6 @@ export function applicationFailure<T extends Failure>(
  * ---
  * @param payload - meaningful payload.
  */
-export function infrastructureFailure<T extends Failure>(
-  payload: T,
-): InfrastructureFailure & T {
+export function infrastructureFailure<T extends Failure>(payload: T): InfrastructureFailure & T {
   return payload as InfrastructureFailure & T;
 }

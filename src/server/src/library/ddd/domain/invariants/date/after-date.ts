@@ -13,10 +13,7 @@ export type AfterDateFailure = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const AfterDateFailure = (
-  name: string,
-  threshold: Date,
-): AfterDateFailure =>
+export const AfterDateFailure = (name: string, threshold: Date): AfterDateFailure =>
   domainFailure({
     _tag: 'AfterDateFailure',
     threshold,
@@ -30,8 +27,7 @@ export const AfterDateFailure = (
  * @param threshold - the limit to check against.
  */
 function isAfter(threshold: Date) {
-  return (value: unknown): value is Date =>
-    guardDate('').predicate(value) && value.getTime() > threshold.getTime();
+  return (value: unknown): value is Date => guardDate('').predicate(value) && value.getTime() > threshold.getTime();
 }
 
 export const guardAfterDate = (name: string, threshold: Date) =>

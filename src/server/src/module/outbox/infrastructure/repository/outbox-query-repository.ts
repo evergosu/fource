@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { OutboxSelectSchema } from 'server/infrastructure/database/schema/outbox';
 
@@ -8,9 +7,7 @@ import {
 } from 'server/library/ddd/domain/repository/repository-errors';
 import { Task } from 'server/library/ddd/primitives';
 
-import {
-  OutboxErrorPolicy,
-} from './outbox-error-policy';
+import { OutboxErrorPolicy } from './outbox-error-policy';
 import { OutboxDatabase } from './outbox-database';
 
 interface OutboxRepositoryEnvironment {
@@ -29,8 +26,8 @@ export class OutboxQueryRepository {
    * ---
    * @param persistence - persistence source of actions.
    */
+  // eslint-disable-next-line prettier/prettier
   private constructor(private readonly persistence: OutboxDatabase) { }
-
 
   /**
    * ---
@@ -42,15 +39,11 @@ export class OutboxQueryRepository {
    * @param limit Maximum batch size.
    * @returns Task resolving to unprocessed outbox records.
    */
-  public getUnprocessed(limit: number): Task<
-    OutboxSelectSchema[],
-    AggregatePersistenceFailure | AggregateNotFoundFailure
-  > {
-    return this.persistence
-      .getUnprocessedBatch(limit)
-      .mapError(this.errorPolicy.translate('getUnprocessedBatch'));
+  public getUnprocessed(
+    limit: number,
+  ): Task<OutboxSelectSchema[], AggregatePersistenceFailure | AggregateNotFoundFailure> {
+    return this.persistence.getUnprocessedBatch(limit).mapError(this.errorPolicy.translate('getUnprocessedBatch'));
   }
-
 
   /**
    * ---

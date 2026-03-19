@@ -45,10 +45,7 @@ export type RepositoryFailureMap = Partial<Record<Operation, DomainFailure>>;
  *                 domain failures per operation.
  * @template IF  - Infrastructure failure type.
  */
-export interface RepositoryErrorPolicy<
-  RFM extends RepositoryFailureMap,
-  IF = InfrastructureFailures,
-> {
+export interface RepositoryErrorPolicy<RFM extends RepositoryFailureMap, IF = InfrastructureFailures> {
   /**
    * ---
    * Converts an infrastructure failure into a domain failure
@@ -73,10 +70,7 @@ export interface RepositoryErrorPolicy<
  * @template O  - Required operation key.
  * @template FM - Repository failure map.
  */
-export interface RequiresErrorPolicy<
-  O extends Operation,
-  FM extends RepositoryFailureMap,
-> {
+export interface RequiresErrorPolicy<O extends Operation, FM extends RepositoryFailureMap> {
   /**
    * ---
    * Error translation policy supporting at least

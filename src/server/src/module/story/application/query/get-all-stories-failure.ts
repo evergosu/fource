@@ -15,9 +15,7 @@ export type GetAllStoriesFailure = {
 } & ApplicationFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const GetAllStoriesFailure = (
-  cause: InfrastructureFailure | DomainFailure,
-): GetAllStoriesFailure =>
+export const GetAllStoriesFailure = (cause: InfrastructureFailure | DomainFailure): GetAllStoriesFailure =>
   applicationFailure({
     _tag: 'GetAllStoriesFailure',
     cause,

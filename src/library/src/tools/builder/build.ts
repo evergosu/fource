@@ -73,7 +73,5 @@ export async function build(pattern: string, logger: Logger) {
     target,
   });
 
-  logger.success(
-    `Build completed. Target: ${target}. Files: ${entryPoints.length.toString()}.`,
-  );
+  logger.success(`Build completed. Target: ${target}. Files: ${entryPoints.length.toString()}.`);
 }

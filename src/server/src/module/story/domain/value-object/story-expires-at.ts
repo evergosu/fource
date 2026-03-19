@@ -24,10 +24,7 @@ export class StoryExpiresAt extends Time<StoryExpiresAt> {
    * @param date - The date object.
    * @param validators - The `StoryCreatedAt` instance for validation.
    */
-  public static _internalCreate(
-    date: Date,
-    validators: [createdAt: StoryCreatedAt],
-  ) {
+  public static _internalCreate(date: Date, validators: [createdAt: StoryCreatedAt]) {
     const [createdAt] = validators;
 
     return Result.ok(date)

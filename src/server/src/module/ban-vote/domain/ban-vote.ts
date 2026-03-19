@@ -1,15 +1,7 @@
-/* eslint-disable prettier/prettier */
 import type { Story } from 'server/module/story/domain/story';
 
-import {
-  type DomainFailure,
-  domainFailure,
-} from 'server/library/ddd/domain/issues/failure';
-import {
-  UniqueIdentifier,
-  AggregateRoot,
-  Result,
-} from 'server/library/ddd/primitives';
+import { type DomainFailure, domainFailure } from 'server/library/ddd/domain/issues/failure';
+import { UniqueIdentifier, AggregateRoot, Result } from 'server/library/ddd/primitives';
 
 import type { BanVoteCreatedAt } from './value-object/ban-vote-created-at';
 
@@ -58,17 +50,13 @@ type BanVoteState = 'persisted' | 'new';
  * ---
  * Lifecycle properties of a `BanVote`.
  */
-type Properties<State extends BanVoteState> = State extends 'new'
-  ? NewBanVoteProperties
-  : PersistedBanVoteProperties;
+type Properties<State extends BanVoteState> = State extends 'new' ? NewBanVoteProperties : PersistedBanVoteProperties;
 
 /**
  * ---
  * Represents a ban vote in the platform.
  */
-export class BanVote<State extends BanVoteState> extends AggregateRoot<
-  Properties<State>
-> {
+export class BanVote<State extends BanVoteState> extends AggregateRoot<Properties<State>> {
   /**
    * ---
    * Private constructor. Use `.create()` factory method instead.
@@ -76,10 +64,7 @@ export class BanVote<State extends BanVoteState> extends AggregateRoot<
    * @param properties An inner properties of an aggregate.
    * @param identifier An optional `UniqueIdentifier` of an `AggregateRoot` to rehydrate from.
    */
-  private constructor(
-    properties: Properties<State>,
-    identifier?: UniqueIdentifier,
-  ) {
+  private constructor(properties: Properties<State>, identifier?: UniqueIdentifier) {
     super(properties, identifier);
   }
 
@@ -90,12 +75,11 @@ export class BanVote<State extends BanVoteState> extends AggregateRoot<
    * @param storyId - identifier of story under vote
    * @returns `Result` wrapping new `BanVote`.
    */
-  private static readonly createNew =
-    (storyId: Story<'persisted'>['id']) => (voterId: UniqueIdentifier) =>
-      new BanVote<'new'>({
-        storyId,
-        voterId,
-      });
+  private static readonly createNew = (storyId: Story<'persisted'>['id']) => (voterId: UniqueIdentifier) =>
+    new BanVote<'new'>({
+      storyId,
+      voterId,
+    });
 
   /**
    * ---
@@ -106,17 +90,17 @@ export class BanVote<State extends BanVoteState> extends AggregateRoot<
    */
   private static readonly createPersisted =
     (id: UniqueIdentifier) =>
-      (storyId: Story<'persisted'>['id']) =>
-        (voterId: UniqueIdentifier) =>
-          (createdAt: BanVoteCreatedAt) =>
-            new BanVote<'persisted'>(
-              {
-                createdAt,
-                storyId,
-                voterId,
-              },
-              id,
-            );
+    (storyId: Story<'persisted'>['id']) =>
+    (voterId: UniqueIdentifier) =>
+    (createdAt: BanVoteCreatedAt) =>
+      new BanVote<'persisted'>(
+        {
+          createdAt,
+          storyId,
+          voterId,
+        },
+        id,
+      );
 
   /**
    * ---
@@ -193,9 +177,9 @@ export type BanVoteFailure = {
 // eslint-disable-next-line sonarjs/no-redeclare
 export const BanVoteFailure =
   (name: string) =>
-    (cause: DomainFailure): BanVoteFailure =>
-      domainFailure({
-        _tag: 'BanVoteFailure',
-        cause,
-        name,
-      });
+  (cause: DomainFailure): BanVoteFailure =>
+    domainFailure({
+      _tag: 'BanVoteFailure',
+      cause,
+      name,
+    });

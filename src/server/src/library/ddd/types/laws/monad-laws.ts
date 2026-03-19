@@ -21,11 +21,7 @@ import type { LawRuntime } from '../laws/law-runtime';
  * @param of Factory method of container
  * @param flatMap Container implementation of flatMap operation
  */
-export function monadLaws<F, A>(
-  runtime: LawRuntime<F, A>,
-  of: (a: A) => F,
-  flatMap: (fa: F, f: (a: A) => F) => F,
-) {
+export function monadLaws<F, A>(runtime: LawRuntime<F, A>, of: (a: A) => F, flatMap: (fa: F, f: (a: A) => F) => F) {
   return {
     async leftIdentity(a: A, f: (a: A) => F) {
       const left = await runtime.run(flatMap(of(a), f));

@@ -1,10 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { guardMaximumLengthString } from 'server/library/ddd/domain/invariants/string/maximum-string';
 import { guardMinimumLengthString } from 'server/library/ddd/domain/invariants/string/minimum-string';
-import {
-  type DomainFailure,
-  domainFailure,
-} from 'server/library/ddd/domain/issues/failure';
+import { type DomainFailure, domainFailure } from 'server/library/ddd/domain/issues/failure';
 import { guardDefined } from 'server/library/ddd/domain/invariants/defined/defined';
 import { guardString } from 'server/library/ddd/domain/invariants/string/string';
 import { ValueObject, Result } from 'server/library/ddd/primitives';

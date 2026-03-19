@@ -8,14 +8,10 @@ import { assertNever } from 'server/library/ddd/utility/assert-never';
  * ---
  * @param failure - Failure with violation of an invariant.
  */
-export function presentPersistenceFailure(
-  failure: PersistenceFailures,
-): string {
+export function presentPersistenceFailure(failure: PersistenceFailures): string {
   switch (failure._tag) {
     case 'AggregateAlreadyExistsFailure': {
-      return failure.id
-        ? `Aggregate with ID ${failure.id.toString()} already exists`
-        : 'Aggregate already exists';
+      return failure.id ? `Aggregate with ID ${failure.id.toString()} already exists` : 'Aggregate already exists';
     }
 
     case 'AggregateSpecificationFailure': {
@@ -35,9 +31,7 @@ export function presentPersistenceFailure(
     }
 
     case 'AggregateNotFoundFailure': {
-      return failure.id
-        ? `Aggregate with ID ${failure.id.toString()} was not found`
-        : 'Aggregate was not found';
+      return failure.id ? `Aggregate with ID ${failure.id.toString()} was not found` : 'Aggregate was not found';
     }
 
     default: {

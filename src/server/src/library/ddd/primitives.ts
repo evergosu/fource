@@ -13,7 +13,6 @@ export * from './application/use-case/query-use-case';
 
 export * from './infrastructure/repository/adapters/serializer';
 export * from './infrastructure/repository/adapters/rehydrator';
-export * from './infrastructure/infrastructure-repository';
 
 export * from './interfaces/http/express/express-controller';
 

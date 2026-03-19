@@ -16,17 +16,11 @@ export interface EventBus {
    * ---
    * Registers handler for event type.
    */
-  register<E extends DomainEvent>(
-    eventType: string,
-    handler: EventHandler<E>,
-  ): void;
+  register<E extends DomainEvent>(eventType: string, handler: EventHandler<E>): void;
 
   /**
    * ---
    * Publishes domain event to all handlers.
    */
-  publish(
-    event: DomainEvent,
-    environment?: TransactionEnvironment,
-  ): Task<void, unknown>;
+  publish(event: DomainEvent, environment?: TransactionEnvironment): Task<void, unknown>;
 }

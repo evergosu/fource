@@ -13,11 +13,7 @@ import type { Guard } from './make-guards';
  * @param parameters.invalid - values for invalid result.
  * @param parameters.failure - failure to produce on invalid result.
  */
-export function testGuardContract<
-  T,
-  B extends T,
-  F extends DomainFailure,
->(parameters: {
+export function testGuardContract<T, B extends T, F extends DomainFailure>(parameters: {
   invalid: readonly T[];
   guard: Guard<T, B, F>;
   valid: readonly T[];

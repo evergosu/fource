@@ -11,7 +11,7 @@ describe('combinators', () => {
 
       const combined = combineResults([resultOne, resultTwo, resultThree]);
 
-      expect(combined.isSuccess).toBe(true);
+      expect(combined.isSuccess()).toBe(true);
       expect(combined).toStrictEqual(Result.ok([42, 'foo', undefined]));
       expect(combined.value).toStrictEqual([42, 'foo', undefined]);
     });
@@ -22,18 +22,10 @@ describe('combinators', () => {
       const resultThree = Result.ok('baz');
       const resultFour = Result.fail('Failed at step 4');
 
-      const combined = combineResults([
-        resultOne,
-        resultTwo,
-        resultThree,
-        resultFour,
-      ]);
+      const combined = combineResults([resultOne, resultTwo, resultThree, resultFour]);
 
-      expect(combined.isFailure).toBe(true);
-      expect(combined.error).toStrictEqual([
-        'Failed at step 2',
-        'Failed at step 4',
-      ]);
+      expect(combined.isFailure()).toBe(true);
+      expect(combined.error).toStrictEqual(['Failed at step 2', 'Failed at step 4']);
     });
   });
 
@@ -56,18 +48,10 @@ describe('combinators', () => {
       const eitherThree = Either.right('baz');
       const eitherFour = Either.left('Failed at step 4');
 
-      const combined = combineEithers([
-        eitherOne,
-        eitherTwo,
-        eitherThree,
-        eitherFour,
-      ]);
+      const combined = combineEithers([eitherOne, eitherTwo, eitherThree, eitherFour]);
 
       expect(combined.isLeft()).toBe(true);
-      expect(combined.getLeft()).toStrictEqual([
-        'Failed at step 2',
-        'Failed at step 4',
-      ]);
+      expect(combined.getLeft()).toStrictEqual(['Failed at step 2', 'Failed at step 4']);
     });
   });
 });

@@ -17,10 +17,7 @@ export class LoggingMiddleware implements CommandMiddleware {
    * @param command - command object
    * @param next - command middleware
    */
-  execute<O, F>(
-    command: Command<unknown, unknown>,
-    next: () => Task<O, F>,
-  ): Task<O, F> {
+  execute<O, F>(command: Command<unknown, unknown>, next: () => Task<O, F>): Task<O, F> {
     const logger = new Logger();
 
     logger.log(`Executing command: ${command.constructor.name}`);

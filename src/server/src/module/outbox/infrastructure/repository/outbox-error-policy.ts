@@ -24,10 +24,7 @@ export interface OutboxFailureMap {
   markProcessed: AggregatePersistenceFailure;
 }
 
-export type _OutboxFailureMapCheck = Exact<
-  OutboxFailureMap,
-  RepositoryFailureMap
->;
+export type _OutboxFailureMapCheck = Exact<OutboxFailureMap, RepositoryFailureMap>;
 
 /**
  * ---
@@ -46,9 +43,7 @@ export type _OutboxFailureMapCheck = Exact<
  * - Elimination of generic narrowing casts in the policy.
  */
 type OutboxErrorHandlers = {
-  [K in keyof OutboxFailureMap]: (
-    error: InfrastructureFailures,
-  ) => OutboxFailureMap[K];
+  [K in keyof OutboxFailureMap]: (error: InfrastructureFailures) => OutboxFailureMap[K];
 };
 
 /**
@@ -96,7 +91,6 @@ export const OutboxErrorPolicy: RepositoryErrorPolicy<OutboxFailureMap> = {
    * @param operation - Operation being executed.
    */
   translate<K extends keyof OutboxFailureMap>(operation: K) {
-    return (error: InfrastructureFailures): OutboxFailureMap[K] =>
-      outboxErrorHandlers[operation](error);
+    return (error: InfrastructureFailures): OutboxFailureMap[K] => outboxErrorHandlers[operation](error);
   },
 };

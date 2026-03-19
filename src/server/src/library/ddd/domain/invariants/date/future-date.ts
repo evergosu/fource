@@ -25,10 +25,7 @@ export const FutureDateFailure = (name: string): FutureDateFailure =>
  * @param value - The value to check.
  */
 function isFuture(value: unknown): value is Date {
-  return guardDate('').predicate(value) && value.getTime() > Date.now()
-    ? true
-    : false;
+  return guardDate('').predicate(value) && value.getTime() > Date.now() ? true : false;
 }
 
-export const guardFutureDate = (name: string) =>
-  makeGuards(isFuture, FutureDateFailure(name));
+export const guardFutureDate = (name: string) => makeGuards(isFuture, FutureDateFailure(name));

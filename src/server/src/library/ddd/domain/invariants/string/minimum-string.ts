@@ -13,10 +13,7 @@ export type MinimumLengthStringFailure = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const MinimumLengthStringFailure = (
-  name: string,
-  minimumLength: number,
-): MinimumLengthStringFailure =>
+export const MinimumLengthStringFailure = (name: string, minimumLength: number): MinimumLengthStringFailure =>
   domainFailure({
     _tag: 'MinimumLengthStringFailure',
     minimumLength,
@@ -30,8 +27,7 @@ export const MinimumLengthStringFailure = (
  * @param minimumLength - The minimum required length.
  */
 function isMoreThan(minimumLength: number) {
-  return (value: unknown): value is string =>
-    guardString('').predicate(value) && value.length >= minimumLength;
+  return (value: unknown): value is string => guardString('').predicate(value) && value.length >= minimumLength;
 }
 
 /**
@@ -42,8 +38,5 @@ function isMoreThan(minimumLength: number) {
  * @param minimumLength - The minimum required length.
  */
 export function guardMinimumLengthString(name: string, minimumLength: number) {
-  return makeGuards(
-    isMoreThan(minimumLength),
-    MinimumLengthStringFailure(name, minimumLength),
-  );
+  return makeGuards(isMoreThan(minimumLength), MinimumLengthStringFailure(name, minimumLength));
 }

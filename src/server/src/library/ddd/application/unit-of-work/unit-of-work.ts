@@ -3,10 +3,7 @@ import type { Task } from 'server/library/ddd/primitives';
 
 import type { TransactionalDatabaseProvider } from '../../domain/repository/repository-provider';
 
-import {
-  type InfrastructureFailure,
-  infrastructureFailure,
-} from '../../domain/issues/failure';
+import { type InfrastructureFailure, infrastructureFailure } from '../../domain/issues/failure';
 
 /**
  * ---

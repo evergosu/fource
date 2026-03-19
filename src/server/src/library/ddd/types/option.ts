@@ -18,9 +18,7 @@ export abstract class Option<T> {
   public static some<T>(value: T): Option<T> {
     // eslint-disable-next-line sonarjs/different-types-comparison
     if (value === null || value === undefined) {
-      throw new DataTypeInvariantViolationException(
-        'Cannot wrap null or undefined with Option.some',
-      );
+      throw new DataTypeInvariantViolationException('Cannot wrap null or undefined with Option.some');
     }
 
     return new Some(value);
@@ -90,10 +88,7 @@ export abstract class Option<T> {
    * Matches on Option.
    * @param handlers - An object with `some` and `none` branches.
    */
-  public abstract fold<U>(handlers: {
-    some: (value: T) => U;
-    none: () => U;
-  }): U;
+  public abstract fold<U>(handlers: { some: (value: T) => U; none: () => U }): U;
 
   /**
    * Serializes current `Option` for logging purpose.

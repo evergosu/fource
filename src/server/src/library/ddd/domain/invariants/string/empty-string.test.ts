@@ -6,18 +6,7 @@ import { testGuardContract } from '../make-guards.test';
 
 describe('guardEmptyString', () => {
   testGuardContract({
-    invalid: [
-      '',
-      ' ',
-      '   ',
-      '\n',
-      '\t',
-      new String(''),
-      new String('   '),
-      1,
-      null,
-      undefined,
-    ],
+    invalid: ['', ' ', '   ', '\n', '\t', new String(''), new String('   '), 1, null, undefined],
     valid: ['a', 'foo', ' a ', new String('foo')],
     failure: EmptyStringFailure('test'),
     guard: guardEmptyString('test'),

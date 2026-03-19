@@ -1,9 +1,9 @@
-import { domainFailure, type DomainFailure } from '../issues/failure';
+import { type DomainFailure, domainFailure } from '../issues/failure';
 import { AggregateRoot } from '../aggregate-root';
 import { Result } from '../../types/result';
 import { Policy } from './policy';
 
-class TestEntity extends AggregateRoot<{ isFoo: boolean; }> {
+class TestEntity extends AggregateRoot<{ isFoo: boolean }> {
   constructor() {
     super({ isFoo: true });
   }
@@ -23,14 +23,11 @@ type PolicyViolated = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-const PolicyViolated = (
-  cause: unknown,
-): PolicyViolated =>
+const PolicyViolated = (cause: unknown): PolicyViolated =>
   domainFailure({
     _tag: 'UnknownInfrastructureFailure',
     cause,
   });
-
 
 class PassPolicy extends Policy<TestEntity> {
   apply(target: TestEntity): Result<void, DomainFailure> {
@@ -56,7 +53,7 @@ describe('Policy', () => {
 
     const result = policy.apply(target);
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(target.isFoo).toBe(true);
   });
 
@@ -67,7 +64,7 @@ describe('Policy', () => {
 
     const result = policy.apply(target);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.error).toBeInstanceOf(PolicyViolated);
     expect(target.isFoo).toBe(false);
   });

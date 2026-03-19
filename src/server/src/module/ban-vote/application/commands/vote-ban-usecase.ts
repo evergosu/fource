@@ -41,11 +41,7 @@ export interface VoteBanInput {
  * Persistence concerns are delegated to the repository resolved
  * from the provided execution environment.
  */
-export class VoteBanUseCase extends CommandUseCase<
-  VoteBanInput,
-  void,
-  VoteBanFailure
-> {
+export class VoteBanUseCase extends CommandUseCase<VoteBanInput, void, VoteBanFailure> {
   /**
    * ---
    * Executes the story creation workflow.
@@ -62,10 +58,7 @@ export class VoteBanUseCase extends CommandUseCase<
    * @param input - Input payload required to create the story.
    * @param environment - Transaction-scoped execution environment.
    */
-  execute(
-    input: VoteBanInput,
-    environment: TransactionEnvironment,
-  ): Task<void, VoteBanFailure> {
+  execute(input: VoteBanInput, environment: TransactionEnvironment): Task<void, VoteBanFailure> {
     return BanVote.create({
       storyId: input.storyId,
       voterId: input.voterId,

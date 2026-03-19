@@ -32,12 +32,6 @@ function isDate(value: unknown): value is Date {
   return value instanceof Date && Number.isNaN(value.getTime()) ? true : false;
 }
 
-export const guardDate = (name: string) =>
-  makeGuards(isDate, DateFailure(name));
+export const guardDate = (name: string) => makeGuards(isDate, DateFailure(name));
 
-export type DateFailures =
-  | BeforeDateFailure
-  | FutureDateFailure
-  | AfterDateFailure
-  | PastDateFailure
-  | DateFailure;
+export type DateFailures = BeforeDateFailure | FutureDateFailure | AfterDateFailure | PastDateFailure | DateFailure;

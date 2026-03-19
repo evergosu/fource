@@ -30,9 +30,7 @@ export type Postgres = typeof database;
  * @param logger - custom logger to print system messages.
  * @returns postgres database context.
  */
-export const createPostgresContext = async (
-  logger: Logger,
-): Promise<DatabaseContext> => {
+export const createPostgresContext = async (logger: Logger): Promise<DatabaseContext> => {
   pool.on('error', error => {
     logger.error('Unexpected error at postgres client pool.', error);
   });
@@ -41,15 +39,11 @@ export const createPostgresContext = async (
 
   return {
     async truncateAll() {
-      const tableNames = Object.values(database._.tableNamesMap).filter(
-        name => name !== '__drizzle_migrations',
-      );
+      const tableNames = Object.values(database._.tableNamesMap).filter(name => name !== '__drizzle_migrations');
 
       const tables = tableNames.map(name => `"${name}"`).join(', ');
 
-      await database.execute(
-        sql.raw(`truncate table ${tables} restart identity cascade`),
-      );
+      await database.execute(sql.raw(`truncate table ${tables} restart identity cascade`));
     },
     async close() {
       await pool.end();
@@ -87,11 +81,7 @@ async function migrate(logger: Logger) {
  * @param baseDelay - time in milliseconds to strat delay from.
  * @returns `Pool` with database connection.
  */
-async function connectToDatabase(
-  logger: Logger,
-  retries = 10,
-  baseDelay = 500,
-): Promise<Pool> {
+async function connectToDatabase(logger: Logger, retries = 10, baseDelay = 500): Promise<Pool> {
   let lastError: unknown;
 
   const pool = new Pool({

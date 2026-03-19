@@ -2,16 +2,12 @@ import { UniqueIdentifier } from './identifiers/unique-identifier';
 import { AggregateRoot } from './aggregate-root';
 import { DomainEvent } from '../primitives';
 
-class PostCreatedEvent extends DomainEvent<null> {
+class PostCreatedEvent extends DomainEvent {
   public static readonly type = 'PostCreatedEvent';
 
   /** @inheritdoc */
-  constructor(
-    aggregateId: UniqueIdentifier,
-    occurredAt?: Date,
-    id?: UniqueIdentifier,
-  ) {
-    super(aggregateId, null, PostCreatedEvent.type, occurredAt, id);
+  constructor(aggregateId: UniqueIdentifier, occurredAt?: Date, id?: UniqueIdentifier) {
+    super(aggregateId, undefined, PostCreatedEvent.type, occurredAt, id);
   }
 }
 
@@ -30,7 +26,6 @@ class Post extends AggregateRoot<Properties> {
 }
 
 describe('aggregate root', () => {
-
   it('should create an aggregate root with an unique identifier', () => {
     const post = new Post({ title: 'foo' });
 

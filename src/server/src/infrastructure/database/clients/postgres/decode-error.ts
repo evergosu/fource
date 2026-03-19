@@ -34,39 +34,19 @@ export function decodePostgresError(error: unknown): InfrastructureFailures {
   if (isKnownPostgresError(error)) {
     switch (error.code) {
       case '23505': {
-        return UniqueViolationFailure(
-          error.code,
-          error.constraint ?? 'unknown',
-          error,
-        );
+        return UniqueViolationFailure(error.code, error.constraint ?? 'unknown', error);
       }
       case '23503': {
-        return ForeignKeyViolationFailure(
-          error.code,
-          error.constraint ?? 'unknown',
-          error,
-        );
+        return ForeignKeyViolationFailure(error.code, error.constraint ?? 'unknown', error);
       }
       case '23502': {
-        return NotNullViolationFailure(
-          error.code,
-          error.column ?? 'unknown',
-          error,
-        );
+        return NotNullViolationFailure(error.code, error.column ?? 'unknown', error);
       }
       case '23514': {
-        return CheckViolationFailure(
-          error.code,
-          error.constraint ?? 'unknown',
-          error,
-        );
+        return CheckViolationFailure(error.code, error.constraint ?? 'unknown', error);
       }
       case '23P01': {
-        return ExclusionViolationFailure(
-          error.code,
-          error.constraint ?? 'unknown',
-          error,
-        );
+        return ExclusionViolationFailure(error.code, error.constraint ?? 'unknown', error);
       }
       case '40001': {
         return SerializationFailure(error.code, error);

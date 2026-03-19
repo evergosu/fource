@@ -58,19 +58,13 @@ export class StoryRepository
    * @param environment - environment in which instance should be created.
    */
   static new(environment: StoryRepositoryEnvironment) {
-    return new StoryRepository(
-      environment.provider.get(StoryDatabase),
-      environment.tracker,
-    );
+    return new StoryRepository(environment.provider.get(StoryDatabase), environment.tracker);
   }
 
   /** @inheritdoc */
   public getById(
     id: UniqueIdentifier,
-  ): Task<
-    Story<'persisted'>,
-    AggregatePersistenceFailure | AggregateNotFoundFailure | StoryFailure
-  > {
+  ): Task<Story<'persisted'>, AggregatePersistenceFailure | AggregateNotFoundFailure | StoryFailure> {
     return this.persistence
       .getById(id.toString())
       .mapError(this.errorPolicy.translate('getById'))
@@ -84,9 +78,7 @@ export class StoryRepository
   }
 
   /** @inheritdoc */
-  public delete(
-    story: Story<'persisted'>,
-  ): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure> {
+  public delete(story: Story<'persisted'>): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure> {
     this.tracker.track(story);
 
     return this.persistence
@@ -94,10 +86,7 @@ export class StoryRepository
       .mapError(this.errorPolicy.translate('delete'))
       .validate(guardEmptyArray(StoryRepository.name))
       .matchFailure({
-        EmptyArrayFailure: AggregateNotFoundFailure(
-          StoryRepository.name,
-          story.id,
-        ),
+        EmptyArrayFailure: AggregateNotFoundFailure(StoryRepository.name, story.id),
         _: identity,
       })
       .map(() => void 0);
@@ -106,12 +95,7 @@ export class StoryRepository
   /** @inheritdoc */
   public updateWithLock(
     story: Story<'persisted'>,
-  ): Task<
-    UniqueIdentifier,
-    | AggregatePersistenceFailure
-    | AggregateConcurrencyFailure
-    | AggregateNotFoundFailure
-  > {
+  ): Task<UniqueIdentifier, AggregatePersistenceFailure | AggregateConcurrencyFailure | AggregateNotFoundFailure> {
     this.tracker.track(story);
 
     return StorySerializer.update
@@ -122,21 +106,14 @@ export class StoryRepository
       .refine(guardEmptyArray(StoryRepository.name))
       .flatMap(value => UniqueIdentifier.create(value[0]).toTask())
       .matchFailure({
-        EmptyArrayFailure: AggregateConcurrencyFailure(
-          StoryRepository.name,
-          story.id,
-        ),
-        UniqueIdentifierFailure: AggregatePersistenceFailure(
-          StoryRepository.name,
-        ),
+        EmptyArrayFailure: AggregateConcurrencyFailure(StoryRepository.name, story.id),
+        UniqueIdentifierFailure: AggregatePersistenceFailure(StoryRepository.name),
         _: identity,
       });
   }
 
   /** @inheritdoc */
-  public create(
-    story: Story<'new'>,
-  ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
+  public create(story: Story<'new'>): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
     this.tracker.track(story);
 
     return StorySerializer.insert

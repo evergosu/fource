@@ -38,12 +38,7 @@ export function bifunctorLaws<F, A, E>(
       return runtime.equals(left, right);
     },
 
-    async composition(
-      f1: (a: A) => A,
-      f2: (a: A) => A,
-      g1: (error: E) => E,
-      g2: (error: E) => E,
-    ) {
+    async composition(f1: (a: A) => A, f2: (a: A) => A, g1: (error: E) => E, g2: (error: E) => E) {
       const left = await runtime.run(bimap(bimap(fa, f1, g1), f2, g2));
 
       const right = await runtime.run(

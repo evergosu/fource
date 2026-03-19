@@ -47,9 +47,7 @@ export class StoryBanHandler implements EventHandler<BanVoteRegisteredEvent> {
         return Task.ok();
       }
 
-      return this.commandBus.dispatch(
-        new BanStoryCommand(event.payload.storyId.toString()),
-      );
+      return this.commandBus.dispatch(new BanStoryCommand(event.payload.storyId.toString()));
     });
   }
 }

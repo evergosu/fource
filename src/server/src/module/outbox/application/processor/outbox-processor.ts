@@ -51,9 +51,7 @@ export class OutboxProcessor {
               .rehydrate(record)
               .toTask()
               .map(event => this.eventBus.publish(event))
-              .flatMap(() =>
-                OutboxRepository.new({ provider }).markProcessed(record.id),
-              ),
+              .flatMap(() => OutboxRepository.new({ provider }).markProcessed(record.id)),
           ),
         ),
     );

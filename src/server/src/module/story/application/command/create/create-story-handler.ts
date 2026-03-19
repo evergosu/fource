@@ -1,5 +1,4 @@
 import type { TransactionEnvironment } from 'server/library/ddd/application/unit-of-work/unit-of-work';
-/* eslint-disable prettier/prettier */
 import type { CommandHandler } from 'server/library/ddd/application/cqrs/command/command-handler';
 import type { Task } from 'server/library/ddd/primitives';
 
@@ -24,14 +23,14 @@ import type { CreateStoryFailure } from './create-story-failure';
  * ---
  * Handlers must remain thin and should **not contain domain logic**.
  */
-export class CreateStoryCommandHandler
-  implements CommandHandler<CreateStoryCommand, string, CreateStoryFailure> {
+export class CreateStoryCommandHandler implements CommandHandler<CreateStoryCommand, string, CreateStoryFailure> {
   /**
    * ---
    * Constructs a new CreateStoryCommandHandler.
    * ---
    * @param useCase - Application use case implementing story creation logic.
    */
+  // eslint-disable-next-line prettier/prettier
   constructor(private readonly useCase: CreateStoryUseCase) { }
 
   /**
@@ -46,10 +45,7 @@ export class CreateStoryCommandHandler
    * @param command - Command containing the payload for story creation.
    * @param environment - Transaction-scoped execution environment.
    */
-  handle(
-    command: CreateStoryCommand,
-    environment: TransactionEnvironment,
-  ): Task<string, CreateStoryFailure> {
+  handle(command: CreateStoryCommand, environment: TransactionEnvironment): Task<string, CreateStoryFailure> {
     return this.useCase.execute(command, environment);
   }
 }

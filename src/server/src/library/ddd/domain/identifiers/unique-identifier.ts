@@ -37,10 +37,7 @@ export class UniqueIdentifier {
    * ---
    * @param identifier - The underlying `Identifier` instance.
    */
-  private constructor(
-    private readonly identifier: Identifier<string | number>,
-
-  ) { }
+  private constructor(private readonly identifier: Identifier<string | number>) { }
 
   /**
    * ---
@@ -51,9 +48,7 @@ export class UniqueIdentifier {
    * ---
    * Type-safe overload for rehydrated `UniqueIdentifier`.
    */
-  static create(
-    value: unknown,
-  ): Result<UniqueIdentifier, UniqueIdentifierFailure>;
+  static create(value: unknown): Result<UniqueIdentifier, UniqueIdentifierFailure>;
   /**
    * ---
    * Factory method for safely creating an `UniqueIdentifier` instance.
@@ -64,14 +59,10 @@ export class UniqueIdentifier {
   static create(value: unknown = v7()) {
     return Result.ok(value)
       .refine(guardNumber(this.name))
-      .or(() =>
-        Result.ok(value)
-          .refine(guardString(this.name))
-          .validate(guardEmptyString(this.name)),
-      )
+      .or(() => Result.ok(value).refine(guardString(this.name)).validate(guardEmptyString(this.name)))
       .flatMap(v => Identifier.create(v))
       .matchFailure({
-        _: UniqueIdentifierFailure((this.name))
+        _: UniqueIdentifierFailure(this.name),
       })
       .map(id => new UniqueIdentifier(id));
   }

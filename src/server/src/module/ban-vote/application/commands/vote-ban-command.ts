@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { Command } from 'server/library/ddd/application/cqrs/command/command';
 
 import type { VoteBanFailure } from './vote-ban-failure';
@@ -21,8 +20,7 @@ import type { VoteBanInput } from './vote-ban-usecase';
  * The command itself **contains no logic** and is treated as
  * a serializable message.
  */
-export class VoteBanCommand
-  implements Command<string, VoteBanFailure>, VoteBanInput {
+export class VoteBanCommand implements Command<string, VoteBanFailure>, VoteBanInput {
   /**
    * ---
    * Creates a new CreateBanVoteCommand instance.
@@ -33,5 +31,6 @@ export class VoteBanCommand
   constructor(
     readonly storyId: string,
     readonly voterId: string,
+    // eslint-disable-next-line prettier/prettier
   ) { }
 }

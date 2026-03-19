@@ -13,9 +13,7 @@ import { seedStory } from './story';
  * @returns a Promise with result of SQL operation over database.
  */
 export async function resetTable(database: Database, table: Table) {
-  return database.execute(
-    sql`truncate table ${table} restart identity cascade`,
-  );
+  return database.execute(sql`truncate table ${table} restart identity cascade`);
 }
 
 /**

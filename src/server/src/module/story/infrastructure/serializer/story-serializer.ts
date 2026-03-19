@@ -1,13 +1,6 @@
-import type {
-  StoryUpdateSchema,
-  StoryInsertSchema,
-} from 'server/infrastructure/database/schema/story';
+import type { StoryUpdateSchema, StoryInsertSchema } from 'server/infrastructure/database/schema/story';
 
-import {
-  type Serializer,
-  combineResults,
-  Result,
-} from 'server/library/ddd/primitives';
+import { type Serializer, combineResults, Result } from 'server/library/ddd/primitives';
 
 import { Story } from '../../domain/story';
 

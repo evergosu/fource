@@ -35,9 +35,7 @@ describe('outbox repository', () => {
       });
     });
 
-    it('should fail when the event already exists in @database', async ({
-      database,
-    }) => {
+    it('should fail when the event already exists in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = OutboxRepository.new(createEnvironment(transaction));
 

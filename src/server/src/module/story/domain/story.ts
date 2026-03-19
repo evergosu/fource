@@ -1,14 +1,6 @@
-/* eslint-disable prettier/prettier */
 /* eslint-disable sonarjs/no-nested-functions */
-import {
-  type DomainFailure,
-  domainFailure,
-} from 'server/library/ddd/domain/issues/failure';
-import {
-  UniqueIdentifier,
-  AggregateRoot,
-  Result,
-} from 'server/library/ddd/primitives';
+import { type DomainFailure, domainFailure } from 'server/library/ddd/domain/issues/failure';
+import { UniqueIdentifier, AggregateRoot, Result } from 'server/library/ddd/primitives';
 
 import { StoryCreatedAt } from './value-object/story-created-at';
 import { StoryExpiresAt } from './value-object/story-expires-at';
@@ -67,9 +59,7 @@ type StoryState = 'persisted' | 'new';
  * ---
  * Lifecycle properties of a `Story`.
  */
-type Properties<State extends StoryState> = State extends 'new'
-  ? NewStoryProperties
-  : PersistedStoryProperties;
+type Properties<State extends StoryState> = State extends 'new' ? NewStoryProperties : PersistedStoryProperties;
 
 /**
  * ---
@@ -78,9 +68,7 @@ type Properties<State extends StoryState> = State extends 'new'
  * `Stories` include metadata and content and are the root of emoji reactions,
  * Fource actions, and moderation signals.
  */
-export class Story<State extends StoryState> extends AggregateRoot<
-  Properties<State>
-> {
+export class Story<State extends StoryState> extends AggregateRoot<Properties<State>> {
   /**
    * ---
    * Private constructor. Use `.create()` factory method instead.
@@ -89,11 +77,7 @@ export class Story<State extends StoryState> extends AggregateRoot<
    * @param identifier An optional `UniqueIdentifier` of an `AggregateRoot` to rehydrate from.
    * @param version - Incremental number, stored to control optimistic locking for concurrent modifications.
    */
-  private constructor(
-    properties: Properties<State>,
-    identifier?: UniqueIdentifier,
-    version?: number,
-  ) {
+  private constructor(properties: Properties<State>, identifier?: UniqueIdentifier, version?: number) {
     super(properties, identifier, version);
   }
 
@@ -104,13 +88,12 @@ export class Story<State extends StoryState> extends AggregateRoot<
    * @param title - story title.
    * @returns `Result` wrapping new `Story`.
    */
-  private static readonly createNew =
-    (title: StoryTitle) => (body: StoryBody) => (authorId: StoryAuthorId) =>
-      new Story<'new'>({
-        authorId,
-        title,
-        body,
-      });
+  private static readonly createNew = (title: StoryTitle) => (body: StoryBody) => (authorId: StoryAuthorId) =>
+    new Story<'new'>({
+      authorId,
+      title,
+      body,
+    });
 
   /**
    * ---
@@ -121,25 +104,25 @@ export class Story<State extends StoryState> extends AggregateRoot<
    */
   private static readonly createPersisted =
     (id: UniqueIdentifier) =>
-      (version: number) =>
-        (isBanned: boolean) =>
-          (title: StoryTitle) =>
-            (body: StoryBody) =>
-              (authorId: StoryAuthorId) =>
-                (createdAt: StoryCreatedAt) =>
-                  (expiresAt: StoryExpiresAt) =>
-                    new Story<'persisted'>(
-                      {
-                        createdAt,
-                        expiresAt,
-                        isBanned,
-                        authorId,
-                        title,
-                        body,
-                      },
-                      id,
-                      version,
-                    );
+    (version: number) =>
+    (isBanned: boolean) =>
+    (title: StoryTitle) =>
+    (body: StoryBody) =>
+    (authorId: StoryAuthorId) =>
+    (createdAt: StoryCreatedAt) =>
+    (expiresAt: StoryExpiresAt) =>
+      new Story<'persisted'>(
+        {
+          createdAt,
+          expiresAt,
+          isBanned,
+          authorId,
+          title,
+          body,
+        },
+        id,
+        version,
+      );
 
   /**
    * ---
@@ -259,9 +242,9 @@ export type StoryFailure = {
 // eslint-disable-next-line sonarjs/no-redeclare
 export const StoryFailure =
   (name: string) =>
-    (cause: DomainFailure): StoryFailure =>
-      domainFailure({
-        _tag: 'StoryFailure',
-        cause,
-        name,
-      });
+  (cause: DomainFailure): StoryFailure =>
+    domainFailure({
+      _tag: 'StoryFailure',
+      cause,
+      name,
+    });

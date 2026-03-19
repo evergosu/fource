@@ -16,10 +16,7 @@ import type { Query } from './query';
  * - composes middleware pipeline
  */
 export class InMemoryQueryBus {
-  private readonly handlers = new Map<
-    string,
-    QueryHandler<object, unknown, unknown>
-  >();
+  private readonly handlers = new Map<string, QueryHandler<object, unknown, unknown>>();
 
   private readonly middleware: QueryMiddleware[] = [];
 
@@ -30,10 +27,7 @@ export class InMemoryQueryBus {
    * @param query - Query constructor.
    * @param handler - Handler responsible for executing the query.
    */
-  register<Q extends Query<O, F>, O, F>(
-    query: new (...arguments_: never) => Q,
-    handler: QueryHandler<Q, O, F>,
-  ): void {
+  register<Q extends Query<O, F>, O, F>(query: new (...arguments_: never) => Q, handler: QueryHandler<Q, O, F>): void {
     this.handlers.set(query.name, handler);
   }
 
@@ -56,10 +50,7 @@ export class InMemoryQueryBus {
    * @param query - Query being dispatched.
    * @param handler - Query handler invocation.
    */
-  private composeMiddleware<O, F>(
-    query: Query<O, F>,
-    handler: () => Task<O, F>,
-  ): () => Task<O, F> {
+  private composeMiddleware<O, F>(query: Query<O, F>, handler: () => Task<O, F>): () => Task<O, F> {
     // eslint-disable-next-line unicorn/no-array-reduce
     return this.middleware.toReversed().reduce((next, middleware) => {
       return () => middleware.execute(query, next);
@@ -74,17 +65,11 @@ export class InMemoryQueryBus {
    * @param query - Query instance.
    */
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-  dispatch<Q extends Query<Output, Failure>, Output, Failure>(
-    query: Q,
-  ): Task<Output, Failure> {
-    const handler = this.handlers.get(query.constructor.name) as
-      | QueryHandler<Q, Output, Failure>
-      | undefined;
+  dispatch<Q extends Query<Output, Failure>, Output, Failure>(query: Q): Task<Output, Failure> {
+    const handler = this.handlers.get(query.constructor.name) as QueryHandler<Q, Output, Failure> | undefined;
 
     if (!handler) {
-      throw new QueryHandlerException(
-        `No handler registered for ${query.constructor.name}`,
-      );
+      throw new QueryHandlerException(`No handler registered for ${query.constructor.name}`);
     }
 
     const pipeline = this.composeMiddleware(query, () => handler.handle(query));

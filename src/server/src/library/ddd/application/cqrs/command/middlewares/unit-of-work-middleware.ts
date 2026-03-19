@@ -1,11 +1,7 @@
-/* eslint-disable prettier/prettier */
 import type { DrizzleUnitOfWork } from 'server/infrastructure/orm/unit-of-work/drizzle-unit-of-work';
 import type { Task } from 'server/library/ddd/primitives';
 
-import type {
-  TransactionEnvironment,
-  UnitOfWorkFailure,
-} from '../../../unit-of-work/unit-of-work';
+import type { TransactionEnvironment, UnitOfWorkFailure } from '../../../unit-of-work/unit-of-work';
 import type { CommandMiddleware } from '../command-middleware';
 import type { Command } from '../command';
 
@@ -26,8 +22,7 @@ import type { Command } from '../command';
  * @template F - Type of failure the middleware may produce. In this case, always
  *               extends UnitOfWorkFailure when transactional errors occur.
  */
-export class UnitOfWorkMiddleware
-  implements CommandMiddleware<UnitOfWorkFailure> {
+export class UnitOfWorkMiddleware implements CommandMiddleware<UnitOfWorkFailure> {
   /**
    * ---
    * Constructs a UnitOfWorkMiddleware.
@@ -35,6 +30,7 @@ export class UnitOfWorkMiddleware
    * @param uow - Instance of `DrizzleUnitOfWork` which provides transactional
    *              execution and event tracking capabilities.
    */
+  // eslint-disable-next-line prettier/prettier
   constructor(private readonly uow: DrizzleUnitOfWork) { }
 
   /**

@@ -12,13 +12,9 @@ describe('option', () => {
 
     it('should throw if Some is passed null or undefined', () => {
       // eslint-disable-next-line unicorn/no-null
-      expect(() => Option.some(null)).toThrow(
-        DataTypeInvariantViolationException,
-      );
+      expect(() => Option.some(null)).toThrow(DataTypeInvariantViolationException);
       // eslint-disable-next-line unicorn/no-useless-undefined
-      expect(() => Option.some(undefined)).toThrow(
-        DataTypeInvariantViolationException,
-      );
+      expect(() => Option.some(undefined)).toThrow(DataTypeInvariantViolationException);
       // @ts-expect-error - it is fine to expect errors in tests.
       expect(() => Option.some()).toThrow(DataTypeInvariantViolationException);
     });

@@ -29,7 +29,6 @@ function isNumber(value: unknown): value is number {
   return typeof value === 'number' && !Number.isNaN(value);
 }
 
-export const guardNumber = (name: string) =>
-  makeGuards(isNumber, NumberFailure(name));
+export const guardNumber = (name: string) => makeGuards(isNumber, NumberFailure(name));
 
 export type NumberFailures = OutOfRangeNumberFailure | NumberFailure;

@@ -35,12 +35,8 @@ describe('story rehydrator', () => {
       expect(story.authorId.authorId).toBe(raw.authorId);
       expect(story.title.title).toBe(raw.title);
       expect(story.body.body).toBe(raw.body);
-      expect(story.createdAt().toDate().getTime()).toBe(
-        raw.createdAt.getTime(),
-      );
-      expect(story.expiresAt().toDate().getTime()).toBe(
-        raw.expiresAt.getTime(),
-      );
+      expect(story.createdAt().toDate().getTime()).toBe(raw.createdAt.getTime());
+      expect(story.expiresAt().toDate().getTime()).toBe(raw.expiresAt.getTime());
     });
 
     it('should rehydrate array of stories from dtos array', () => {
@@ -57,12 +53,8 @@ describe('story rehydrator', () => {
       expect(story.authorId.authorId).toBe(raw.authorId);
       expect(story.title.title).toBe(raw.title);
       expect(story.body.body).toBe(raw.body);
-      expect(story.createdAt().toDate().getTime()).toBe(
-        raw.createdAt.getTime(),
-      );
-      expect(story.expiresAt().toDate().getTime()).toBe(
-        raw.expiresAt.getTime(),
-      );
+      expect(story.createdAt().toDate().getTime()).toBe(raw.createdAt.getTime());
+      expect(story.expiresAt().toDate().getTime()).toBe(raw.expiresAt.getTime());
     });
   });
 });

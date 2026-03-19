@@ -1,14 +1,6 @@
-import type {
-  InferSerializerDomain,
-  Serializer as S,
-  Entity,
-  Task,
-} from 'server/library/ddd/primitives';
+import type { InferSerializerDomain, Serializer as S, Entity, Task } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 
 /**
  * ---

@@ -12,10 +12,7 @@ import type { StoryView } from '../view/story-view';
  * It translates persistence projections directly into query
  * DTOs without creating domain aggregates.
  */
-export class StoryQueryMapper extends QueryMapper<
-  StorySelectSchema,
-  StoryView
-> {
+export class StoryQueryMapper extends QueryMapper<StorySelectSchema, StoryView> {
   private constructor(private readonly previewLength: number) {
     super();
   }

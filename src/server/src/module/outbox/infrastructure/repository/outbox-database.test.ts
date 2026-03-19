@@ -25,9 +25,7 @@ describe('outbox database', () => {
       });
     });
 
-    it('should fail when the rows already exists in @database', async ({
-      database,
-    }) => {
+    it('should fail when the rows already exists in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new OutboxDatabase(transaction);
 

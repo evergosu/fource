@@ -30,9 +30,7 @@ export function combineResults<
     });
   }
 
-  return errors.length > 0
-    ? Result.fail(errors as ErrorTypes)
-    : Result.ok(values as OkTypes);
+  return errors.length > 0 ? Result.fail(errors as ErrorTypes) : Result.ok(values as OkTypes);
 }
 
 /**
@@ -64,7 +62,5 @@ export function combineEithers<
     );
   }
 
-  return lefts.length > 0
-    ? Either.left(lefts as LeftTypes)
-    : Either.right(rights as RightTypes);
+  return lefts.length > 0 ? Either.left(lefts as LeftTypes) : Either.right(rights as RightTypes);
 }

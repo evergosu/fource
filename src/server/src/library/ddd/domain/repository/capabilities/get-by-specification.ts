@@ -1,9 +1,6 @@
 import type { Specification, Task } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 import type { AggregateSpecificationFailure } from '../repository-errors';
 import type { NonEmptyArray } from '../../invariants/array/empty-array';
 
@@ -23,10 +20,7 @@ export interface DomainGetBySpecification<Output, FailureMap extends RFM>
    */
   getBySpecification(
     specification: Specification<Output>,
-  ): Task<
-    NonEmptyArray<Output>,
-    FailureMap[GET_BY_SPECIFICATION_OPERATION] | AggregateSpecificationFailure
-  >;
+  ): Task<NonEmptyArray<Output>, FailureMap[GET_BY_SPECIFICATION_OPERATION] | AggregateSpecificationFailure>;
 }
 
 export type GET_BY_SPECIFICATION_OPERATION = 'getBySpecification';

@@ -23,9 +23,7 @@ describe('story serializers', () => {
 
   const story = Story.rehydrate(raw);
 
-  function shouldSerializeStoryToDTO(
-    serializer: (typeof StorySerializer)['insert' | 'update'],
-  ) {
+  function shouldSerializeStoryToDTO(serializer: (typeof StorySerializer)['insert' | 'update']) {
     it('should serialize story to dto', () => {
       const dtoResult = serializer.serialize(story.value);
 
@@ -40,9 +38,7 @@ describe('story serializers', () => {
     });
   }
 
-  function shouldSerializeListOfStoriesToDTOs(
-    serializer: (typeof StorySerializer)['insert' | 'update'],
-  ) {
+  function shouldSerializeListOfStoriesToDTOs(serializer: (typeof StorySerializer)['insert' | 'update']) {
     it('should serialize array of stories to dtos array', () => {
       const dtoResult = serializer.serializeList([story.value, story.value]);
 

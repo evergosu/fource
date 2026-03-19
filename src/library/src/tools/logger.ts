@@ -162,18 +162,8 @@ export class Logger {
    * @param color - Color to use for Node terminal output.
    * @param emoji - Emoji symbol prefixing the message.
    */
-  private print(
-    message: string,
-    color: keyof typeof COLOR,
-    emoji?: LogEmoji,
-  ): void {
-    this.pipeToLog(
-      message,
-      this.addEmoji(emoji),
-      this.addTimestamp,
-      this.addColor(color),
-      this.logFunction,
-    );
+  private print(message: string, color: keyof typeof COLOR, emoji?: LogEmoji): void {
+    this.pipeToLog(message, this.addEmoji(emoji), this.addTimestamp, this.addColor(color), this.logFunction);
   }
 
   /**
@@ -185,10 +175,7 @@ export class Logger {
    * @returns The formatted message with an ANSI colors.
    */
   private addColor(color: keyof typeof COLOR): (message: string) => string {
-    return message =>
-      !this.isNode || this.style === 'default'
-        ? message
-        : `${COLOR[color]}${message}${COLOR.reset}`;
+    return message => (!this.isNode || this.style === 'default' ? message : `${COLOR[color]}${message}${COLOR.reset}`);
   }
 
   /**
@@ -243,10 +230,7 @@ export class Logger {
    * @example
    * this.pipeToLog('message', this.addTimestamp, this.addColor, console.log);
    */
-  private pipeToLog<T>(
-    value: T,
-    ...fns: [...((input: T) => T)[], (input: T) => void]
-  ): void {
+  private pipeToLog<T>(value: T, ...fns: [...((input: T) => T)[], (input: T) => void]): void {
     const length = fns.length;
 
     if (length === 0) return;
@@ -274,42 +258,24 @@ export class Logger {
       return;
     }
 
-    this.pipeToLog(
-      `${error.name}: ${error.message}`,
-      this.addIndent(level),
-      this.addColor('red'),
-      this.errorFunction,
-    );
+    this.pipeToLog(`${error.name}: ${error.message}`, this.addIndent(level), this.addColor('red'), this.errorFunction);
 
     if (error.stack && typeof error.stack === 'string') {
       const rawLines = error.stack.split('\n').slice(1);
 
       const lines = rawLines.filter(line => {
-        const isInternal =
-          /^(?:\s*at .*node:(?:internal|vm|fs|timers)|node_modules\/internal)/.test(
-            line,
-          );
+        const isInternal = /^(?:\s*at .*node:(?:internal|vm|fs|timers)|node_modules\/internal)/.test(line);
 
         return !isInternal;
       });
 
       for (const line of lines) {
-        this.pipeToLog(
-          line.trim(),
-          this.addIndent(level),
-          this.addColor('gray'),
-          this.errorFunction,
-        );
+        this.pipeToLog(line.trim(), this.addIndent(level), this.addColor('gray'), this.errorFunction);
       }
     }
 
     if (error.cause instanceof Error) {
-      this.pipeToLog(
-        'Caused by:',
-        this.addIndent(level),
-        this.addColor('red'),
-        this.errorFunction,
-      );
+      this.pipeToLog('Caused by:', this.addIndent(level), this.addColor('red'), this.errorFunction);
 
       this.trace(error.cause, level + 1);
     }

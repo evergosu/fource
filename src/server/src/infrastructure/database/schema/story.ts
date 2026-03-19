@@ -1,19 +1,5 @@
-import {
-  timestamp,
-  pgTable,
-  varchar,
-  integer,
-  boolean,
-  index,
-  check,
-  uuid,
-  text,
-} from 'drizzle-orm/pg-core';
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-} from 'drizzle-zod';
+import { timestamp, pgTable, varchar, integer, boolean, index, check, uuid, text } from 'drizzle-orm/pg-core';
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod';
 import { sql } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -42,10 +28,7 @@ export const story = pgTable(
   table => [
     index('created_at_idx').on(table.createdAt),
     index('expires_at_idx').on(table.expiresAt),
-    check(
-      'expiry_24h_check',
-      sql`EXTRACT(EPOCH FROM ${table.expiresAt} - ${table.createdAt}) = 86400`,
-    ),
+    check('expiry_24h_check', sql`EXTRACT(EPOCH FROM ${table.expiresAt} - ${table.createdAt}) = 86400`),
   ],
 );
 

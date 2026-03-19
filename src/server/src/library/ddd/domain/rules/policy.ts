@@ -11,10 +11,7 @@ import { Result } from '../../types/result';
  * @template Target The type of the domain target this policy applies to.
  * @template Context Optional context type (e.g. command, service dependencies).
  */
-export abstract class Policy<
-  Target extends AggregateRoot<unknown>,
-  Context = void,
-> {
+export abstract class Policy<Target extends AggregateRoot<unknown>, Context = void> {
   /**
    * Applies the policy logic to a target, optionally using additional context.
    * This may result in domain changes, event dispatching, or validation errors.
@@ -22,8 +19,5 @@ export abstract class Policy<
    * @param context - Optional context (e.g., command data, user role, dependencies).
    * @returns A `Result<void, DomainError>` indicating success or failure.
    */
-  public abstract apply(
-    target: Target,
-    context?: Context,
-  ): Result<void, DomainFailure>;
+  public abstract apply(target: Target, context?: Context): Result<void, DomainFailure>;
 }

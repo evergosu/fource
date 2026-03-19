@@ -1,8 +1,6 @@
 import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
-export type DatabaseConstructor<T> = new (
-  transaction: DatabaseTransaction,
-) => T;
+export type DatabaseConstructor<T> = new (transaction: DatabaseTransaction) => T;
 
 /**
  * ---

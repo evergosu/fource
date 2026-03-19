@@ -106,9 +106,5 @@ export abstract class Controller<Request, Response> {
    * @param status - HTTP status code
    * @param payload - serialized payload
    */
-  protected abstract send(
-    response: Response,
-    status: number,
-    payload: unknown,
-  ): void;
+  protected abstract send(response: Response, status: number, payload: unknown): void;
 }

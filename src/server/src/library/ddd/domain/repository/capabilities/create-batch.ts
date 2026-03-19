@@ -1,14 +1,6 @@
-import type {
-  InferSerializerDomain,
-  Serializer as S,
-  Entity,
-  Task,
-} from 'server/library/ddd/primitives';
+import type { InferSerializerDomain, Serializer as S, Entity, Task } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 
 /**
  * ---
@@ -25,9 +17,7 @@ export interface DomainCreateBatch<
    * ---
    * @param entities - entity to create.
    */
-  createBatch(
-    entities: Domain[],
-  ): Task<void, FailureMap[CREATE_BATCH_OPERATION]>;
+  createBatch(entities: Domain[]): Task<void, FailureMap[CREATE_BATCH_OPERATION]>;
 }
 
 export type CREATE_BATCH_OPERATION = 'createBatch';

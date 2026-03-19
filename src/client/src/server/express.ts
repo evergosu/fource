@@ -25,8 +25,7 @@ export async function startServer(
 ): Promise<ServerContext> {
   const environment = getEnvironment();
 
-  const isDevelopment =
-    environment.node === 'development' || environment.node === 'test';
+  const isDevelopment = environment.node === 'development' || environment.node === 'test';
 
   const nextjs = next({
     dir: resolvePath(import.meta.url, '../..'),
@@ -40,12 +39,7 @@ export async function startServer(
   return nextjs.prepare().then(() => {
     server = express()
       .set('trust proxy', 1)
-      .use(
-        setupCors([
-          environment.server.url.origin,
-          environment.client.url.origin,
-        ]),
-      )
+      .use(setupCors([environment.server.url.origin, environment.client.url.origin]))
       .use(...helmetByEnvironment)
       .use(...rateLimitByEnvironment)
       .use(...morganByEnvironment)
@@ -91,11 +85,7 @@ function setupCors(allowList: string[]) {
   });
 }
 
-async function shutdown(
-  reason: string,
-  server: Server,
-  logger: Logger,
-): Promise<void> {
+async function shutdown(reason: string, server: Server, logger: Logger): Promise<void> {
   logger.info(`Gracefully shutting down, because ${reason}.`);
 
   const timeout = setTimeout(() => {
@@ -123,11 +113,7 @@ async function shutdown(
   }
 }
 
-function registerShutdownOnSignals(
-  signals: NodeJS.Signals[],
-  server: Server,
-  logger: Logger,
-) {
+function registerShutdownOnSignals(signals: NodeJS.Signals[], server: Server, logger: Logger) {
   for (const signal of signals) {
     process.on(signal, () => {
       shutdown(signal, server, logger)

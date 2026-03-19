@@ -81,9 +81,7 @@ export abstract class DomainEvent<Payload = unknown> {
   }): Result<DomainEvent> {
     console.log('', properties);
 
-    throw new EventRehydrationException(
-      `DomainEvent.rehydrate must be implemented by subclasses`,
-    );
+    throw new EventRehydrationException(`DomainEvent.rehydrate must be implemented by subclasses`);
   }
 }
 

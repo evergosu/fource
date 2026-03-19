@@ -20,9 +20,7 @@ export type PostgresLite = PgliteDatabase<Schema>;
  * @param logger - custom logger to print system messages.
  * @returns postgres lite database context.
  */
-export const createPostgresLiteContext = async (
-  logger: Logger,
-): Promise<DatabaseContext> => {
+export const createPostgresLiteContext = async (logger: Logger): Promise<DatabaseContext> => {
   const client = new PGlite();
 
   const database = drizzle(client, {
@@ -49,15 +47,11 @@ export const createPostgresLiteContext = async (
 
   return {
     async truncateAll() {
-      const tableNames = Object.values(database._.tableNamesMap).filter(
-        name => name !== '__drizzle_migrations',
-      );
+      const tableNames = Object.values(database._.tableNamesMap).filter(name => name !== '__drizzle_migrations');
 
       const tables = tableNames.map(name => `"${name}"`).join(', ');
 
-      await database.execute(
-        sql.raw(`truncate table ${tables} restart identity cascade`),
-      );
+      await database.execute(sql.raw(`truncate table ${tables} restart identity cascade`));
     },
     async close() {
       await client.close();

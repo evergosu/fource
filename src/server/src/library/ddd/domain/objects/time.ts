@@ -65,9 +65,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
     return Result.ok(date)
       .validate(guardDefined(this.name))
       .refine(guardDate(this.name))
-      .flatMap(value =>
-        this._internalCreate(new Date(value.getTime()), validators),
-      )
+      .flatMap(value => this._internalCreate(new Date(value.getTime()), validators))
       .matchFailure({ _: TimeFailure(this.name) });
   }
 
@@ -98,10 +96,11 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms - `Unix` time in milliseconds.
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public static fromUnixMilliSeconds<
-    U extends Time<U>,
-    F extends DomainFailure,
-  >(this: SubClass<U, F>, ms: unknown, validators?: unknown[]) {
+  public static fromUnixMilliSeconds<U extends Time<U>, F extends DomainFailure>(
+    this: SubClass<U, F>,
+    ms: unknown,
+    validators?: unknown[],
+  ) {
     return Result.ok(ms)
       .validate(guardDefined(this.name))
       .refine(guardNumber(this.name))
@@ -115,10 +114,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * ---
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public static fromNow<U extends Time<U>, F extends DomainFailure>(
-    this: SubClass<U, F>,
-    validators?: unknown[],
-  ) {
+  public static fromNow<U extends Time<U>, F extends DomainFailure>(this: SubClass<U, F>, validators?: unknown[]) {
     return this._internalCreate(new Date(), validators);
   }
 
@@ -175,10 +171,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param start The time object to start from.
    * @param end The time object to end with.
    */
-  public isBetween<U extends Time<U>, V extends Time<V>>(
-    start: U,
-    end: V,
-  ): boolean {
+  public isBetween<U extends Time<U>, V extends Time<V>>(start: U, end: V): boolean {
     const ts = this.toUnixMilliSeconds();
     return ts > start.toUnixMilliSeconds() && ts < end.toUnixMilliSeconds();
   }
@@ -190,17 +183,11 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms a milliseconds to add to current time instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public addMilliSeconds<F>(
-    ms: number,
-    validators?: unknown[],
-  ): Result<this, F> {
+  public addMilliSeconds<F>(ms: number, validators?: unknown[]): Result<this, F> {
     const ctor = this.constructor as unknown as SubClass<this, F>;
 
     // Safe because subclass's `.internalCreate()` returns the correct concrete type.
-    return ctor._internalCreate(
-      new Date(this.properties.date.getTime() + ms),
-      validators,
-    );
+    return ctor._internalCreate(new Date(this.properties.date.getTime() + ms), validators);
   }
 
   /**
@@ -210,17 +197,11 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param ms a milliseconds to substract from current time instance.
    * @param validators - Additional arguments for domain-specific validation.
    */
-  public subtractMilliSeconds<F>(
-    ms: number,
-    validators?: unknown[],
-  ): Result<this, F> {
+  public subtractMilliSeconds<F>(ms: number, validators?: unknown[]): Result<this, F> {
     const ctor = this.constructor as unknown as SubClass<this, F>;
 
     // Safe because subclass's `.internalCreate()` returns the correct concrete type.
-    return ctor._internalCreate(
-      new Date(this.properties.date.getTime() - ms),
-      validators,
-    );
+    return ctor._internalCreate(new Date(this.properties.date.getTime() - ms), validators);
   }
 
   /**

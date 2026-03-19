@@ -1,7 +1,4 @@
-import {
-  type InfrastructureFailure,
-  infrastructureFailure,
-} from '../../domain/issues/failure';
+import { type InfrastructureFailure, infrastructureFailure } from '../../domain/issues/failure';
 
 /**
  * ---
@@ -14,10 +11,7 @@ export type ConnectionExistFailure = {
 } & InfrastructureFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const ConnectionExistFailure = (
-  code: string,
-  cause: unknown,
-): ConnectionExistFailure =>
+export const ConnectionExistFailure = (code: string, cause: unknown): ConnectionExistFailure =>
   infrastructureFailure({
     _tag: 'ConnectionExistFailure',
     cause,

@@ -23,13 +23,7 @@ export class CreateStoryController extends ExpressController<CreateStoryRequest>
 
   /** @inheritdoc */
   protected handle(request: CreateStoryRequest) {
-    return this.bus.dispatch(
-      new CreateStoryCommand(
-        request.body.title,
-        request.body.body,
-        request.body.authorId,
-      ),
-    );
+    return this.bus.dispatch(new CreateStoryCommand(request.body.title, request.body.body, request.body.authorId));
   }
 
   /** @inheritdoc */

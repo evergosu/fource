@@ -3,10 +3,7 @@ import type { RequestHandler } from 'express';
 
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
-export function createApiProxy(
-  target: URL,
-  logger: Logger,
-): [string, RequestHandler] {
+export function createApiProxy(target: URL, logger: Logger): [string, RequestHandler] {
   logger.info(`Proxy /api → ${target.origin}/api`);
 
   return [

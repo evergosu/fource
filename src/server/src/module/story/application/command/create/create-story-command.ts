@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { Command } from 'server/library/ddd/application/cqrs/command/command';
 
 import type { CreateStoryFailure } from './create-story-failure';
@@ -21,8 +20,7 @@ import type { CreateStoryInput } from './create-story-usecase';
  * The command itself **contains no logic** and is treated as
  * a serializable message.
  */
-export class CreateStoryCommand
-  implements Command<string, CreateStoryFailure>, CreateStoryInput {
+export class CreateStoryCommand implements Command<string, CreateStoryFailure>, CreateStoryInput {
   /**
    * ---
    * Creates a new CreateStoryCommand instance.
@@ -35,5 +33,6 @@ export class CreateStoryCommand
     readonly title: string,
     readonly body: string,
     readonly authorId: string,
+    // eslint-disable-next-line prettier/prettier
   ) { }
 }

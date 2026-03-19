@@ -35,9 +35,8 @@ export interface Rehydrator<DTO, Domain, Failure> {
  * ---
  * @template R - The rehydrator type to extract from.
  */
-export type InferRehydratorDomain<
-  R extends Rehydrator<unknown, unknown, unknown>,
-> = R extends Rehydrator<unknown, infer Domain, unknown> ? Domain : never;
+export type InferRehydratorDomain<R extends Rehydrator<unknown, unknown, unknown>> =
+  R extends Rehydrator<unknown, infer Domain, unknown> ? Domain : never;
 
 /**
  * ---
@@ -45,9 +44,8 @@ export type InferRehydratorDomain<
  * ---
  * @template R - The rehydrator type to extract from.
  */
-export type InferRehydratorFailure<
-  R extends Rehydrator<unknown, unknown, unknown>,
-> = R extends Rehydrator<unknown, unknown, infer Failure> ? Failure : never;
+export type InferRehydratorFailure<R extends Rehydrator<unknown, unknown, unknown>> =
+  R extends Rehydrator<unknown, unknown, infer Failure> ? Failure : never;
 
 /**
  * ---
@@ -55,6 +53,5 @@ export type InferRehydratorFailure<
  * ---
  * @template R - The rehydrator type to extract from.
  */
-export type InferRehydratorDTO<
-  R extends Rehydrator<unknown, unknown, unknown>,
-> = R extends Rehydrator<infer DTO, unknown, unknown> ? DTO : never;
+export type InferRehydratorDTO<R extends Rehydrator<unknown, unknown, unknown>> =
+  R extends Rehydrator<infer DTO, unknown, unknown> ? DTO : never;

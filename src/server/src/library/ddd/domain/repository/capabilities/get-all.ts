@@ -1,9 +1,6 @@
 import type { Task } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 import type { NonEmptyArray } from '../../invariants/array/empty-array';
 
 /**

@@ -1,9 +1,6 @@
 import type { UniqueIdentifier, Task } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 
 /**
  * ---
@@ -17,9 +14,7 @@ export interface DomainCountById<FailureMap extends RFM>
    * ---
    * @param id - The unique identifier of the domain entity.
    */
-  [`countById`](
-    id: UniqueIdentifier,
-  ): Task<number, FailureMap[COUNT_BY_ID_OPERATION]>;
+  [`countById`](id: UniqueIdentifier): Task<number, FailureMap[COUNT_BY_ID_OPERATION]>;
 }
 
 export type COUNT_BY_ID_OPERATION = 'countById';

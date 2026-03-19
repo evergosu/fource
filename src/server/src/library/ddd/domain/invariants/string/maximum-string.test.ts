@@ -1,10 +1,7 @@
 /* eslint-disable unicorn/no-null */
 /* eslint-disable sonarjs/no-primitive-wrappers */
 /* eslint-disable unicorn/new-for-builtins */
-import {
-  MaximumLengthStringFailure,
-  guardMaximumLengthString,
-} from './maximum-string';
+import { MaximumLengthStringFailure, guardMaximumLengthString } from './maximum-string';
 import { testGuardContract } from '../make-guards.test';
 
 describe('guardMaximumLengthString', () => {

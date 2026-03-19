@@ -1,10 +1,6 @@
 import type { BanVoteInsertSchema } from 'server/infrastructure/database/schema/ban-vote';
 
-import {
-  type Serializer,
-  combineResults,
-  Result,
-} from 'server/library/ddd/primitives';
+import { type Serializer, combineResults, Result } from 'server/library/ddd/primitives';
 
 import type { BanVote } from '../../domain/ban-vote';
 

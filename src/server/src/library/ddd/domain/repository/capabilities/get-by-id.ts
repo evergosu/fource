@@ -6,10 +6,7 @@ import type {
   Task,
 } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 import type { DomainFailure } from '../../issues/failure';
 
 /**
@@ -28,9 +25,7 @@ export interface DomainGetById<
    * ---
    * @param id - The unique identifier of the domain entity.
    */
-  getById(
-    id: Domain['id'],
-  ): Task<Domain, FailureMap[GET_BY_ID_OPERATION] | DomainFailures>;
+  getById(id: Domain['id']): Task<Domain, FailureMap[GET_BY_ID_OPERATION] | DomainFailures>;
 }
 
 export type GET_BY_ID_OPERATION = 'getById';

@@ -14,10 +14,7 @@ import { CreateStoryController } from './controller/create-story-controller';
  * @param commandBus In-memory implementation of CommandBus.
  * @param queryBus In-memory implementation of QueryBus.
  */
-export function createStoryRouter(
-  commandBus: InMemoryCommandBus,
-  queryBus: InMemoryQueryBus,
-): Router {
+export function createStoryRouter(commandBus: InMemoryCommandBus, queryBus: InMemoryQueryBus): Router {
   const storyRouter = Router();
 
   storyRouter.post(

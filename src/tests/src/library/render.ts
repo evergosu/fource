@@ -15,16 +15,11 @@ function setFakeReactDispatcher<T>(action: () => T): T {
    * If this is the case, this function can also simply be removed and all tests should still function.
    */
 
-  if (
-    !(
-      '__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE' in React
-    )
-  ) {
+  if (!('__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE' in React)) {
     return action();
   }
 
-  const secret =
-    React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+  const secret = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
   if (!secret || typeof secret !== 'object' || !('H' in secret)) {
     return action();
   }
@@ -50,9 +45,7 @@ function setFakeReactDispatcher<T>(action: () => T): T {
   return result;
 }
 
-async function evaluateServerComponent(
-  node: ReactElement,
-): Promise<ReactElement> {
+async function evaluateServerComponent(node: ReactElement): Promise<ReactElement> {
   if (node.type.constructor.name === 'AsyncFunction') {
     // Handle async server nodes by calling await.
 
@@ -83,9 +76,7 @@ async function evaluateServerComponent(
 }
 
 async function evaluateServerComponentAndChildren(node: ReactElement) {
-  const evaluatedNode = (await evaluateServerComponent(
-    node,
-  )) as ReactElement<PropsWithChildren>;
+  const evaluatedNode = (await evaluateServerComponent(node)) as ReactElement<PropsWithChildren>;
 
   if (!evaluatedNode.props.children) {
     return evaluatedNode;
@@ -107,9 +98,7 @@ async function evaluateServerComponentAndChildren(node: ReactElement) {
 // Follow <https://github.com/testing-library/react-testing-library/issues/1209>
 // for the latest updates on React Testing Library support for React Server
 // Components (RSC)
-export async function renderServerComponent(
-  nodeOrPromise: Promise<ReactNode> | ReactNode,
-) {
+export async function renderServerComponent(nodeOrPromise: Promise<ReactNode> | ReactNode) {
   const node = await nodeOrPromise;
 
   if (isValidElement(node)) {

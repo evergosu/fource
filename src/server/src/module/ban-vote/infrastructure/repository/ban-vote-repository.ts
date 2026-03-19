@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import type { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import type { DomainCreate } from 'server/library/ddd/domain/repository/capabilities/create';
@@ -15,10 +14,7 @@ import { Task } from 'server/library/ddd/primitives';
 
 import type { BanVote } from '../../domain/ban-vote';
 
-import {
-  type BanVoteFailureMap,
-  BanVoteErrorPolicy,
-} from './ban-vote-error-policy';
+import { type BanVoteFailureMap, BanVoteErrorPolicy } from './ban-vote-error-policy';
 import { BanVoteSerializer } from '../serializer/ban-vote-serializer';
 import { BanVoteDatabase } from './ban-vote-database';
 
@@ -33,8 +29,9 @@ interface BanVoteRepositoryEnvironment {
  */
 export class BanVoteRepository
   implements
-  DomainDelete<BanVote<'persisted'>, BanVoteFailureMap>,
-  DomainCreate<typeof BanVoteSerializer.insert, BanVoteFailureMap> {
+    DomainDelete<BanVote<'persisted'>, BanVoteFailureMap>,
+    DomainCreate<typeof BanVoteSerializer.insert, BanVoteFailureMap>
+{
   readonly errorPolicy = BanVoteErrorPolicy;
 
   /**
@@ -47,7 +44,7 @@ export class BanVoteRepository
   private constructor(
     private readonly persistence: BanVoteDatabase,
     private readonly tracker: AggregateTracker,
-  ) { }
+  ) {}
 
   /**
    * ---
@@ -56,16 +53,11 @@ export class BanVoteRepository
    * @param environment - environment in which instance should be created.
    */
   static new(environment: BanVoteRepositoryEnvironment) {
-    return new BanVoteRepository(
-      environment.provider.get(BanVoteDatabase),
-      environment.tracker,
-    );
+    return new BanVoteRepository(environment.provider.get(BanVoteDatabase), environment.tracker);
   }
 
   /** @inheritdoc */
-  public delete(
-    story: BanVote<'persisted'>,
-  ): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure> {
+  public delete(story: BanVote<'persisted'>): Task<void, AggregatePersistenceFailure | AggregateNotFoundFailure> {
     this.tracker.track(story);
 
     return this.persistence
@@ -73,19 +65,14 @@ export class BanVoteRepository
       .mapError(this.errorPolicy.translate('delete'))
       .validate(guardEmptyArray(BanVoteRepository.name))
       .matchFailure({
-        EmptyArrayFailure: AggregateNotFoundFailure(
-          BanVoteRepository.name,
-          story.id,
-        ),
+        EmptyArrayFailure: AggregateNotFoundFailure(BanVoteRepository.name, story.id),
         _: identity,
       })
       .map(() => void 0);
   }
 
   /** @inheritdoc */
-  public create(
-    story: BanVote<'new'>,
-  ): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
+  public create(story: BanVote<'new'>): Task<void, AggregateAlreadyExistsFailure | AggregatePersistenceFailure> {
     this.tracker.track(story);
 
     return BanVoteSerializer.insert

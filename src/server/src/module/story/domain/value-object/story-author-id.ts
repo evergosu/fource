@@ -1,13 +1,6 @@
 /* eslint-disable prettier/prettier */
-import {
-  type DomainFailure,
-  domainFailure,
-} from 'server/library/ddd/domain/issues/failure';
-import {
-  UniqueIdentifier,
-  ValueObject,
-  Result,
-} from 'server/library/ddd/primitives';
+import { type DomainFailure, domainFailure } from 'server/library/ddd/domain/issues/failure';
+import { UniqueIdentifier, ValueObject, Result } from 'server/library/ddd/primitives';
 import { guardDefined } from 'server/library/ddd/domain/invariants/defined/defined';
 import { guardString } from 'server/library/ddd/domain/invariants/string/string';
 

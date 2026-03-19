@@ -27,10 +27,7 @@ export const EmailStringFailure = (name: string): EmailStringFailure =>
 function isEmail(value: unknown): value is string {
   const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]{2,}$/;
 
-  return guardString('').predicate(value) && emailRegex.test(value)
-    ? true
-    : false;
+  return guardString('').predicate(value) && emailRegex.test(value) ? true : false;
 }
 
-export const guardEmailString = (name: string) =>
-  makeGuards(isEmail, EmailStringFailure(name));
+export const guardEmailString = (name: string) => makeGuards(isEmail, EmailStringFailure(name));

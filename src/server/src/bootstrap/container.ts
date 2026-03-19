@@ -62,11 +62,7 @@ export class Container {
     this.registry = new DomainEventRegistry();
     this.bootstrapEventBus();
 
-    this.eventProcessor = new OutboxProcessor(
-      this.unitOfWork,
-      this.registry,
-      this.eventBus,
-    );
+    this.eventProcessor = new OutboxProcessor(this.unitOfWork, this.registry, this.eventBus);
     this.bootstrapEventProcessor();
   }
 
@@ -84,19 +80,13 @@ export class Container {
      * ---
      * Register command handler responsible for story creation.
      */
-    this.commandBus.register(
-      CreateStoryCommand,
-      new CreateStoryCommandHandler(new CreateStoryUseCase()),
-    );
+    this.commandBus.register(CreateStoryCommand, new CreateStoryCommandHandler(new CreateStoryUseCase()));
 
     /**
      * ---
      * Register command handler responsible for ban voting.
      */
-    this.commandBus.register(
-      VoteBanCommand,
-      new VoteBanCommandHandler(new VoteBanUseCase()),
-    );
+    this.commandBus.register(VoteBanCommand, new VoteBanCommandHandler(new VoteBanUseCase()));
   }
 
   private bootstrapEventBus() {
@@ -116,9 +106,7 @@ export class Container {
     this.queryBus.register(
       GetAllStoriesQuery,
       new GetAllStoriesQueryHandler(
-        new GetAllStoriesUseCase(
-          new StoryQueryRepository(new StoryDatabase(this.database)),
-        ),
+        new GetAllStoriesUseCase(new StoryQueryRepository(new StoryDatabase(this.database))),
       ),
     );
   }

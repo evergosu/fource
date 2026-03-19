@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type {
   RepositoryErrorPolicy,
   RepositoryFailureMap,
@@ -13,8 +12,6 @@ import {
 } from 'server/library/ddd/domain/repository/repository-errors';
 
 import { Story } from '../../domain/story';
-
-
 
 /**
  * ---
@@ -32,10 +29,7 @@ export interface StoryFailureMap {
   delete: AggregatePersistenceFailure | AggregateNotFoundFailure;
 }
 
-export type _StoryFailureMapCheck = Exact<
-  StoryFailureMap,
-  RepositoryFailureMap
->;
+export type _StoryFailureMapCheck = Exact<StoryFailureMap, RepositoryFailureMap>;
 
 /**
  * ---
@@ -54,9 +48,7 @@ export type _StoryFailureMapCheck = Exact<
  * - Elimination of generic narrowing casts in the policy.
  */
 type StoryErrorHandlers = {
-  [K in keyof StoryFailureMap]: (
-    error: InfrastructureFailures,
-  ) => StoryFailureMap[K];
+  [K in keyof StoryFailureMap]: (error: InfrastructureFailures) => StoryFailureMap[K];
 };
 
 /**
@@ -122,7 +114,6 @@ export const StoryErrorPolicy: RepositoryErrorPolicy<StoryFailureMap> = {
    * @param operation - Operation being executed.
    */
   translate<K extends keyof StoryFailureMap>(operation: K) {
-    return (error: InfrastructureFailures): StoryFailureMap[K] =>
-      storyErrorHandlers[operation](error);
-  }
-}
+    return (error: InfrastructureFailures): StoryFailureMap[K] => storyErrorHandlers[operation](error);
+  },
+};

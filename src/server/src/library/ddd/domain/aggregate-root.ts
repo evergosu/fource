@@ -97,11 +97,7 @@ export abstract class AggregateRoot<T> extends Entity<T> {
    * @param overrides - Partial properties to override.
    */
   protected evolve(overrides: Partial<T>): this {
-    const ctor = this.constructor as new (
-      properties: T,
-      id: UniqueIdentifier,
-      version: number,
-    ) => this;
+    const ctor = this.constructor as new (properties: T, id: UniqueIdentifier, version: number) => this;
 
     return new ctor(
       {

@@ -2,11 +2,7 @@ import type { DatabaseCreateBatch } from 'server/library/ddd/infrastructure/repo
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
 import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
-import {
-  type OutboxInsertSchema,
-  type OutboxSelectSchema,
-  outbox,
-} from 'server/infrastructure/database/schema/outbox';
+import { type OutboxInsertSchema, type OutboxSelectSchema, outbox } from 'server/infrastructure/database/schema/outbox';
 import { decodePostgresError } from 'server/infrastructure/database/clients/postgres/decode-error';
 import { Task } from 'server/library/ddd/primitives';
 import { isNull, asc, eq } from 'drizzle-orm';
@@ -29,9 +25,7 @@ export class OutboxDatabase implements DatabaseCreateBatch<OutboxInsertSchema> {
   constructor(private readonly transaction: DatabaseTransaction) { }
 
   /** @inheritdoc */
-  public createBatch(
-    rows: OutboxInsertSchema[],
-  ): Task<void, InfrastructureFailures> {
+  public createBatch(rows: OutboxInsertSchema[]): Task<void, InfrastructureFailures> {
     return Task.fromPromise(async () => {
       await this.transaction.insert(outbox).values(rows);
     }).mapError(error => decodePostgresError(error));
@@ -51,9 +45,7 @@ export class OutboxDatabase implements DatabaseCreateBatch<OutboxInsertSchema> {
    * @param limit - Maximum number of events to retrieve.
    * @returns Task resolving to a list of outbox rows.
    */
-  public getUnprocessedBatch(
-    limit: number,
-  ): Task<OutboxSelectSchema[], InfrastructureFailures> {
+  public getUnprocessedBatch(limit: number): Task<OutboxSelectSchema[], InfrastructureFailures> {
     return Task.fromPromise(async () => {
       return this.transaction
         .select()

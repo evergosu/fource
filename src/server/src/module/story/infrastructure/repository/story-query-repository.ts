@@ -8,10 +8,7 @@ import {
   AggregateNotFoundFailure,
 } from 'server/library/ddd/domain/repository/repository-errors';
 import { type DomainGetBySpecification } from 'server/library/ddd/domain/repository/capabilities/get-by-specification';
-import {
-  type NonEmptyArray,
-  guardEmptyArray,
-} from 'server/library/ddd/domain/invariants/array/empty-array';
+import { type NonEmptyArray, guardEmptyArray } from 'server/library/ddd/domain/invariants/array/empty-array';
 import { Specification, Task } from 'server/library/ddd/primitives';
 import { identity } from 'server/library/ddd/types/identity';
 
@@ -41,9 +38,7 @@ export class StoryQueryRepository
     specification: Specification<StorySelectSchema>,
   ): Task<
     NonEmptyArray<StorySelectSchema>,
-    | AggregateSpecificationFailure
-    | AggregatePersistenceFailure
-    | AggregateNotFoundFailure
+    AggregateSpecificationFailure | AggregatePersistenceFailure | AggregateNotFoundFailure
   > {
     return this.persistence
       .getAll()
@@ -51,19 +46,13 @@ export class StoryQueryRepository
       .map(ss => ss.filter(s => specification.isSatisfiedBy(s)))
       .refine(guardEmptyArray(StoryQueryRepository.name))
       .matchFailure({
-        EmptyArrayFailure: AggregateSpecificationFailure(
-          StoryQueryRepository.name,
-          specification,
-        ),
+        EmptyArrayFailure: AggregateSpecificationFailure(StoryQueryRepository.name, specification),
         _: identity,
       });
   }
 
   /** @inheritdoc */
-  public getAll(): Task<
-    NonEmptyArray<StorySelectSchema>,
-    AggregatePersistenceFailure | AggregateNotFoundFailure
-  > {
+  public getAll(): Task<NonEmptyArray<StorySelectSchema>, AggregatePersistenceFailure | AggregateNotFoundFailure> {
     return this.persistence
       .getAll()
       .mapError(this.errorPolicy.translate('getAll'))

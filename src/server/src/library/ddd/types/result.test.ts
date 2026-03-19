@@ -46,9 +46,7 @@ describe('result', () => {
     it('should throw when accessing error on success result', () => {
       const result = Result.ok(value);
 
-      expect(() => result.error).toThrowError(
-        DataTypeInvariantViolationException,
-      );
+      expect(() => result.error).toThrowError(DataTypeInvariantViolationException);
     });
   });
 
@@ -81,9 +79,7 @@ describe('result', () => {
     it('should throw when accessing value on failure result', () => {
       const result = Result.fail(error);
 
-      expect(() => result.value).toThrowError(
-        DataTypeInvariantViolationException,
-      );
+      expect(() => result.value).toThrowError(DataTypeInvariantViolationException);
     });
   });
 
@@ -142,12 +138,7 @@ describe('result', () => {
       const resultThree = Result.ok('baz');
       const resultFour = Result.fail('Failed at step 4');
 
-      const combined = Result.combine([
-        resultOne,
-        resultTwo,
-        resultThree,
-        resultFour,
-      ]);
+      const combined = Result.combine([resultOne, resultTwo, resultThree, resultFour]);
 
       expect(combined.isFailure()).toBe(true);
       expect(combined.error).toBe('Failed at step 2');
@@ -280,9 +271,7 @@ describe('result', () => {
     });
 
     it('should collapse different failures identically', () => {
-      const result = Result.fail(new BFailure()).flatMap(() =>
-        Result.fail(new AFailure()),
-      );
+      const result = Result.fail(new BFailure()).flatMap(() => Result.fail(new AFailure()));
 
       const lifted = result.matchFailure({ _: f => new LiftedFailure(f) });
 
@@ -290,9 +279,7 @@ describe('result', () => {
     });
 
     it('preserves non-mapped failure variants', () => {
-      const result = Result.fail(new BFailure()).flatMap(() =>
-        Result.fail(new AFailure()),
-      );
+      const result = Result.fail(new BFailure()).flatMap(() => Result.fail(new AFailure()));
 
       const mapped = result.matchFailure({
         AFailure: f => new LiftedFailure(f),
@@ -313,9 +300,7 @@ describe('result', () => {
     });
 
     it('should support multiple mappings', () => {
-      const result = Result.fail(new BFailure()).flatMap(() =>
-        Result.fail(new AFailure()),
-      );
+      const result = Result.fail(new BFailure()).flatMap(() => Result.fail(new AFailure()));
 
       const mapped = result.matchFailure({
         AFailure: f => new LiftedFailure(f),

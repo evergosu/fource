@@ -58,13 +58,7 @@ describe('category theory', () => {
   describe('applicative laws', () => {
     const runtime = createTaskRuntime<number, string>();
 
-    const laws = applicativeLaws<
-      number,
-      number,
-      number,
-      string,
-      Task<unknown, string>
-    >(
+    const laws = applicativeLaws<number, number, number, string, Task<unknown, string>>(
       runtime,
       n => Task.ok(n),
       (ff, fa) => ff.ap(fa),
@@ -99,14 +93,11 @@ describe('category theory', () => {
   describe('natural transformation laws', () => {
     const runtimeTask = createTaskRuntime<number, string>();
 
-    const mapResult = <A, B>(fa: Result<A, string>, f: (a: A) => B) =>
-      fa.map(x => f(x));
+    const mapResult = <A, B>(fa: Result<A, string>, f: (a: A) => B) => fa.map(x => f(x));
 
-    const mapTask = <A, B>(fa: Task<A, string>, f: (a: A) => B) =>
-      fa.map(x => f(x));
+    const mapTask = <A, B>(fa: Task<A, string>, f: (a: A) => B) => fa.map(x => f(x));
 
-    const lift = <A>(fa: Result<A, string>): Task<A, string> =>
-      Task.fromResult(fa);
+    const lift = <A>(fa: Result<A, string>): Task<A, string> => Task.fromResult(fa);
 
     it('should satisfy naturality on success', async () => {
       const laws = naturalTransformationLaws(
@@ -142,40 +133,20 @@ describe('category theory', () => {
 
     const ofTask = <A>(a: A): Task<A, string> => Task.ok(a);
 
-    const flatMapResult = <A, B>(
-      fa: Result<A, string>,
-      f: (a: A) => Result<B, string>,
-    ) => fa.flatMap(x => f(x));
+    const flatMapResult = <A, B>(fa: Result<A, string>, f: (a: A) => Result<B, string>) => fa.flatMap(x => f(x));
 
-    const flatMapTask = <A, B>(
-      fa: Task<A, string>,
-      f: (a: A) => Task<B, string>,
-    ) => fa.flatMap(x => f(x));
+    const flatMapTask = <A, B>(fa: Task<A, string>, f: (a: A) => Task<B, string>) => fa.flatMap(x => f(x));
 
     const lift = <A>(fa: Result<A, string>) => Task.fromResult(fa);
 
     it('should preserve of', async () => {
-      const laws = monadMorphismLaws(
-        runtime,
-        ofResult,
-        ofTask,
-        flatMapResult,
-        flatMapTask,
-        lift,
-      );
+      const laws = monadMorphismLaws(runtime, ofResult, ofTask, flatMapResult, flatMapTask, lift);
 
       expect(await laws.preserveOf(1)).toBe(true);
     });
 
     it('should preserve flatMap', async () => {
-      const laws = monadMorphismLaws(
-        runtime,
-        ofResult,
-        ofTask,
-        flatMapResult,
-        flatMapTask,
-        lift,
-      );
+      const laws = monadMorphismLaws(runtime, ofResult, ofTask, flatMapResult, flatMapTask, lift);
 
       const fa = Result.ok(1);
       const f = (n: number) => Result.ok(n + 1);
@@ -250,9 +221,7 @@ describe('category theory', () => {
 
       const fa = Task.fail<string>('err') as Task<string, string>;
 
-      const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) =>
-        t.match({ fail, ok }),
-      );
+      const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) => t.match({ fail, ok }));
 
       expect(
         laws.leftConsistency(
@@ -267,22 +236,16 @@ describe('category theory', () => {
       const runtime = createTaskRuntime<number, string>();
       const fa = Task.ok<number>(5) as Task<number, string>;
 
-      const laws = effectfulFoldLaws(runtime, fa, (r, fail, ok) =>
-        r.match({ fail, ok }),
-      );
+      const laws = effectfulFoldLaws(runtime, fa, (r, fail, ok) => r.match({ fail, ok }));
 
-      expect(
-        laws.rightConsistency(5, error => (error.length > 0 ? 5 : 6), Number),
-      ).toBe(true);
+      expect(laws.rightConsistency(5, error => (error.length > 0 ? 5 : 6), Number)).toBe(true);
     });
 
     it('should satisfy naturality', () => {
       const runtime = createTaskRuntime<number, string>();
       const fa = Task.ok<number>(3) as Task<number, string>;
 
-      const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) =>
-        t.match({ fail, ok }),
-      );
+      const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) => t.match({ fail, ok }));
 
       expect(
         laws.naturality(

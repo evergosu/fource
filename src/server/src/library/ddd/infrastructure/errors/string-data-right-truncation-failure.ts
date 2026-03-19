@@ -1,7 +1,4 @@
-import {
-  type InfrastructureFailure,
-  infrastructureFailure,
-} from '../../domain/issues/failure';
+import { type InfrastructureFailure, infrastructureFailure } from '../../domain/issues/failure';
 
 /**
  * ---
@@ -14,10 +11,7 @@ export type StringDataRightTruncation = {
 } & InfrastructureFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const StringDataRightTruncation = (
-  code: string,
-  cause: unknown,
-): StringDataRightTruncation =>
+export const StringDataRightTruncation = (code: string, cause: unknown): StringDataRightTruncation =>
   infrastructureFailure({
     _tag: 'StringDataRightTruncation',
     cause,

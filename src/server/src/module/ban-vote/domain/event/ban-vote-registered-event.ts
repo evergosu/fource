@@ -1,12 +1,7 @@
-/* eslint-disable prettier/prettier */
 /* eslint-disable sonarjs/no-nested-functions */
 import type { Story } from 'server/module/story/domain/story';
 
-import {
-  UniqueIdentifier,
-  DomainEvent,
-  Result,
-} from 'server/library/ddd/primitives';
+import { UniqueIdentifier, DomainEvent, Result } from 'server/library/ddd/primitives';
 
 import { BanVoteCreatedAt } from '../value-object/ban-vote-created-at';
 
@@ -23,26 +18,16 @@ interface Payload {
 export class BanVoteRegisteredEvent extends DomainEvent<Payload> {
   private static createPersisted =
     (aggregateId: UniqueIdentifier) =>
-      (storyId: UniqueIdentifier) =>
-        (voterId: UniqueIdentifier) =>
-          (createdAt: BanVoteCreatedAt) =>
-            (occurredAt: Date) =>
-              (id: UniqueIdentifier) =>
-                new BanVoteRegisteredEvent(
-                  aggregateId,
-                  { createdAt, storyId, voterId },
-                  occurredAt,
-                  id,
-                );
+    (storyId: UniqueIdentifier) =>
+    (voterId: UniqueIdentifier) =>
+    (createdAt: BanVoteCreatedAt) =>
+    (occurredAt: Date) =>
+    (id: UniqueIdentifier) =>
+      new BanVoteRegisteredEvent(aggregateId, { createdAt, storyId, voterId }, occurredAt, id);
   public static readonly type = 'BanVoteRegisteredEvent';
 
   /** @inheritdoc */
-  constructor(
-    aggregateId: UniqueIdentifier,
-    payload: Payload,
-    occurredAt?: Date,
-    id?: UniqueIdentifier,
-  ) {
+  constructor(aggregateId: UniqueIdentifier, payload: Payload, occurredAt?: Date, id?: UniqueIdentifier) {
     super(aggregateId, payload, BanVoteRegisteredEvent.type, occurredAt, id);
   }
 

@@ -2,10 +2,7 @@ import { resolvePath } from 'library/resolve-path';
 import dotenv from 'dotenv';
 import env from 'env-var';
 
-const NODE_ENV = env
-  .get('NODE_ENV')
-  .default('production')
-  .asEnum(['production', 'development', 'test']);
+const NODE_ENV = env.get('NODE_ENV').default('production').asEnum(['production', 'development', 'test']);
 
 dotenv.config({
   path: [
@@ -19,10 +16,7 @@ dotenv.config({
 
 export function getEnvironment() {
   return {
-    node: env
-      .get('NODE_ENV')
-      .default('production')
-      .asEnum(['production', 'development', 'test']),
+    node: env.get('NODE_ENV').default('production').asEnum(['production', 'development', 'test']),
     client: {
       url: env.get('CLIENT_URL').required().asUrlObject(),
     },

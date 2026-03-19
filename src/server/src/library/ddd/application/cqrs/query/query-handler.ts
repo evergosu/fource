@@ -20,11 +20,7 @@ import type { Query } from './query';
  * @template Output - Query result type.
  * @template Failure - Possible failure type.
  */
-export interface QueryHandler<
-  Q extends Query<Output, Failure>,
-  Output,
-  Failure,
-> {
+export interface QueryHandler<Q extends Query<Output, Failure>, Output, Failure> {
   /**
    * ---
    * Executes the query.

@@ -1,7 +1,4 @@
-import {
-  type InfrastructureFailure,
-  infrastructureFailure,
-} from '../../domain/issues/failure';
+import { type InfrastructureFailure, infrastructureFailure } from '../../domain/issues/failure';
 
 /**
  * ---
@@ -14,10 +11,7 @@ export type InvalidDatetimeFormatFailure = {
 } & InfrastructureFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const InvalidDatetimeFormatFailure = (
-  code: string,
-  cause: unknown,
-): InvalidDatetimeFormatFailure =>
+export const InvalidDatetimeFormatFailure = (code: string, cause: unknown): InvalidDatetimeFormatFailure =>
   infrastructureFailure({
     _tag: 'InvalidDatetimeFormatFailure',
     cause,

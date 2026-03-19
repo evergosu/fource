@@ -47,10 +47,7 @@ export class Either<L, R> {
    * @param onError - The function to invoke on error state.
    * @returns An `Right` on success, `Left` otherwise.
    */
-  static tryCatch<L, R>(
-    f: () => R,
-    onError: (error: unknown) => L,
-  ): Either<L, R> {
+  static tryCatch<L, R>(f: () => R, onError: (error: unknown) => L): Either<L, R> {
     try {
       return Either.right(f());
     } catch (error) {
@@ -81,9 +78,7 @@ export class Either<L, R> {
    */
   public getRight(): R {
     if (this.isLeft()) {
-      throw new DataTypeInvariantViolationException(
-        'Cannot get a right value from the left side',
-      );
+      throw new DataTypeInvariantViolationException('Cannot get a right value from the left side');
     }
 
     return this.rightValue as R;
@@ -96,9 +91,7 @@ export class Either<L, R> {
    */
   public getLeft(): L {
     if (this.isRight()) {
-      throw new DataTypeInvariantViolationException(
-        'Cannot get a left value from the right side',
-      );
+      throw new DataTypeInvariantViolationException('Cannot get a left value from the right side');
     }
 
     return this.leftValue as L;
@@ -148,9 +141,7 @@ export class Either<L, R> {
    * @returns A new `Either` with the transformed `Right` value or the original `Left`.
    */
   public map<U>(f: (r: R) => U): Either<L, U> {
-    return this.isRight()
-      ? Either.right(f(this.rightValue as R))
-      : Either.left(this.leftValue as L);
+    return this.isRight() ? Either.right(f(this.rightValue as R)) : Either.left(this.leftValue as L);
   }
 
   /**
@@ -160,9 +151,7 @@ export class Either<L, R> {
    * @returns A new `Either` with the transformed `Right` value or the original `Left`.
    */
   public async mapAsync<U>(f: (r: R) => Promise<U>): Promise<Either<L, U>> {
-    return this.isRight()
-      ? Either.right(await f(this.rightValue as R))
-      : Either.left(this.leftValue as L);
+    return this.isRight() ? Either.right(await f(this.rightValue as R)) : Either.left(this.leftValue as L);
   }
 
   /**
@@ -172,9 +161,7 @@ export class Either<L, R> {
    * @returns A new `Either` with the transformed `Left` value or the original `Right`.
    */
   public mapLeft<U>(f: (l: L) => U): Either<U, R> {
-    return this.isLeft()
-      ? Either.left(f(this.leftValue as L))
-      : Either.right(this.rightValue as R);
+    return this.isLeft() ? Either.left(f(this.leftValue as L)) : Either.right(this.rightValue as R);
   }
 
   /**
@@ -195,12 +182,8 @@ export class Either<L, R> {
    * @param f - The asynchronous function to apply to the `Right` value, returning a new `Either`.
    * @returns The result of applying the function or the original `Left`.
    */
-  public async flatMapAsync<U, NL>(
-    f: (r: R) => Promise<Either<NL, U>>,
-  ): Promise<Either<NL | L, U>> {
-    return this.isRight()
-      ? await f(this.getRight())
-      : Either.left(this.getLeft());
+  public async flatMapAsync<U, NL>(f: (r: R) => Promise<Either<NL, U>>): Promise<Either<NL | L, U>> {
+    return this.isRight() ? await f(this.getRight()) : Either.left(this.getLeft());
   }
 
   /**
@@ -210,9 +193,7 @@ export class Either<L, R> {
    * @returns The result of applying the appropriate handler.
    */
   public fold<T>(onLeft: (l: L) => T, onRight: (r: R) => T): T {
-    return this.isLeft()
-      ? onLeft(this.leftValue as L)
-      : onRight(this.rightValue as R);
+    return this.isLeft() ? onLeft(this.leftValue as L) : onRight(this.rightValue as R);
   }
 
   /**
@@ -220,9 +201,7 @@ export class Either<L, R> {
    *@returns A formatted string.
    */
   public toString(): string {
-    return this.isRight()
-      ? `Right(${JSON.stringify(this.rightValue)})`
-      : `Left(${JSON.stringify(this.leftValue)})`;
+    return this.isRight() ? `Right(${JSON.stringify(this.rightValue)})` : `Left(${JSON.stringify(this.leftValue)})`;
   }
 
   /**

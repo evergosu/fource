@@ -32,10 +32,7 @@ export class InMemoryEventBus implements EventBus {
    * @param eventType - event type
    * @param handler - event handler instance
    */
-  register<E extends DomainEvent>(
-    eventType: string,
-    handler: EventHandler<E>,
-  ): void {
+  register<E extends DomainEvent>(eventType: string, handler: EventHandler<E>): void {
     const handlers = this.handlers.get(eventType) ?? [];
 
     handlers.push(handler);
@@ -53,18 +50,13 @@ export class InMemoryEventBus implements EventBus {
    * @param event - event instance
    * @param environment - current transaction environment
    */
-  publish(
-    event: DomainEvent,
-    environment?: TransactionEnvironment,
-  ): Task<void, unknown> {
+  publish(event: DomainEvent, environment?: TransactionEnvironment): Task<void, unknown> {
     const handlers = this.handlers.get(event.constructor.name) ?? [];
 
     if (handlers.length === 0) {
       return Task.ok();
     }
 
-    return Task.traverseDiscard(handlers, handler =>
-      handler.handle(event, environment),
-    );
+    return Task.traverseDiscard(handlers, handler => handler.handle(event, environment));
   }
 }

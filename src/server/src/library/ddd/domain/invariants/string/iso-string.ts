@@ -26,13 +26,9 @@ export const ISOStringFailure = (name: string): ISOStringFailure =>
  */
 function isISOString(value: unknown): value is string {
   // ISO 8601 regex (YYYY-MM-DDTHH:mm:ss.sssZ or YYYY-MM-DD).
-  const iso8601Regex =
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 
-  return guardString('').predicate(value) && iso8601Regex.test(value)
-    ? true
-    : false;
+  return guardString('').predicate(value) && iso8601Regex.test(value) ? true : false;
 }
 
-export const guardISOString = (name: string) =>
-  makeGuards(isISOString, ISOStringFailure(name));
+export const guardISOString = (name: string) => makeGuards(isISOString, ISOStringFailure(name));

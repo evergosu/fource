@@ -44,9 +44,7 @@ export function deepCompare(a: unknown, b: unknown): boolean {
 
     if (arrayA.length !== arrayB.length) return false;
 
-    return arrayA.every((element, index) =>
-      deepCompare(element, arrayB[index]),
-    );
+    return arrayA.every((element, index) => deepCompare(element, arrayB[index]));
   }
 
   const objectA = a as Record<string, unknown>;
@@ -59,7 +57,5 @@ export function deepCompare(a: unknown, b: unknown): boolean {
 
   if (keysA.length !== keysB.length) return false;
 
-  return keysA.every(
-    key => keysB.includes(key) && deepCompare(objectA[key], objectB[key]),
-  );
+  return keysA.every(key => keysB.includes(key) && deepCompare(objectA[key], objectB[key]));
 }

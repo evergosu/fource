@@ -13,10 +13,7 @@ export type FormatStringFailure = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const FormatStringFailure = (
-  name: string,
-  pattern: RegExp,
-): FormatStringFailure =>
+export const FormatStringFailure = (name: string, pattern: RegExp): FormatStringFailure =>
   domainFailure({
     _tag: 'FormatStringFailure',
     pattern,
@@ -30,8 +27,7 @@ export const FormatStringFailure = (
  * @param pattern - Regex pattern to match.
  */
 function hasFormat(pattern: RegExp) {
-  return (value: unknown): value is string =>
-    guardString('').predicate(value) && pattern.test(value);
+  return (value: unknown): value is string => guardString('').predicate(value) && pattern.test(value);
 }
 
 /**

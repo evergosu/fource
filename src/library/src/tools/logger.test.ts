@@ -12,13 +12,7 @@ describe('logger', () => {
 
   const EMOJIS: UnionTuple<LogEmoji> = ['➜', '✔', '❢', '✖'];
 
-  const LOG_LEVELS: UnionTuple<LogLevel> = [
-    'info',
-    'success',
-    'warn',
-    'error',
-    'silent',
-  ];
+  const LOG_LEVELS: UnionTuple<LogLevel> = ['info', 'success', 'warn', 'error', 'silent'];
 
   const message = 'test';
 
@@ -161,13 +155,7 @@ describe('logger', () => {
     it('should print correct colorful text in each message', () => {
       callEachLog(logger, message);
 
-      const expectedColors: UnionTuple<keyof Omit<typeof COLORS, 'reset'>> = [
-        'gray',
-        'blue',
-        'green',
-        'yellow',
-        'red',
-      ];
+      const expectedColors: UnionTuple<keyof Omit<typeof COLORS, 'reset'>> = ['gray', 'blue', 'green', 'yellow', 'red'];
 
       for (const [index, color] of expectedColors.entries()) {
         const row = logSpy.mock.calls[index]?.at(0) as string;
@@ -198,9 +186,7 @@ describe('logger', () => {
       loggerOne.info(message);
       loggerTwo.info(message);
 
-      const [outputOne, outputTwo] = logSpy.mock.calls.map(call =>
-        call.join(' '),
-      );
+      const [outputOne, outputTwo] = logSpy.mock.calls.map(call => call.join(' '));
 
       expect(outputOne).not.toMatch(COLORS.blue);
       expect(outputTwo).toMatch(COLORS.blue);
@@ -230,9 +216,7 @@ describe('logger', () => {
 
       logger.error(message, error);
 
-      expect(errorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(String(error)),
-      );
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining(String(error)));
     });
 
     it('should trace error stack, if present', () => {
@@ -240,9 +224,7 @@ describe('logger', () => {
 
       logger.error(message, error);
 
-      expect(errorSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/at .*:\d+:\d+/),
-      );
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/at .*:\d+:\d+/));
     });
 
     it('should trace nested errors', () => {
@@ -281,13 +263,9 @@ describe('logger', () => {
       } catch (error) {
         logger.error(message, error);
 
-        const output = errorSpy.mock.calls
-          .map(call => call.join(' '))
-          .join('\n');
+        const output = errorSpy.mock.calls.map(call => call.join(' ')).join('\n');
 
-        expect(output).not.toMatch(
-          /^(?:\s*at .*node:(?:internal|vm|fs|timers)|node_modules\/internal)/,
-        );
+        expect(output).not.toMatch(/^(?:\s*at .*node:(?:internal|vm|fs|timers)|node_modules\/internal)/);
       }
     });
 
@@ -330,10 +308,7 @@ describe('logger', () => {
   });
 });
 
-type LogMethod = Extract<
-  keyof Logger,
-  'success' | 'error' | 'info' | 'warn' | 'log'
->;
+type LogMethod = Extract<keyof Logger, 'success' | 'error' | 'info' | 'warn' | 'log'>;
 
 function callEachLog(logger: Logger, message: string) {
   const methods: LogMethod[] = ['log', 'info', 'success', 'warn', 'error'];

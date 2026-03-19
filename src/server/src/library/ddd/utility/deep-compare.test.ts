@@ -46,21 +46,11 @@ describe('deep equal', () => {
   });
 
   it('should return true for deeply equal nested objects', () => {
-    expect(
-      deepCompare(
-        { a: { b: [1, 2], c: 'foo' } },
-        { a: { b: [1, 2], c: 'foo' } },
-      ),
-    ).toBe(true);
+    expect(deepCompare({ a: { b: [1, 2], c: 'foo' } }, { a: { b: [1, 2], c: 'foo' } })).toBe(true);
   });
 
   it('should return false for deeply unequal nested objects', () => {
-    expect(
-      deepCompare(
-        { a: { b: [1, 2], c: 'foo' } },
-        { a: { b: [1, 2, 3], c: 'foo' } },
-      ),
-    ).toBe(false);
+    expect(deepCompare({ a: { b: [1, 2], c: 'foo' } }, { a: { b: [1, 2, 3], c: 'foo' } })).toBe(false);
   });
 
   it('should return true for equal Date objects', () => {

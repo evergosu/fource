@@ -21,9 +21,7 @@ describe('either', () => {
     it('should throw when accessing Left on Right either', () => {
       const right = Either.right(42);
 
-      expect(() => right.getLeft()).toThrowError(
-        DataTypeInvariantViolationException,
-      );
+      expect(() => right.getLeft()).toThrowError(DataTypeInvariantViolationException);
     });
   });
 
@@ -47,9 +45,7 @@ describe('either', () => {
     it('should throw when accessing Right on Left either', () => {
       const left = Either.left(42);
 
-      expect(() => left.getRight()).toThrowError(
-        DataTypeInvariantViolationException,
-      );
+      expect(() => left.getRight()).toThrowError(DataTypeInvariantViolationException);
     });
   });
 
@@ -124,12 +120,7 @@ describe('either', () => {
       const eitherThree = Either.right('baz');
       const eitherFour = Either.left('Failed at step 4');
 
-      const combined = Either.combine([
-        eitherOne,
-        eitherTwo,
-        eitherThree,
-        eitherFour,
-      ]);
+      const combined = Either.combine([eitherOne, eitherTwo, eitherThree, eitherFour]);
 
       expect(combined.isLeft()).toBe(true);
       expect(combined.getLeft()).toBe('Failed at step 2');
@@ -140,9 +131,7 @@ describe('either', () => {
     it('should asynchronously transform right value', async () => {
       const result = Either.right(3);
 
-      const mapped = await result.mapAsync(
-        async n => await Promise.resolve(n + 7),
-      );
+      const mapped = await result.mapAsync(async n => await Promise.resolve(n + 7));
 
       expect(mapped.isRight()).toBe(true);
       expect(mapped.getRight()).toBe(10);
@@ -151,9 +140,7 @@ describe('either', () => {
     it('should not map Left', async () => {
       const result = Either.left('async error');
 
-      const mapped = await result.mapAsync(
-        async (n: number) => await Promise.resolve(n + 1),
-      );
+      const mapped = await result.mapAsync(async (n: number) => await Promise.resolve(n + 1));
 
       expect(mapped.isLeft()).toBe(true);
       expect(mapped.getLeft()).toBe('async error');
@@ -200,9 +187,7 @@ describe('either', () => {
     it('should asynchronously transform right value', async () => {
       const result = Either.right(4);
 
-      const flatMapped = await result.flatMapAsync(
-        async n => await Promise.resolve(Either.right(n * 2)),
-      );
+      const flatMapped = await result.flatMapAsync(async n => await Promise.resolve(Either.right(n * 2)));
 
       expect(flatMapped.isRight()).toBe(true);
       expect(flatMapped.getRight()).toBe(8);
@@ -211,9 +196,7 @@ describe('either', () => {
     it('should return same left value if either is left', async () => {
       const result = Either.left('initial value');
 
-      const flatMapped = await result.flatMapAsync(
-        async (n: number) => await Promise.resolve(Either.right(n * 2)),
-      );
+      const flatMapped = await result.flatMapAsync(async (n: number) => await Promise.resolve(Either.right(n * 2)));
 
       expect(flatMapped.isLeft()).toBe(true);
       expect(flatMapped.getLeft()).toBe('initial value');
@@ -223,9 +206,7 @@ describe('either', () => {
       //@ts-expect-error allowed it tests.
       const result: Either<number, string> = Either.right(100);
 
-      const flatMapped = await result.flatMapAsync(
-        async () => await Promise.resolve(Either.left('inner left')),
-      );
+      const flatMapped = await result.flatMapAsync(async () => await Promise.resolve(Either.left('inner left')));
 
       expect(flatMapped.isLeft()).toBe(true);
       expect(flatMapped.getLeft()).toBe('inner left');

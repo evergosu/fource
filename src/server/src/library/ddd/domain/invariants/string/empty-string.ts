@@ -28,5 +28,4 @@ function isEmpty(value: unknown): value is string {
   return guardString('').predicate(value) && value.trim() === '' ? false : true;
 }
 
-export const guardEmptyString = (name: string) =>
-  makeGuards(isEmpty, EmptyStringFailure(name));
+export const guardEmptyString = (name: string) => makeGuards(isEmpty, EmptyStringFailure(name));

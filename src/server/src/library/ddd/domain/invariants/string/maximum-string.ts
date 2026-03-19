@@ -13,10 +13,7 @@ export type MaximumLengthStringFailure = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-export const MaximumLengthStringFailure = (
-  name: string,
-  maximumLength: number,
-): MaximumLengthStringFailure =>
+export const MaximumLengthStringFailure = (name: string, maximumLength: number): MaximumLengthStringFailure =>
   domainFailure({
     _tag: 'MaximumLengthStringFailure',
     maximumLength,
@@ -30,8 +27,7 @@ export const MaximumLengthStringFailure = (
  * @param maximumLength - The maximum allowed length.
  */
 function isLessThan(maximumLength: number) {
-  return (value: unknown): value is string =>
-    guardString('').predicate(value) && value.length < maximumLength;
+  return (value: unknown): value is string => guardString('').predicate(value) && value.length < maximumLength;
 }
 
 /**
@@ -42,8 +38,5 @@ function isLessThan(maximumLength: number) {
  * @param maximumLength - The maximum allowed length.
  */
 export function guardMaximumLengthString(name: string, maximumLength: number) {
-  return makeGuards(
-    isLessThan(maximumLength),
-    MaximumLengthStringFailure(name, maximumLength),
-  );
+  return makeGuards(isLessThan(maximumLength), MaximumLengthStringFailure(name, maximumLength));
 }

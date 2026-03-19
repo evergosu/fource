@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 // It is virtual import, created by nextjs, that is why plugin can't see it.
-// eslint-disable-next-line import-x/no-unresolved
+
 import { Inter } from 'next/font/google';
 
 import './globals.css';
@@ -13,11 +13,7 @@ export const metadata: Metadata = {
   title: 'Fource',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  readonly children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>

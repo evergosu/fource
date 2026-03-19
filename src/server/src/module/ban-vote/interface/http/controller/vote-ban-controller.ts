@@ -23,9 +23,7 @@ export class VoteBanController extends ExpressController<VoteBanRequest> {
 
   /** @inheritdoc */
   protected handle(request: VoteBanRequest) {
-    return this.bus.dispatch(
-      new VoteBanCommand(request.body.storyId, request.body.voterId),
-    );
+    return this.bus.dispatch(new VoteBanCommand(request.body.storyId, request.body.voterId));
   }
 
   /** @inheritdoc */

@@ -28,10 +28,5 @@ function isDefined<T>(value: T): value is NonNullable<T> {
   return value !== null && value !== undefined;
 }
 
-export const guardDefined = <T>(
-  name: string,
-): Guard<T, NonNullable<T>, NullishFailure> =>
-  makeGuards<T, NonNullable<T>, NullishFailure>(
-    isDefined,
-    NullishFailure(name),
-  );
+export const guardDefined = <T>(name: string): Guard<T, NonNullable<T>, NullishFailure> =>
+  makeGuards<T, NonNullable<T>, NullishFailure>(isDefined, NullishFailure(name));

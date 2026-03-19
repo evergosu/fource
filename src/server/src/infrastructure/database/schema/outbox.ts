@@ -1,11 +1,6 @@
 import type z from 'zod';
 
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-  type Json,
-} from 'drizzle-zod';
+import { createInsertSchema, createSelectSchema, createUpdateSchema, type Json } from 'drizzle-zod';
 import { timestamp, pgTable, jsonb, uuid, text } from 'drizzle-orm/pg-core';
 
 export const outbox = pgTable('outbox', {

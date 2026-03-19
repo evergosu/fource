@@ -1,7 +1,7 @@
+/* eslint-disable prettier/prettier */
 import type { Guard } from '../domain/invariants/make-guards';
 import type { Failure } from '../domain/issues/failure';
 
-/* eslint-disable prettier/prettier */
 /**
  * `Task` represents a **lazy, composable, asynchronous effect**
  * that may fail with a typed error.
@@ -130,13 +130,8 @@ export class Task<A, E> {
    * task.ensure(rows => rows.length > 0, new ConcurrencyFailure());
    * ```
    */
-  ensure<P extends A, F>(
-    predicate: (value: A) => value is P,
-    error: F,
-  ): Task<P, E | F> {
-    return this.flatMap(value =>
-      predicate(value) ? Task.ok(value) : Task.fail(error),
-    );
+  ensure<P extends A, F>(predicate: (value: A) => value is P, error: F): Task<P, E | F> {
+    return this.flatMap(value => (predicate(value) ? Task.ok(value) : Task.fail(error)));
   }
 
   /**
@@ -157,9 +152,7 @@ export class Task<A, E> {
    * task.validate(GuardString(x, 'x'));
    * ```
    */
-  validate<F extends Failure, B extends A>(
-    guard: Guard<A, B, F>,
-  ): Task<A, E | F> {
+  validate<F extends Failure, B extends A>(guard: Guard<A, B, F>): Task<A, E | F> {
     return this.flatMap(value =>
       guard.validate(value).match({
         fail: error => Task.fail(error),
@@ -185,9 +178,7 @@ export class Task<A, E> {
    * task.refine(GuardSring(x, 'x'));
    * ```
    */
-  refine<F extends Failure, B extends A>(
-    guard: Guard<A, B, F>,
-  ): Task<B, E | F> {
+  refine<F extends Failure, B extends A>(guard: Guard<A, B, F>): Task<B, E | F> {
     return this.flatMap(value =>
       guard.refine(value).match({
         ok: refined => Task.ok(refined),
@@ -216,10 +207,7 @@ export class Task<A, E> {
    * ---
    * @param fa - container to apply.
    */
-  public ap<B, F>(
-    this: Task<(value: A) => B, E>,
-    fa: Task<A, F>,
-  ): Task<B, E | F> {
+  public ap<B, F>(this: Task<(value: A) => B, E>, fa: Task<A, F>): Task<B, E | F> {
     return new Task(async () => {
       const [rf, ra] = await Promise.all([this.run(), fa.run()]);
 
@@ -400,10 +388,7 @@ export class Task<A, E> {
    * });
    * ```
    */
-  public matchFailure<
-    F extends Failure,
-    Cases extends FailureCasesWithDefault<F>,
-  >(
+  public matchFailure<F extends Failure, Cases extends FailureCasesWithDefault<F>>(
     this: Task<A, F>,
     cases: Cases,
   ): Task<A, DefaultReturn<F, Cases> | ExplicitReturn<Cases>>;
@@ -431,18 +416,16 @@ export class Task<A, E> {
    * });
    * ```
    */
-  public matchFailure<
-    F extends Failure,
-    Cases extends FailureCasesWithDefault<F> | FailureCases<F>,
-  >(this: Task<A, F>, cases: Cases): Task<A, Failure> {
+  public matchFailure<F extends Failure, Cases extends FailureCasesWithDefault<F> | FailureCases<F>>(
+    this: Task<A, F>,
+    cases: Cases,
+  ): Task<A, Failure> {
     return new Task(async () => {
       const result = await this.run();
 
       return result.match({
         fail: failure => {
-          const explicit = (cases as Partial<FailureCases<F>>)[
-            failure._tag as F['_tag']
-          ];
+          const explicit = (cases as Partial<FailureCases<F>>)[failure._tag as F['_tag']];
 
           if (explicit) {
             return Result.fail(explicit(failure as ExtractByTag<F, F['_tag']>));
@@ -517,9 +500,7 @@ export class Task<A, E> {
     return new Task(async () => {
       const result = await this.run();
 
-      const output = result.isSuccess()
-        ? cases.ok(result.value)
-        : cases.fail(result.error);
+      const output = result.isSuccess() ? cases.ok(result.value) : cases.fail(result.error);
 
       if (output instanceof Task) {
         return output.run();
@@ -576,10 +557,7 @@ export class Task<A, E> {
    * Task.traverse([1,2,3], n => Task.ok(n * 2))
    * // Task<[2,4,6], never>
    */
-  static traverse<A, B, E>(
-    values: A[],
-    f: (value: A, index: number) => Task<B, E>,
-  ): Task<B[], E> {
+  static traverse<A, B, E>(values: A[], f: (value: A, index: number) => Task<B, E>): Task<B[], E> {
     return new Task(async () => {
       const results: B[] = [];
 
@@ -611,10 +589,7 @@ export class Task<A, E> {
    * @param values collection to traverse
    * @param f effectful mapping function
    */
-  static traverseDiscard<A, E>(
-    values: A[],
-    f: (value: A, index: number) => Task<unknown, E>,
-  ): Task<void, E> {
+  static traverseDiscard<A, E>(values: A[], f: (value: A, index: number) => Task<unknown, E>): Task<void, E> {
     return new Task(async () => {
       for (const [index, value] of values.entries()) {
         const result = await f(value, index).run();
@@ -638,10 +613,7 @@ export class Task<A, E> {
    * @param values collection to traverse
    * @param f effectful mapping function
    */
-  static traverseParallel<A, B, E>(
-    values: A[],
-    f: (value: A, index: number) => Task<B, E>,
-  ): Task<B[], E> {
+  static traverseParallel<A, B, E>(values: A[], f: (value: A, index: number) => Task<B, E>): Task<B[], E> {
     return new Task(async () => {
       const results = await Promise.all(
         values.map(async (value, index) => {
@@ -713,9 +685,7 @@ type ExcludeHandled<F extends Failure, C> = F extends { _tag: infer Tag; }
   : never;
 
 type ExplicitReturn<C> = {
-  [K in Exclude<keyof C, '_'>]: C[K] extends (...as: unknown[]) => infer R
-  ? R
-  : never;
+  [K in Exclude<keyof C, '_'>]: C[K] extends (...as: unknown[]) => infer R ? R : never;
 }[Exclude<keyof C, '_'>];
 
 type DefaultReturn<F extends Failure, C> = C extends { _: Identity; }

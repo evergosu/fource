@@ -17,10 +17,7 @@ import type { Command } from './command';
  * - Applies middleware pipeline
  */
 export class InMemoryCommandBus {
-  private readonly handlers = new Map<
-    string,
-    CommandHandler<object, unknown, unknown>
-  >();
+  private readonly handlers = new Map<string, CommandHandler<object, unknown, unknown>>();
   private readonly middleware: CommandMiddleware[] = [];
 
   /**
@@ -30,10 +27,7 @@ export class InMemoryCommandBus {
    * @param command - command object
    * @param handler - handler for command object
    */
-  register<C extends Command<O, F>, O, F>(
-    command: new (...as: never) => C,
-    handler: CommandHandler<C, O, F>,
-  ): void {
+  register<C extends Command<O, F>, O, F>(command: new (...as: never) => C, handler: CommandHandler<C, O, F>): void {
     this.handlers.set(command.name, handler);
   }
 
@@ -54,10 +48,7 @@ export class InMemoryCommandBus {
    * @param command - command object
    * @param handler - handler for command object
    */
-  private composeMiddleware<O, F>(
-    command: unknown,
-    handler: () => Task<O, F>,
-  ): () => Task<O, F> {
+  private composeMiddleware<O, F>(command: unknown, handler: () => Task<O, F>): () => Task<O, F> {
     // eslint-disable-next-line unicorn/no-array-reduce
     return this.middleware.toReversed().reduce((next, middleware) => {
       return () => middleware.execute(command, next);
@@ -71,23 +62,15 @@ export class InMemoryCommandBus {
    * @param command - command object
    */
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-  dispatch<C extends Command<Output, Failure>, Output, Failure>(
-    command: C,
-  ): Task<Output, Failure> {
-    const handler = this.handlers.get(command.constructor.name) as
-      | CommandHandler<C, Output, Failure>
-      | undefined;
+  dispatch<C extends Command<Output, Failure>, Output, Failure>(command: C): Task<Output, Failure> {
+    const handler = this.handlers.get(command.constructor.name) as CommandHandler<C, Output, Failure> | undefined;
 
     if (!handler) {
-      throw new CommandHandlerExcepcion(
-        `No handler registered for ${command.constructor.name}`,
-      );
+      throw new CommandHandlerExcepcion(`No handler registered for ${command.constructor.name}`);
     }
 
-    const pipeline = this.composeMiddleware(
-      command,
-      (environment?: TransactionEnvironment) =>
-        handler.handle(command, environment),
+    const pipeline = this.composeMiddleware(command, (environment?: TransactionEnvironment) =>
+      handler.handle(command, environment),
     );
 
     return pipeline();

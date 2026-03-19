@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { type DomainFailure, domainFailure } from '../issues/failure';
 import { Result } from '../../types/result';
 import { Time } from './time';
@@ -9,12 +8,11 @@ type TestFailure = {
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
-const TestFailure =
-  (name: string): TestFailure =>
-    domainFailure({
-      _tag: 'TestFailure',
-      name,
-    });
+const TestFailure = (name: string): TestFailure =>
+  domainFailure({
+    _tag: 'TestFailure',
+    name,
+  });
 
 class TestTime extends Time<TestTime> {
   public static _internalCreate(date: Date): Result<TestTime, TestFailure> {
@@ -45,9 +43,7 @@ describe('time', () => {
   const isoString = '2025-08-12T10:15:30.000Z';
 
   it('should throw if validators has not been passed', () => {
-    expect(() =>
-      TestTimeWithValidators.fromISOString('2025-08-10T10:15:30.000Z'),
-    ).toThrow();
+    expect(() => TestTimeWithValidators.fromISOString('2025-08-10T10:15:30.000Z')).toThrow();
   });
 
   describe('.fromDate()', () => {
@@ -114,9 +110,7 @@ describe('time', () => {
 
       expect(result.isSuccess()).toBe(true);
 
-      expect(
-        Math.abs(result.value.toUnixMilliSeconds() - Date.now()),
-      ).toBeLessThan(5);
+      expect(Math.abs(result.value.toUnixMilliSeconds() - Date.now())).toBeLessThan(5);
     });
   });
 
@@ -140,17 +134,13 @@ describe('time', () => {
     });
 
     it('should add milliseconds', () => {
-      const result = TestTime.fromUnixMilliSeconds(1000).flatMap(t =>
-        t.addMilliSeconds(500),
-      );
+      const result = TestTime.fromUnixMilliSeconds(1000).flatMap(t => t.addMilliSeconds(500));
 
       expect(result.value.toUnixMilliSeconds()).toBe(1500);
     });
 
     it('should subtract milliseconds', () => {
-      const result = TestTime.fromUnixMilliSeconds(1500).flatMap(t =>
-        t.subtractMilliSeconds(500),
-      );
+      const result = TestTime.fromUnixMilliSeconds(1500).flatMap(t => t.subtractMilliSeconds(500));
 
       expect(result.value.toUnixMilliSeconds()).toBe(1000);
     });

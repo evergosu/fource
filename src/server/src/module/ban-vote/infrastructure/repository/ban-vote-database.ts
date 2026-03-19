@@ -1,17 +1,10 @@
-/* eslint-disable prettier/prettier */
 import type { DatabaseCountById } from 'server/library/ddd/infrastructure/repository/capabilities/count-by-id';
 import type { DatabaseCreate } from 'server/library/ddd/infrastructure/repository/capabilities/create';
 import type { DatabaseDelete } from 'server/library/ddd/infrastructure/repository/capabilities/delete';
 import type { InfrastructureFailures } from 'server/library/ddd/infrastructure/infrastructure-errors';
-import type {
-  DatabaseTransaction,
-  Database,
-} from 'server/infrastructure/database/database';
+import type { DatabaseTransaction, Database } from 'server/infrastructure/database/database';
 
-import {
-  type BanVoteInsertSchema,
-  banVote,
-} from 'server/infrastructure/database/schema/ban-vote';
+import { type BanVoteInsertSchema, banVote } from 'server/infrastructure/database/schema/ban-vote';
 import { decodePostgresError } from 'server/infrastructure/database/clients/postgres/decode-error';
 import { Task } from 'server/library/ddd/primitives';
 import { count, eq } from 'drizzle-orm';
@@ -23,17 +16,14 @@ import { count, eq } from 'drizzle-orm';
  *  - error channel intentionally revealed as never
  *  - consumer must narrow error types manually
  */
-export class BanVoteDatabase
-  implements
-  DatabaseCreate<BanVoteInsertSchema>,
-  DatabaseDelete<string>,
-  DatabaseCountById {
+export class BanVoteDatabase implements DatabaseCreate<BanVoteInsertSchema>, DatabaseDelete<string>, DatabaseCountById {
   /**
    * ---
    * Constructs a new `BanVoteDatabase` instance.
    * ---
    * @param database - current database transaction.
    */
+  // eslint-disable-next-line prettier/prettier
   constructor(private readonly database: DatabaseTransaction | Database) { }
 
   /** @inheritdoc */
@@ -58,11 +48,7 @@ export class BanVoteDatabase
   /** @inheritdoc */
   public countById(id: string): Task<number, InfrastructureFailures> {
     return Task.fromPromise(
-      async () =>
-        await this.database
-          .select({ count: count() })
-          .from(banVote)
-          .where(eq(banVote.storyId, id)),
+      async () => await this.database.select({ count: count() }).from(banVote).where(eq(banVote.storyId, id)),
     )
       .map(result => result[0]?.count ?? 0)
       .mapError(error => decodePostgresError(error));

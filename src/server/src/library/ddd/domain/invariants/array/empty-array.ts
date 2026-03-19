@@ -47,9 +47,7 @@ function isNonEmptyArray<T>(value: T[]): value is NonEmptyArray<T> {
   return Array.isArray(value) && value.length > 0;
 }
 
-export const guardEmptyArray = <T>(
-  name: string,
-): Guard<T[], NonEmptyArray<T>, EmptyArrayFailure> => ({
+export const guardEmptyArray = <T>(name: string): Guard<T[], NonEmptyArray<T>, EmptyArrayFailure> => ({
   /**
    * ---
    * Checks that value is a `string`.
@@ -64,9 +62,7 @@ export const guardEmptyArray = <T>(
    * @param value - value to validate
    */
   validate(value: unknown[]): Result<void, EmptyArrayFailure> {
-    return isNonEmptyArray(value)
-      ? Result.ok()
-      : Result.fail(EmptyArrayFailure(name));
+    return isNonEmptyArray(value) ? Result.ok() : Result.fail(EmptyArrayFailure(name));
   },
   /**
    * ---
@@ -75,8 +71,6 @@ export const guardEmptyArray = <T>(
    * @param value - value to refine
    */
   refine<T>(value: T[]): Result<NonEmptyArray<T>, EmptyArrayFailure> {
-    return isNonEmptyArray(value)
-      ? Result.ok(value)
-      : Result.fail(EmptyArrayFailure(name));
+    return isNonEmptyArray(value) ? Result.ok(value) : Result.fail(EmptyArrayFailure(name));
   },
 });

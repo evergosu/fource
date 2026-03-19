@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import type { Database } from 'server/infrastructure/database/database';
 
 import {
@@ -7,10 +6,10 @@ import {
   type UnitOfWork,
 } from 'server/library/ddd/application/unit-of-work/unit-of-work';
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
+import { OutboxRepository } from 'server/module/outbox/infrastructure/repository/outbox-repository';
 import { Task } from 'server/library/ddd/primitives';
 
 import { AggregateTracker } from './aggregate-tracker';
-import { OutboxRepository } from 'server/module/outbox/infrastructure/repository/outbox-repository';
 
 /** @inheritdoc */
 export class DrizzleUnitOfWork implements UnitOfWork {
@@ -20,7 +19,7 @@ export class DrizzleUnitOfWork implements UnitOfWork {
    * ---
    * @param database Database connection capable of executing transactions.
    */
-  constructor(private readonly database: Database) { }
+  constructor(private readonly database: Database) {}
 
   /** @inheritdoc */
   execute<Output, Failure>(

@@ -30,9 +30,7 @@ describe('specification', () => {
   });
 
   test('should combine specifications with AND', () => {
-    const specification = new EvenNumberSpecification().and(
-      new GreaterThanFiveSpecification(),
-    );
+    const specification = new EvenNumberSpecification().and(new GreaterThanFiveSpecification());
 
     expect(specification.isSatisfiedBy(6)).toBe(true);
 
@@ -42,9 +40,7 @@ describe('specification', () => {
   });
 
   test('should combine specifications with OR', () => {
-    const specification = new EvenNumberSpecification().or(
-      new GreaterThanFiveSpecification(),
-    );
+    const specification = new EvenNumberSpecification().or(new GreaterThanFiveSpecification());
 
     expect(specification.isSatisfiedBy(6)).toBe(true);
 

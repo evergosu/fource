@@ -1,8 +1,4 @@
-import type {
-  PgUpdateDynamic,
-  PgUpdateBase,
-  AnyPgColumn,
-} from 'drizzle-orm/pg-core';
+import type { PgUpdateDynamic, PgUpdateBase, AnyPgColumn } from 'drizzle-orm/pg-core';
 
 import { Task } from 'server/library/ddd/primitives';
 import { eq } from 'drizzle-orm';
@@ -17,11 +13,7 @@ type AnyPgUpdate =
   PgUpdateDynamic<PgUpdateBase<any, any, any>> | PgUpdateBase<any, any, any>;
 
 interface OptimisticLockExecutor {
-  execute(
-    query: AnyPgUpdate,
-    version: number,
-    id: string,
-  ): Task<unknown[], unknown>;
+  execute(query: AnyPgUpdate, version: number, id: string): Task<unknown[], unknown>;
 }
 
 /**

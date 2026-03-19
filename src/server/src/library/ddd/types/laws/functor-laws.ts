@@ -19,11 +19,7 @@ import type { LawRuntime } from '../laws/law-runtime';
  * @param fa Container under tests
  * @param map Container implementation of map operation
  */
-export function functorLaws<F, A, E>(
-  runtime: LawRuntime<F, A, E>,
-  fa: F,
-  map: (fa: F, f: (a: A) => A) => F,
-) {
+export function functorLaws<F, A, E>(runtime: LawRuntime<F, A, E>, fa: F, map: (fa: F, f: (a: A) => A) => F) {
   return {
     async identity() {
       const left = await runtime.run(map(fa, a => a));

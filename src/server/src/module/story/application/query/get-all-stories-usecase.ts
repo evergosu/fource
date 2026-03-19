@@ -15,11 +15,7 @@ import { StoryQueryMapper } from './mapper/story-query-mapper';
  * This use case belongs to the query side of CQRS
  * and therefore performs **read-only operations**.
  */
-export class GetAllStoriesUseCase extends QueryUseCase<
-  void,
-  StoryView[],
-  GetAllStoriesFailure
-> {
+export class GetAllStoriesUseCase extends QueryUseCase<void, StoryView[], GetAllStoriesFailure> {
   /**
    * ---
    *  Constructs new instance of GetAllStoriesUseCase.

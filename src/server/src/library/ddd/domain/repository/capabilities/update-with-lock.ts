@@ -1,14 +1,6 @@
-import type {
-  InferSerializerDomain,
-  Serializer as S,
-  Entity,
-  Task,
-} from 'server/library/ddd/primitives';
+import type { InferSerializerDomain, Serializer as S, Entity, Task } from 'server/library/ddd/primitives';
 
-import type {
-  RepositoryFailureMap as RFM,
-  RequiresErrorPolicy,
-} from '../repository-error-policy';
+import type { RepositoryFailureMap as RFM, RequiresErrorPolicy } from '../repository-error-policy';
 import type { AggregateConcurrencyFailure } from '../repository-errors';
 
 /**
@@ -30,10 +22,7 @@ export interface DomainUpdateWithLock<
    */
   updateWithLock(
     entity: Domain,
-  ): Task<
-    Domain['id'],
-    FailureMap[UPDATE_WITH_LOCK_OPERATION] | AggregateConcurrencyFailure
-  >;
+  ): Task<Domain['id'], FailureMap[UPDATE_WITH_LOCK_OPERATION] | AggregateConcurrencyFailure>;
 }
 
 export type UPDATE_WITH_LOCK_OPERATION = 'updateWithLock';

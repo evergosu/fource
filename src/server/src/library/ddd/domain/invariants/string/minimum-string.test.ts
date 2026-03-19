@@ -1,8 +1,5 @@
 /* eslint-disable unicorn/no-null */
-import {
-  MinimumLengthStringFailure,
-  guardMinimumLengthString,
-} from './minimum-string';
+import { MinimumLengthStringFailure, guardMinimumLengthString } from './minimum-string';
 import { testGuardContract } from '../make-guards.test';
 
 describe('guardMinimumLengthString', () => {
