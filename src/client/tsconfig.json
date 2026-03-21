@@ -2,20 +2,51 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
     "jsx": "preserve",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "noEmit": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "client/*": [ "./src/*" ],
+      "library/*": ["../library/src/*"],
+    },
+    "outDir": "dist",
     "plugins": [
       {
         "name": "next"
       }
     ],
     "target": "es2022",
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "types": [
+      "node",
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/library/types"
+    ],
+    "allowJs": true,
+    "noEmit": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "./vitest.setup.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "./ecosystem.config.cjs",
+    "./vitest.setup.ts",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "./src/library/types/environment.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

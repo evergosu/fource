@@ -3,7 +3,6 @@ import * as resolver from 'eslint-import-resolver-typescript';
 import { configs, config, parser } from 'typescript-eslint';
 import testingLibrary from 'eslint-plugin-testing-library';
 import prettier from 'eslint-plugin-prettier/recommended';
-import perfectionist from 'eslint-plugin-perfectionist';
 import * as regexp from 'eslint-plugin-regexp';
 import { FlatCompat } from '@eslint/eslintrc';
 import _import from 'eslint-plugin-import-x';
@@ -35,7 +34,6 @@ export default config(
   ...fixupConfigRules(_import.flatConfigs.recommended),
   ...fixupConfigRules(_import.flatConfigs.react),
   ...fixupConfigRules(_import.flatConfigs.typescript),
-  perfectionist.configs['recommended-line-length'],
   sonarjs.configs.recommended,
   unicorn.configs['flat/recommended'],
   regexp.configs['flat/recommended'],
@@ -46,7 +44,7 @@ export default config(
       extends: ['plugin:@next/next/recommended'],
     }),
   ),
-  react.configs.flat.recommended,
+  react.configs.flat['recommended'],
   react.configs.flat['jsx-runtime'],
   ...compat.config({
     extends: ['plugin:react-hooks/recommended'],
@@ -72,17 +70,19 @@ export default config(
   },
   {
     rules: {
-      'import-x/no-extraneous-dependencies': [
+      'no-restricted-imports': [
         'error',
         {
-          devDependencies: [
-            'mocks/server.ts',
-            '*.config.{mjs,ts}',
-            'vitest.setup.ts',
-            '**/*.test.*',
+          patterns: [
+            {
+              message: 'Do not import directly from src — use client/*, server/*, tests/*, etc.',
+              group: ['src/*'],
+            },
+            {
+              message: 'Avoid deep relative imports into src. Use proper aliases instead.',
+              group: ['../*/src/*', '../../*/src/*'],
+            },
           ],
-          peerDependencies: true,
-          packageDir: __dirname,
         },
       ],
       '@typescript-eslint/naming-convention': [
@@ -94,6 +94,14 @@ export default config(
           types: ['boolean'],
         },
       ],
+      'import-x/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: ['*.config.{mjs,ts}', 'vitest.setup.ts', '**/*.spec.*', '**/*.test.*'],
+          peerDependencies: true,
+          packageDir: __dirname,
+        },
+      ],
       'prettier/prettier': [
         'error',
         {
@@ -101,18 +109,36 @@ export default config(
           bracketSpacing: true,
           trailingComma: 'all',
           singleQuote: true,
+          printWidth: 120,
           semi: true,
         },
       ],
       'unicorn/prevent-abbreviations': [
         'error',
         {
+          allowList: {
+            ProcessEnv: true,
+          },
           ignore: [String.raw`(.|-)env`, /^ignore/i],
+        },
+      ],
+      '@typescript-eslint/no-namespace': [
+        'error',
+        {
+          allowDeclarations: true,
         },
       ],
       'import-x/newline-after-import': 'error',
       'sonarjs/no-empty-test-file': 'off',
       'import-x/no-duplicates': 'error',
+
+      'function-paren-newline': 'off',
+      'object-curly-spacing': 'off',
+      'multiline-ternary': 'off',
+      'arrow-body-style': 'off',
+      'no-extra-parens': 'off',
+      indent: 'off',
+
       'import-x/first': 'error',
       // Already checked by typescript.
       'import-x/no-named-as-default-member': 'off',
@@ -120,19 +146,30 @@ export default config(
       'import-x/default': 'off',
       'import-x/named': 'off',
     },
-    settings: {
-      'import-x/parsers': {
-        '@typescript-eslint/parser': [
-          '.ts',
-          '.tsx',
-          '.cts',
-          '.mts',
-          '.js',
-          '.jsx',
-          '.cjs',
-          '.mjs',
-        ],
+    languageOptions: {
+      ...jsxA11y.flatConfigs.recommended.languageOptions,
+      ...react.configs.flat.recommended.languageOptions,
+      globals: {
+        ...vitest.environments.env.globals,
+        ...globals.builtin,
+        ...globals.serviceworker,
+        ...globals.browser,
+        ...globals.node,
+        React: true,
+        JSX: true,
       },
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: ['*.config.mjs'],
+        },
+        warnOnUnsupportedTypeScriptVersion: false,
+        tsconfigRootDir: __dirname,
+      },
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      parser: parser,
+    },
+    settings: {
       'import-x/resolver': {
         options: {
           tsconfigRootDir: __dirname,
@@ -142,47 +179,16 @@ export default config(
         resolver: resolver,
         node: true,
       },
-      perfectionist: {
-        partitionByComment: true,
-        partitionByNewLine: true,
-        type: 'line-length',
+      'import-x/parsers': {
+        '@typescript-eslint/parser': ['.ts', '.tsx', '.cts', '.mts', '.js', '.jsx', '.cjs', '.mjs'],
       },
       react: { version: 'detect' },
       vitest: { typecheck: true },
       next: { rootDir: '.' },
     },
-    languageOptions: {
-      ...jsxA11y.flatConfigs.recommended.languageOptions,
-      ...react.configs.flat.recommended.languageOptions,
-      parserOptions: {
-        projectService: {
-          allowDefaultProject: ['*.config.mjs'],
-        },
-        warnOnUnsupportedTypeScriptVersion: false,
-        tsconfigRootDir: __dirname,
-      },
-      globals: {
-        ...vitest.environments.env.globals,
-        ...globals.builtin,
-        ...globals.serviceworker,
-        ...globals.browser,
-        React: true,
-        JSX: true,
-      },
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      parser: parser,
-    },
     linterOptions: { reportUnusedDisableDirectives: true },
   },
   {
-    ignores: [
-      '.next/*',
-      '.yarn/',
-      'bin/**',
-      'build/**',
-      'dist/**',
-      'node_modules/**',
-    ],
+    ignores: ['.next/*', '.yarn/', 'bin/**', 'build/**', 'dist/**', 'node_modules/**'],
   },
 );

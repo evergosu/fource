@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "client/*": [ "./src/*" ],
+      "library/*": ["../library/src/*"],
+    },
+    "target": "esnext",
+    "types": ["node"],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/library/environment.d.ts"
+    ],
+    "composite": true,
+    "outDir": "..",
+    "tsBuildInfoFile": "./.next/cache/tsbuildinfo.config.json",
+    "allowJs": true
+  },
+  "include": [
+    "./config/next.config.ts",
+    "./src/library/environment.ts",
+    "../library/src/resolve-path.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

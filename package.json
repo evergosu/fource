@@ -1,28 +1,73 @@
 {
   "name": "fource",
-  "packageManager": "yarn@4.6.0+sha512.5383cc12567a95f1d668fbe762dfe0075c595b4bfff433be478dbbe24e05251a8e8c3eb992a986667c1d53b6c3a9c85b8398c35a960587fbd9fa3a0915406728",
-  "scripts": {
-    "build": "FORCE_COLOR=1 yarn --immutable && yarn workspaces foreach --all --interlaced --parallel --topological --verbose run build",
-    "lint": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run lint",
-    "prod": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run prod",
-    "start": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --topological --verbose run start",
-    "test": "FORCE_COLOR=1 yarn workspaces foreach --all --interlaced --parallel --verbose run test",
-    "update": "FORCE_COLOR=1 yarn upgrade-interactive && yarn dlx @yarnpkg/sdks base -v"
+  "type": "module",
+  "engines": {
+    "pnpm": ">=10.10.0"
   },
-  "workspaces": [
-    "src/*"
-  ],
+  "scripts": {
+    "app:delete": "pnpm app:stop && pm2 delete pm2-logrotate & pm2 delete $npm_package_name && pm2 save --force && pm2 unstartup",
+    "app:deploy": "pm2 deploy ./ecosystem.config.cjs production",
+    "app:deploy:reload": "pm2 deploy ./ecosystem.config.cjs production exec 'pnpm app:reload'",
+    "app:deploy:setup": "pm2 deploy ./ecosystem.config.cjs production setup",
+    "app:install": "pnpm app:launch:daemon && pm2 save && pm2 startup",
+    "app:launch": "(pnpm database:start & pnpm --recursive --parallel --stream --aggregate-output launch)",
+    "app:launch:daemon": "(pnpm database:daemon & pnpm --recursive --parallel --stream --aggregate-output launch:daemon && pnpm succeed:launch)",
+    "app:list": "pm2 list --sort memory:desc",
+    "app:logs": "pm2 logs",
+    "app:reload": "pm2 reload $npm_package_name",
+    "app:start": "pm2 start pm2-logrotate && pm2 start $npm_package_name",
+    "app:status": "pm2 show client && pm2 show server",
+    "app:stop": "pm2 stop $npm_package_name && pm2 stop pm2-logrotate",
+    "build": "pnpm install --frozen-lockfile && pnpm --recursive --parallel --stream --aggregate-output build:production",
+    "database:daemon": "pnpm --filter server database:daemon",
+    "database:generate": "pnpm --filter server database:generate",
+    "database:migrate": "pnpm --filter server database:migrate",
+    "database:start": "pnpm --filter server database:start",
+    "deps": "pnpm update -i",
+    "lint": "pnpm --recursive --parallel --stream --aggregate-output lint",
+    "postinstall": "husky && pnpm exec playwright install",
+    "pre-commit": "pnpm --recursive --stream --aggregate-output --workspace-concurrency=1 pre-commit",
+    "push": "pnpm --filter server database:push",
+    "start": "(pnpm database:start & pnpm --recursive --parallel --stream --aggregate-output start)",
+    "start:pglite": "(pnpm --filter server start:pglite 2>&1 | sed '/./ s/^/\\x1b[0;35msrc\\/server start:\\x1b[0m /' & pnpm --filter !server --recursive --parallel --stream --aggregate-output start; wait)",
+    "start:production": "(pnpm database:start & pnpm --recursive --parallel --stream --aggregate-output start:production; wait)",
+    "start:production:daemon": "(pnpm database:daemon & pnpm --recursive --parallel --stream --aggregate-output start:production:daemon)",
+    "studio": "pnpm --filter server database:studio",
+    "succeed:launch": ": '\u001b[1;32m✔ daemons launch succeed\u001b[0m'",
+    "test": "gherkin-lint -c .gherkin-lintrc && NODE_ENV=test vitest --passWithNoTests",
+    "test:bdd": "pnpm --filter=tests test",
+    "test:changed": "pnpm --recursive --parallel --stream --aggregate-output test:changed",
+    "test:once": "pnpm --recursive --parallel --stream --aggregate-output test:once",
+    "test:unit": "pnpm --recursive --parallel --stream --aggregate-output --filter=!tests test"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.43.1",
+    "library": "workspace:*",
+    "pg": "^8.16.0",
+    "pm2": "^6.0.6",
+    "uuid": "^11.1.0"
+  },
   "devDependencies": {
-    "@amiceli/vitest-cucumber": "^4.3.0",
-    "@typescript-eslint/parser": "^8.8.0",
-    "eslint": "^8.57.0",
+    "@amiceli/vitest-cucumber": "^4.7.0",
+    "@electric-sql/pglite": "^0.3.1",
+    "@types/pg": "^8.15.2",
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/parser": "^8.32.1",
+    "@typescript-eslint/utils": "^8.32.1",
+    "eslint": "^8.57.1",
+    "eslint-plugin-jsdoc": "^51.4.1",
     "gherkin-lint": "^4.2.4",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8",
-    "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.1.1"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "supertest": "^7.1.1",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.1"
+  },
+  "resolutions": {
+    "emitter": "https://github.com/component/emitter/archive/1.0.1.tar.gz"
   }
 }

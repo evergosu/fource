@@ -3,16 +3,35 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["es2023"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "Preserve",
     "moduleDetection": "force",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "server/*": [ "./src/*" ],
+      "library/*": ["../library/src/*"],
+    },
+    "outDir": "dist",
     "target": "es2022",
-    "outDir": "dist"
+    "types": [
+      "node",
+      "vitest/globals"
+    ],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+      "./src/library/types"
+    ],
   },
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node",
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["dist"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "./ecosystem.config.cjs",
+    "./src/library/types/*.d.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
 }

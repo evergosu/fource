@@ -47,10 +47,11 @@ node_modules/
 
 # dotenv environment variable files
 .env
+.env.local
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
-.env.local
 
 # yarn v2
 .yarn/cache
@@ -60,3 +61,7 @@ node_modules/
 .pnp.*
 
 dist/
+
+# misc
+.DS_Store
+vitest.config.ts.timestamp-*

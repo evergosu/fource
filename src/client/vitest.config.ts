@@ -7,15 +7,29 @@ import { defineConfig as defineVitestConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import react from '@vitejs/plugin-react';
 
+// eslint-disable-next-line no-restricted-imports
+import { resolvePath } from '../library/src/resolve-path';
+
+// FIX: add vitest-cucumber settings, when issue get fixed
+// https://github.com/amiceli/vitest-cucumber/issues/181
 const viteConfig = defineViteConfig({
+  optimizeDeps: {
+    // Prevents errors in pnp, caused by attempts to work with virtual file system.
+    exclude: ['@electric-sql/pglite'],
+  },
   plugins: [tsconfigPaths(), react()],
 });
 
+// Searching for workspace root helps IDE tools and plugins to detect correct setup.
+const root = searchForWorkspaceRoot(process.cwd());
+
 const vitestConfig = defineVitestConfig({
   test: {
-    setupFiles: [
-      `${searchForWorkspaceRoot(process.cwd())}/src/client/vitest.setup.ts`,
-    ],
+    alias: {
+      library: resolvePath(import.meta.url, '../library/src'),
+    },
+    include: [`${root}/src/client/**/?(*.)+(spec|test).[jt]s?(x)`],
+    setupFiles: [`${root}/src/client/vitest.setup.ts`],
     environment: 'jsdom',
     globals: true,
   },
