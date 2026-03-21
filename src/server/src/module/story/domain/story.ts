@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable sonarjs/no-nested-functions */
 import { type DomainFailure, domainFailure } from 'server/library/ddd/domain/issues/failure';
 import { UniqueIdentifier, AggregateRoot, Result } from 'server/library/ddd/primitives';
@@ -104,25 +105,25 @@ export class Story<State extends StoryState> extends AggregateRoot<Properties<St
    */
   private static readonly createPersisted =
     (id: UniqueIdentifier) =>
-    (version: number) =>
-    (isBanned: boolean) =>
-    (title: StoryTitle) =>
-    (body: StoryBody) =>
-    (authorId: StoryAuthorId) =>
-    (createdAt: StoryCreatedAt) =>
-    (expiresAt: StoryExpiresAt) =>
-      new Story<'persisted'>(
-        {
-          createdAt,
-          expiresAt,
-          isBanned,
-          authorId,
-          title,
-          body,
-        },
-        id,
-        version,
-      );
+      (version: number) =>
+        (isBanned: boolean) =>
+          (title: StoryTitle) =>
+            (body: StoryBody) =>
+              (authorId: StoryAuthorId) =>
+                (createdAt: StoryCreatedAt) =>
+                  (expiresAt: StoryExpiresAt) =>
+                    new Story<'persisted'>(
+                      {
+                        createdAt,
+                        expiresAt,
+                        isBanned,
+                        authorId,
+                        title,
+                        body,
+                      },
+                      id,
+                      version,
+                    );
 
   /**
    * ---
@@ -142,7 +143,7 @@ export class Story<State extends StoryState> extends AggregateRoot<Properties<St
       .ap(StoryBody.create(properties.body))
       .ap(StoryAuthorId.create(properties.authorId))
       .ap(createdAt)
-      .ap(StoryExpiresAt.fromDate(properties.createdAt, [createdAt]))
+      .ap(createdAt.flatMap(ca => StoryExpiresAt.fromDate(properties.expiresAt, [ca])))
       .matchFailure({ _: StoryFailure(this.name) });
   }
 
@@ -242,9 +243,9 @@ export type StoryFailure = {
 // eslint-disable-next-line sonarjs/no-redeclare
 export const StoryFailure =
   (name: string) =>
-  (cause: DomainFailure): StoryFailure =>
-    domainFailure({
-      _tag: 'StoryFailure',
-      cause,
-      name,
-    });
+    (cause: DomainFailure): StoryFailure =>
+      domainFailure({
+        _tag: 'StoryFailure',
+        cause,
+        name,
+      });

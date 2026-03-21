@@ -40,7 +40,7 @@ export abstract class AggregateRoot<T> extends Entity<T> {
    * @param event Domain event emitted by this aggregate.
    */
   protected addDomainEvent(event: DomainEvent): void {
-    this.domainEvents.push(event);
+    this._domainEvents.push(event);
   }
 
   /**

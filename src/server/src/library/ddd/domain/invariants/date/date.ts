@@ -29,7 +29,7 @@ export const DateFailure = (name: string): DateFailure =>
  * @param value - The value to check.
  */
 function isDate(value: unknown): value is Date {
-  return value instanceof Date && Number.isNaN(value.getTime()) ? true : false;
+  return value instanceof Date && !Number.isNaN(value.getTime());
 }
 
 export const guardDate = (name: string) => makeGuards(isDate, DateFailure(name));

@@ -74,7 +74,7 @@ function sendReady() {
 function setupCors(allowList: string[]) {
   return cors({
     origin(requestOrigin, callback) {
-      if (!requestOrigin || allowList.includes(requestOrigin)) {
+      if (!requestOrigin || allowList.includes(requestOrigin) || process.env.NODE_ENV === 'test') {
         // eslint-disable-next-line unicorn/no-null
         callback(null, true);
       } else if (requestOrigin) {

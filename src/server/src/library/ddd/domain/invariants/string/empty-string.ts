@@ -25,7 +25,7 @@ export const EmptyStringFailure = (name: string): EmptyStringFailure =>
  * @param value - The value to check.
  */
 function isEmpty(value: unknown): value is string {
-  return guardString('').predicate(value) && value.trim() === '' ? false : true;
+  return guardString('').predicate(value) && value.trim() !== '';
 }
 
 export const guardEmptyString = (name: string) => makeGuards(isEmpty, EmptyStringFailure(name));

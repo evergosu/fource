@@ -25,7 +25,7 @@ export const PastDateFailure = (name: string): PastDateFailure =>
  * @param value - The value to check.
  */
 function isPast(value: unknown): value is Date {
-  return guardDate('').predicate(value) && value.getTime() < Date.now() ? true : false;
+  return guardDate('').predicate(value) && value.getTime() < Date.now();
 }
 
 export const guardPastDate = (name: string) => makeGuards(isPast, PastDateFailure(name));

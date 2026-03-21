@@ -1,7 +1,7 @@
-import { guardBeforeDate } from 'server/library/ddd/domain/invariants/date/before-date';
 import { Result, Time } from 'server/library/ddd/primitives';
 
 import { StoryCreatedAt } from './story-created-at';
+import { guardAfterDate } from 'server/library/ddd/domain/invariants/date/after-date';
 
 /**
  * ---
@@ -28,7 +28,7 @@ export class StoryExpiresAt extends Time<StoryExpiresAt> {
     const [createdAt] = validators;
 
     return Result.ok(date)
-      .validate(guardBeforeDate(this.name, createdAt.toDate()))
+      .validate(guardAfterDate(this.name, createdAt.toDate()))
       .map(() => new StoryExpiresAt(date));
   }
 }

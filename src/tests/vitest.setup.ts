@@ -6,17 +6,8 @@ import {
   type ServerContext as ApplicationServerContext,
   startServer as startApplicationServer,
 } from 'server/bootstrap/express';
-import {
-  type ServerContext as NextServerContext,
-  startServer as startNextServer,
-} from 'client/server/express';
-import {
-  type RunnerTaskBase,
-  type TestContext,
-  beforeEach,
-  beforeAll,
-  afterAll,
-} from 'vitest';
+import { type ServerContext as NextServerContext, startServer as startNextServer } from 'client/server/express';
+import { type RunnerTaskBase, type TestContext, beforeEach, beforeAll, afterAll } from 'vitest';
 import { createPostgresLiteContext } from 'server/infrastructure/database/clients/pglite';
 import { Logger } from 'library/tools/logger';
 
@@ -39,16 +30,12 @@ beforeAll(async () => {
 
   database = await createPostgresLiteContext(logger);
 
-  server = startApplicationServer(database, logger, 'random');
+  server = await startApplicationServer(database, logger, 'random');
 
   await database.truncateAll();
 
   try {
-    nextServer = await startNextServer(
-      logger,
-      new URL(`http://localhost:${server.getPort()}`),
-      'random',
-    );
+    nextServer = await startNextServer(logger, new URL(`http://localhost:${server.getPort()}`), 'random');
   } catch (error: unknown) {
     logger.error('Error during NextJS start.', error);
   }
@@ -86,9 +73,9 @@ beforeEach<TestContext>(async context => {
   // task is the first step of current scenario.
   if (hasTag(context.task) && isFirstStepOfScenario(context.task)) {
     await database.truncateAll();
-
-    context.database = database.getClient();
   }
+
+  context.database = database.getClient();
 });
 
 function isFirstStepOfScenario(task: RunnerTaskBase) {

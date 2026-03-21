@@ -1,6 +1,5 @@
 import { type DomainFailure, domainFailure } from '../../issues/failure';
 import { makeGuards } from '../make-guards';
-import { guardString } from './string';
 
 /**
  * ---
@@ -27,7 +26,7 @@ export const FormatStringFailure = (name: string, pattern: RegExp): FormatString
  * @param pattern - Regex pattern to match.
  */
 function hasFormat(pattern: RegExp) {
-  return (value: unknown): value is string => guardString('').predicate(value) && pattern.test(value);
+  return (value: unknown): value is string => typeof value === 'string' && pattern.test(value);
 }
 
 /**

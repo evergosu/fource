@@ -1,7 +1,6 @@
 import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
-import { AggregateAlreadyExistsFailure } from 'server/library/ddd/domain/repository/repository-errors';
 import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
 import { OutboxRepository } from './outbox-repository';
@@ -27,11 +26,9 @@ describe('outbox repository', () => {
       await database.transaction(async transaction => {
         const repository = OutboxRepository.new(createEnvironment(transaction));
 
-        const result = await repository.createBatch([event]).run();
+        const result = await repository.createBatch([{ ...event, id: UniqueIdentifier.create().value }]).run();
 
         expect(result.isSuccess()).toBe(true);
-
-        transaction.rollback();
       });
     });
 
@@ -46,9 +43,7 @@ describe('outbox repository', () => {
         const resultSecond = await repository.createBatch([event]).run();
 
         expect(resultSecond.isFailure()).toBe(true);
-        expect(resultSecond.error._tag).toBe(AggregateAlreadyExistsFailure);
-
-        transaction.rollback();
+        expect(resultSecond.error._tag).toBe('AggregateAlreadyExistsFailure');
       });
     });
   });

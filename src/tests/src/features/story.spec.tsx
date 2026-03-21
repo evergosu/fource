@@ -1,5 +1,6 @@
 /* eslint-disable sonarjs/no-nested-functions */
 import type { TestContext } from 'vitest';
+import { chromium } from 'playwright';
 
 import { StoryQueryRepository } from 'server/module/story/infrastructure/repository/story-query-repository';
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
@@ -8,20 +9,19 @@ import { StoryDatabase } from 'server/module/story/infrastructure/repository/sto
 import { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { Story } from 'server/module/story/domain/story';
-import { render, screen } from '@testing-library/react';
 import { STEPS } from 'tests/steps';
-import Page from 'client/app/page';
+import { UniqueIdentifier } from 'server/library/ddd/primitives';
 
 describeFeature(await loadFeature('./story.feature'), ({ Scenario }) => {
-  const story = Story.create({
-    authorId: 'John Doe',
-    body: 'The content',
-    title: 'The Story',
-  });
-
   Scenario('there is a story to suggest', ({ Given, When, Then }) => {
+    const story = Story.create({
+      authorId: UniqueIdentifier.create().value.toString(),
+      body: 'The content',
+      title: 'The Story',
+    });
+
     Given('a story to suggest is available', async (context: unknown) => {
-      await (context as TestContext).database.transaction(async tx => {
+      const result = await (context as TestContext).database.transaction(async tx => {
         const repository = StoryRepository.new({
           provider: new TransactionalDatabaseProvider(tx),
           tracker: new AggregateTracker(),
@@ -32,63 +32,62 @@ describeFeature(await loadFeature('./story.feature'), ({ Scenario }) => {
           .flatMap(s => repository.create(s))
           .run();
 
-        const result = await story
+        return await story
           .toTask()
           .flatMap(s => repository.getById(s.id))
           .run();
-
-        expect(result.value).not.toBeNull();
       });
+
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).not.toBeNull();
     });
 
     STEPS.aReaderVisitsTheHomePage(When);
 
     Then('the story should be presented to the reader', async (context: unknown) => {
-      await (context as TestContext).database.transaction(async tx => {
+      const result = await (context as TestContext).database.transaction(async tx => {
         const repository = StoryRepository.new({
           provider: new TransactionalDatabaseProvider(tx),
           tracker: new AggregateTracker(),
         });
 
-        const result = await story
+        return await story
           .toTask()
           .flatMap(s => repository.getById(s.id))
           .run();
-
-        render(await Page());
-
-        expect(screen.getByRole('main')).toHaveTextContent(result.value.title.title);
       });
+
+      expect(result.isSuccess()).toBe(true);
+
+      const browser = await chromium.launch();
+      const page = await browser.newPage();
+      await page.goto(process.env.NEXT_PUBLIC_BASE_URL);
+      const content = await page.textContent('main');
+      await browser.close();
+
+      expect(content).toContain(result.value.title.title);
     });
   });
 
   Scenario('there is no story to suggest', ({ Given, When, Then }) => {
     Given('a story to suggest is not available', async (context: unknown) => {
-      await (context as TestContext).database.transaction(async tx => {
-        const repository = StoryRepository.new({
-          provider: new TransactionalDatabaseProvider(tx),
-          tracker: new AggregateTracker(),
-        });
+      const queryRepository = new StoryQueryRepository(new StoryDatabase((context as TestContext).database));
 
-        const queryRepository = new StoryQueryRepository(new StoryDatabase((context as TestContext).database));
+      const result = await queryRepository.getAll().run();
 
-        await story
-          .toTask()
-          .flatMap(s => repository.delete(s as Story<'persisted'>))
-          .run();
-
-        const result = await queryRepository.getAll().run();
-
-        expect(result.isFailure()).toBeTruthy();
-      });
+      expect(result.isFailure()).toBe(true);
     });
 
     STEPS.aReaderVisitsTheHomePage(When);
 
     Then('the system should indicate that there are no stories to be shawn', async () => {
-      render(await Page());
+      const browser = await chromium.launch();
+      const page = await browser.newPage();
+      await page.goto(process.env.NEXT_PUBLIC_BASE_URL);
+      const content = await page.textContent('main');
+      await browser.close();
 
-      expect(screen.getByRole('main')).toHaveTextContent('There is no stories');
+      expect(content).toContain('There is no stories');
     });
   });
 });

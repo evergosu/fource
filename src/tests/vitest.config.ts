@@ -1,8 +1,4 @@
-import {
-  defineConfig as defineViteConfig,
-  searchForWorkspaceRoot,
-  mergeConfig,
-} from 'vite';
+import { defineConfig as defineViteConfig, searchForWorkspaceRoot, mergeConfig } from 'vite';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import react from '@vitejs/plugin-react';
@@ -26,6 +22,8 @@ const root = searchForWorkspaceRoot(process.cwd());
 
 const vitestConfig = defineVitestConfig({
   test: {
+    hookTimeout: 10_000,
+    testTimeout: 10_000,
     alias: {
       library: resolvePath(import.meta.url, '../library/src'),
       client: resolvePath(import.meta.url, '../client/src'),

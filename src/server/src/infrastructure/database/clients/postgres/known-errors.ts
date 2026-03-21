@@ -76,7 +76,8 @@ type KnownSQLSTATE =
   | '08006' // connection_failure
   | '08003' // connection_does_not_exist
   | '22001' // string_data_right_truncation
-  | '22007'; // invalid_datetime_format
+  | '22007' // invalid_datetime_format
+  | '25P02'; //in_failed_sql_transaction
 
 function isKnownSQLSTATE(
   error: PostgresError,
@@ -95,6 +96,7 @@ function isKnownSQLSTATE(
     '08003',
     '22001',
     '22007',
+    '25P02',
   ].includes(error.code);
 }
 

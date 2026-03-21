@@ -5,9 +5,9 @@ import { bifunctorLaws } from './laws/bifunctor-laws';
 
 /* eslint-disable unicorn/consistent-function-scoping */
 import { naturalTransformationLaws } from './laws/natural-transformation-laws';
+import { applicativeLawsResult } from './laws/applicative-laws-result';
 import { monadMorphismLaws } from './laws/monad-morphism-laws';
 import { errorChannelLaws } from './laws/error-channel-laws';
-import { applicativeLaws } from './laws/applicative-laws';
 import { functorLaws } from './laws/functor-laws';
 import { createTaskRuntime } from './task.spec';
 import { monadLaws } from './laws/monad-laws';
@@ -93,7 +93,7 @@ describe('category theory', () => {
   describe('applicative laws', () => {
     const runtime = createResultRuntime<number, string>();
 
-    const laws = applicativeLaws<number, number, number, string, Result<unknown, string>>(
+    const laws = applicativeLawsResult<number, number, number, string>(
       runtime,
       n => Result.ok(n),
       (ff, fa) => ff.ap(fa),

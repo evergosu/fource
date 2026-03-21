@@ -7,7 +7,7 @@ import type { Logger } from 'library/tools/logger';
  * @returns error handler for current request.
  */
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
-  return (error, _request, response) => {
+  return (error, _request, response, _next) => {
     logger.error('Express error.', error);
 
     if (!response.headersSent) {

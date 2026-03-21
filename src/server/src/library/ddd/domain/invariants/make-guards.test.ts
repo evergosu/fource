@@ -13,11 +13,11 @@ import type { Guard } from './make-guards';
  * @param parameters.invalid - values for invalid result.
  * @param parameters.failure - failure to produce on invalid result.
  */
-export function testGuardContract<T, B extends T, F extends DomainFailure>(parameters: {
+export function testGuardContract<T, B extends T>(parameters: {
   invalid: readonly T[];
-  guard: Guard<T, B, F>;
+  guard: Guard<T, B, DomainFailure>;
   valid: readonly T[];
-  failure: F;
+  failure: DomainFailure;
 }) {
   it('should satisfy guard contract', () => {
     const { invalid, failure, guard, valid } = parameters;
@@ -31,6 +31,9 @@ export function testGuardContract<T, B extends T, F extends DomainFailure>(param
       const r = guard.refine(value);
       expect(r.isSuccess()).toBe(true);
       expect(r.value).toBe(value);
+
+      expect(guard.predicate(value)).toBe(v.isSuccess());
+      expect(guard.predicate(value)).toBe(r.isSuccess());
     }
 
     for (const value of invalid) {
@@ -38,11 +41,14 @@ export function testGuardContract<T, B extends T, F extends DomainFailure>(param
 
       const v = guard.validate(value);
       expect(v.isFailure()).toBe(true);
-      expect(v.error).toBe(failure);
+      expect(v.error).toMatchObject(failure);
 
       const r = guard.refine(value);
       expect(r.isFailure()).toBe(true);
-      expect(r.error).toBe(failure);
+      expect(r.error).toMatchObject(failure);
+
+      expect(guard.predicate(value)).toBe(v.isSuccess());
+      expect(guard.predicate(value)).toBe(r.isSuccess());
     }
   });
 }

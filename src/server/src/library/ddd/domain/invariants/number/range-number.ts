@@ -30,7 +30,7 @@ export const OutOfRangeNumberFailure = (name: string, minimum: number, maximum: 
  * @param maximum - Maximum allowed value.
  */
 function isInRange(minimum: number, maximum: number) {
-  return (value: unknown): value is number => guardNumber('').predicate(value) && value < minimum && value > maximum;
+  return (value: unknown): value is number => guardNumber('').predicate(value) && value > minimum && value < maximum;
 }
 
 /**

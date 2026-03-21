@@ -13,4 +13,4 @@ const logger = new Logger({
 
 const postgres = await createPostgresContext(logger);
 
-export default startServer(postgres, logger);
+export default await startServer(postgres, logger);

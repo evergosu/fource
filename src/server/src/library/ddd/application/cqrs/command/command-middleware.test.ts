@@ -29,9 +29,7 @@ describe('middleware pipeline', () => {
     const bus = new InMemoryCommandBus();
 
     const middleware = {
-      execute: vi.fn((_, next: () => Task<unknown, unknown>) => {
-        next();
-      }),
+      execute: vi.fn((_, next: () => Task<unknown, unknown>) => next()),
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument

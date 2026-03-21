@@ -20,8 +20,6 @@ describe('outbox database', () => {
         const result = await repository.createBatch([event]).run();
 
         expect(result.isSuccess()).toBeTruthy();
-
-        transaction.rollback();
       });
     });
 
@@ -34,8 +32,6 @@ describe('outbox database', () => {
         const result = await repository.createBatch([event]).run();
 
         expect(result.isFailure()).toBeTruthy();
-
-        transaction.rollback();
       });
     });
   });

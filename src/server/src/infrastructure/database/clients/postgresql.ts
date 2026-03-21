@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { migrate as postgresMigrate } from 'drizzle-orm/node-postgres/migrator';
 import { getEnvironment } from 'server/library/environment';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -24,6 +25,8 @@ export const database = drizzle(pool, {
 });
 
 export type Postgres = typeof database;
+
+export const seed = () => seedAll(database);
 
 /**
  * Creates concrete context for postgres database.
@@ -115,8 +118,7 @@ async function connectToDatabase(logger: Logger, retries = 10, baseDelay = 500):
   }
 
   throw new Error(
-    `Postgres never became ready after ${String(retries)} retries.\nLast error: ${
-      lastError instanceof Error ? String(lastError.stack) : String(lastError)
+    `Postgres never became ready after ${String(retries)} retries.\nLast error: ${lastError instanceof Error ? String(lastError.stack) : String(lastError)
     }`,
   );
 }
@@ -128,7 +130,7 @@ async function connectToDatabase(logger: Logger, retries = 10, baseDelay = 500):
  */
 function processError(error: unknown) {
   if (error instanceof AggregateError) {
-    const aggregateError = error as { code: string } & AggregateError;
+    const aggregateError = error as { code: string; } & AggregateError;
 
     return `${aggregateError.name}: ${aggregateError.code}`;
   } else if (error instanceof Error) {

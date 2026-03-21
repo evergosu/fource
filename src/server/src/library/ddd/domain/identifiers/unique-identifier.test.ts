@@ -1,5 +1,3 @@
-import { EmptyStringFailure } from '../invariants/string/empty-string';
-import { NullishFailure } from '../invariants/defined/defined';
 import { UniqueIdentifier } from './unique-identifier';
 
 describe('unique identifier', () => {
@@ -31,7 +29,8 @@ describe('unique identifier', () => {
     const result = UniqueIdentifier.create('');
 
     expect(result.isFailure()).toBe(true);
-    expect(result.error._tag).toBe(EmptyStringFailure('')._tag);
+    expect(result.error._tag).toBe('UniqueIdentifierFailure');
+    expect(result.error.cause._tag).toBe('EmptyStringFailure');
     expect(result.error.name).toBe(UniqueIdentifier.name);
   });
 
@@ -40,7 +39,8 @@ describe('unique identifier', () => {
     const result = UniqueIdentifier.create(null as unknown as string);
 
     expect(result.isFailure()).toBe(true);
-    expect(result.error._tag).toBe(NullishFailure('')._tag);
+    expect(result.error._tag).toBe('UniqueIdentifierFailure');
+    expect(result.error.cause._tag).toBe('StringFailure');
     expect(result.error.name).toBe(UniqueIdentifier.name);
   });
 
@@ -48,7 +48,8 @@ describe('unique identifier', () => {
     const result = UniqueIdentifier.create({} as unknown as string);
 
     expect(result.isFailure()).toBe(true);
-    expect(result.error._tag).toBe(NullishFailure('')._tag);
+    expect(result.error._tag).toBe('UniqueIdentifierFailure');
+    expect(result.error.cause._tag).toBe('StringFailure');
     expect(result.error.name).toBe(UniqueIdentifier.name);
   });
 

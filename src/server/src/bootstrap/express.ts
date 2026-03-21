@@ -26,30 +26,35 @@ export interface ServerContext {
  * @param port - port to run the application, randomly discovered otherwise.
  * @returns server context with DSL API.
  */
-export function startServer(
+export async function startServer(
   database: DatabaseContext,
   logger: Logger,
   port: 'environment' | 'random' = 'environment',
-): ServerContext {
+): Promise<ServerContext> {
   const environment = getEnvironment();
 
   const { commandBus, queryBus } = new Container(database.getClient());
 
-  const server = express()
-    .set('trust proxy', 1)
-    .use(allowCorsFor([environment.server.url.origin, environment.client.url.origin]))
-    .use(...helmetByEnvironment)
-    .use(...rateLimitByEnvironment)
-    .use(...morganByEnvironment)
-    .use(express.json())
-    .use(express.urlencoded({ extended: true }))
-    .use('/api/story', createStoryRouter(commandBus, queryBus), createBanRouter(commandBus))
-    .use(createErrorHandler(logger))
-    .listen(port === 'random' ? 0 : environment.server.url.port, () => {
-      logger.info(`Server running at http://localhost:${getPort(server)}`);
+  const server = await new Promise<Server>((resolve, reject) => {
+    const server = express()
+      .set('trust proxy', 1)
+      .use(allowCorsFor([environment.server.url.origin, environment.client.url.origin]))
+      .use(...helmetByEnvironment)
+      .use(...rateLimitByEnvironment)
+      .use(...morganByEnvironment)
+      .use(express.json())
+      .use(express.urlencoded({ extended: true }))
+      .use('/api/stories', createStoryRouter(commandBus, queryBus), createBanRouter(commandBus))
+      .use(createErrorHandler(logger))
+      .listen(port === 'random' ? 0 : environment.server.url.port, () => {
+        logger.info(`Server running at http://localhost:${getPort(server)}`);
 
-      sendReady();
-    });
+        sendReady();
+        resolve(server);
+      });
+
+    server.on('error', reject);
+  });
 
   registerShutdownOnSignals(['SIGINT', 'SIGTERM'], server, database, logger);
 

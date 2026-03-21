@@ -2,30 +2,36 @@ import { relativeFetch } from 'client/library/fetch';
 
 import { Story } from './story/story';
 
-export default async function Home() {
-  let title: string;
+interface Payload {
+  title: string;
+  body: string;
+}
 
+export default async function Home() {
   try {
-    const response = await relativeFetch('/api/story');
+    const response = await relativeFetch('/api/stories/');
 
     if (response.ok) {
-      const story = (await response.json()) as { title: string };
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const stories: Payload[] = await response.json();
 
-      title = story.title;
+      if (stories.length === 0) {
+        return <main>There is no stories</main>;
+      }
+
+      const [story] = stories;
+
+      return (
+        <main>
+          <Story title={story?.title ?? ''} body={story?.body ?? ''} />
+        </main>
+      );
     } else {
-      const error = (await response.json()) as { message: string };
-
-      title = error.message;
+      return <main>There is no stories</main>;
     }
   } catch (error: unknown) {
-    title = String(error);
+    return <main>{JSON.stringify(error)}</main>;
   }
-
-  return (
-    <main>
-      <Story title={title} />
-    </main>
-  );
 }
 
 export const dynamic = 'force-dynamic';

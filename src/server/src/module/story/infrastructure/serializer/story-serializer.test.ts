@@ -4,11 +4,17 @@ import { StorySerializer } from './story-serializer';
 import { Story } from '../../domain/story';
 
 describe('story serializers', () => {
-  const createdAt = new Date();
+  beforeAll(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-06-09T12:34:56'));
+  });
 
-  const TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
+  afterAll(() => {
+    vi.useRealTimers();
+  });
 
-  const expiresAt = new Date(createdAt.getTime() + TWENTY_FOUR_HOURS);
+  const createdAt = new Date('2025-06-09T12:34:55'); // 1 second before fake now
+  const expiresAt = new Date('2025-06-10T12:34:56'); // 24h after fake now
 
   const raw: StorySelectSchema = {
     authorId: '00000000-0000-0000-0000-000000000001',

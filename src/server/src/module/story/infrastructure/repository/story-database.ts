@@ -51,8 +51,10 @@ export class StoryDatabase
   }
 
   /** @inheritdoc */
-  public getById(id: string): Task<StorySelectSchema[], never> {
-    return Task.fromPromise(async () => await this.database.select().from(story).where(eq(story.id, id)));
+  public getById(id: string): Task<StorySelectSchema[], InfrastructureFailures> {
+    return Task.fromPromise(async () => await this.database.select().from(story).where(eq(story.id, id))).mapError(
+      error => decodePostgresError(error),
+    );
   }
 
   /** @inheritdoc */

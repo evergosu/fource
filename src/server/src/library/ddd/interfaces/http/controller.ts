@@ -82,7 +82,7 @@ export abstract class Controller<Request, Response> {
    * @param failure - application failure
    */
   protected handleFailure(failure: unknown): [number, unknown] {
-    return [400, { message: String(failure) }];
+    return [400, { message: JSON.stringify(failure) }];
   }
 
   /**
@@ -92,7 +92,7 @@ export abstract class Controller<Request, Response> {
    * @param error - thrown exception
    */
   protected handleUnexpected(error: unknown): [number, unknown] {
-    return [500, { message: String(error) }];
+    return [500, { message: JSON.stringify(error) }];
   }
 
   /**

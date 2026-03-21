@@ -115,7 +115,7 @@ export abstract class Time<T extends Time<T>> extends ValueObject<Properties> {
    * @param validators - Additional arguments for domain-specific validation.
    */
   public static fromNow<U extends Time<U>, F extends DomainFailure>(this: SubClass<U, F>, validators?: unknown[]) {
-    return this._internalCreate(new Date(), validators);
+    return this._internalCreate(new Date(Date.now() - 1), validators);
   }
 
   /** ----------------- INSTANCE METHODS ----------------- */

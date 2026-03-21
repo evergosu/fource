@@ -1,6 +1,3 @@
-import { NullishFailure } from 'server/library/ddd/domain/invariants/defined/defined';
-
-import { StoryTitle } from './value-object/story-title';
 import { Story } from './story';
 
 describe('story', () => {
@@ -14,10 +11,13 @@ describe('story', () => {
   });
 
   describe('.update()', () => {
+    const createdAt = new Date('2025-06-09T12:34:55'); // 1 second before fake now
+    const expiresAt = new Date('2025-06-10T12:34:56'); // 24h after fake now
+
     it('should rehydrate a story successfully with valid input', () => {
       const storyDto = {
-        createdAt: new Date('2025-08-12T10:15:30.000Z'),
-        expiresAt: new Date('2025-08-10T10:15:30.000Z'),
+        createdAt,
+        expiresAt,
         body: 'This is the body of Test Story.',
         id: '0000-00000-0000-999999',
         authorId: 'John Doe',
@@ -38,8 +38,8 @@ describe('story', () => {
 
     it('should translate errors from invalid input', () => {
       const storyDto = {
-        createdAt: new Date('2025-08-12T10:15:30.000Z'),
-        expiresAt: new Date('2025-08-10T10:15:30.000Z'),
+        createdAt,
+        expiresAt,
         body: 'This is the body of Test Story.',
         title: undefined as unknown as string,
         id: '0000-00000-0000-999999',
@@ -51,8 +51,9 @@ describe('story', () => {
       const result = Story.rehydrate(storyDto);
 
       expect(result.isFailure()).toBe(true);
-      expect(result.error._tag).toBe(NullishFailure('')._tag);
-      expect(result.error.name).toBe(StoryTitle.name);
+      expect(result.error._tag).toBe('StoryFailure');
+      expect(result.error.cause._tag).toBe('StoryTitleFailure');
+      expect(result.error.name).toBe(Story.name);
     });
   });
 

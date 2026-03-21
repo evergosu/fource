@@ -25,7 +25,7 @@
     "database:start": "pnpm --filter server database:start",
     "deps": "pnpm update -i",
     "lint": "pnpm --recursive --parallel --stream --aggregate-output lint",
-    "postinstall": "husky",
+    "postinstall": "husky && pnpm exec playwright install",
     "pre-commit": "pnpm --recursive --stream --aggregate-output --workspace-concurrency=1 pre-commit",
     "push": "pnpm --filter server database:push",
     "start": "(pnpm database:start & pnpm --recursive --parallel --stream --aggregate-output start)",

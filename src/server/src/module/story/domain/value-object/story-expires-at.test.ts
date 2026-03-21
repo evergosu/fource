@@ -8,7 +8,7 @@ describe('story expires at', () => {
     );
 
     expect(result.isSuccess()).toBe(true);
-    expect(result.value).toBeInstanceOf(StoryCreatedAt);
+    expect(result.value).toBeInstanceOf(StoryExpiresAt);
   });
 
   it('should fail if before createdAt', () => {
@@ -19,6 +19,6 @@ describe('story expires at', () => {
     expect(result.isFailure()).toBe(true);
     expect(result.error.name).toBe(StoryExpiresAt.name);
     expect(result.error._tag).toBe('TimeFailure');
-    expect(result.error.cause._tag).toBe('BeforeDateFailure');
+    expect(result.error.cause._tag).toBe('AfterDateFailure');
   });
 });

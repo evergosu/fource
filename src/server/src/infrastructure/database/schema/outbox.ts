@@ -14,7 +14,7 @@ export const outbox = pgTable('outbox', {
     withTimezone: false,
     mode: 'date',
   }),
-  aggregateId: uuid('aggregate_id').primaryKey().notNull(),
+  aggregateId: uuid('aggregate_id').notNull(),
   payload: jsonb('payload').$type<Json>().notNull(),
   id: uuid('id').primaryKey().notNull(),
   type: text('type').notNull(),

@@ -16,6 +16,7 @@ import { DeadlockFailure } from 'server/library/ddd/infrastructure/errors/deadlo
 import { assertNever } from 'server/library/ddd/utility/assert-never';
 
 import { isKnownPostgresError } from './known-errors';
+import { TransactionFailure } from 'server/library/ddd/infrastructure/errors/transaction-failure';
 /**
  * ---
  * PostgreSQL-specific error decoder.
@@ -68,6 +69,9 @@ export function decodePostgresError(error: unknown): InfrastructureFailures {
       }
       case '22007': {
         return InvalidDatetimeFormatFailure(error.code, error);
+      }
+      case '25P02': {
+        return TransactionFailure(error.code, error);
       }
 
       default: {

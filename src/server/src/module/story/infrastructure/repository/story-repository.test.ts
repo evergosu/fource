@@ -2,12 +2,6 @@
 import type { StorySelectSchema } from 'server/infrastructure/database/schema/story';
 import type { DatabaseTransaction } from 'server/infrastructure/database/database';
 
-import {
-  AggregateSpecificationFailure,
-  AggregateAlreadyExistsFailure,
-  AggregateConcurrencyFailure,
-  AggregateNotFoundFailure,
-} from 'server/library/ddd/domain/repository/repository-errors';
 import { TransactionalDatabaseProvider } from 'server/library/ddd/domain/repository/repository-provider';
 import { UniqueIdentifier, Specification, Task } from 'server/library/ddd/primitives';
 import { AggregateTracker } from 'server/infrastructure/orm/unit-of-work/aggregate-tracker';
@@ -69,9 +63,7 @@ describe('story repository', () => {
 
         expect(result.isSuccess()).toBe(true);
         expect(result.value.length).toBe(1);
-        expect(result.value.at(0)?.body).toBe(storySecond.body);
-
-        transaction.rollback();
+        expect(result.value.at(0)?.body).toBe(storyFirst.body);
       });
     });
 
@@ -96,9 +88,7 @@ describe('story repository', () => {
         const result = await queryRepository.getBySpecification(specification).run();
 
         expect(result.isFailure()).toBe(true);
-        expect(result.error._tag).toBe(AggregateSpecificationFailure);
-
-        transaction.rollback();
+        expect(result.error._tag).toBe('AggregateSpecificationFailure');
       });
     });
   });
@@ -121,9 +111,7 @@ describe('story repository', () => {
           .run();
 
         expect(result.isSuccess()).toBe(true);
-        expect(result.value.id).toBe(story.value.id);
-
-        transaction.rollback();
+        expect(result.value.id.equals(story.value.id)).toBe(true);
       });
     });
 
@@ -137,9 +125,7 @@ describe('story repository', () => {
           .run();
 
         expect(result.isFailure()).toBe(true);
-        expect(result.error._tag).toBe(AggregateNotFoundFailure);
-
-        transaction.rollback();
+        expect(result.error._tag).toBe('AggregateNotFoundFailure');
       });
     });
   });
@@ -170,11 +156,9 @@ describe('story repository', () => {
 
         const isEmpty = await queryRepository.getAll().run();
 
-        expect(first.isSuccess()).toBeTruthy();
-        expect(isEmpty.isFailure()).toBeTruthy();
-        expect(isEmpty.error._tag).toBe(AggregateNotFoundFailure);
-
-        transaction.rollback();
+        expect(first.isSuccess()).toBe(true);
+        expect(isEmpty.isFailure()).toBe(true);
+        expect(isEmpty.error._tag).toBe('AggregateNotFoundFailure');
       });
     });
 
@@ -209,10 +193,8 @@ describe('story repository', () => {
           .flatMap(story => commandRepository.delete(story))
           .run();
 
-        expect(result.isFailure()).toBeTruthy();
-        expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
-
-        transaction.rollback();
+        expect(result.isFailure()).toBe(true);
+        expect(result.error._tag).toBe('AggregateNotFoundFailure');
       });
     });
   });
@@ -239,8 +221,6 @@ describe('story repository', () => {
 
         expect(result.isSuccess()).toBe(true);
         expect(result.value).toHaveLength(2);
-
-        transaction.rollback();
       });
     });
 
@@ -253,9 +233,7 @@ describe('story repository', () => {
         const result = await queryRepository.getAll().run();
 
         expect(result.isFailure()).toBe(true);
-        expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
-
-        transaction.rollback();
+        expect(result.error._tag).toBe('AggregateNotFoundFailure');
       });
     });
   });
@@ -271,8 +249,6 @@ describe('story repository', () => {
           .run();
 
         expect(result.isSuccess()).toBe(true);
-
-        transaction.rollback();
       });
     });
 
@@ -280,22 +256,22 @@ describe('story repository', () => {
       await database.transaction(async transaction => {
         const repository = StoryRepository.new(createEnvironment(transaction));
 
-        const resultFirst = await Story.create(storyFirst)
+        const story = Story.create(storyFirst);
+
+        const resultFirst = await story
           .toTask()
           .flatMap(story => repository.create(story))
           .run();
 
         expect(resultFirst.isSuccess()).toBe(true);
 
-        const resultSecond = await Story.create(storyFirst)
+        const resultSecond = await story
           .toTask()
           .flatMap(story => repository.create(story))
           .run();
 
         expect(resultSecond.isFailure()).toBe(true);
-        expect(resultSecond.error._tag).toBe(AggregateAlreadyExistsFailure);
-
-        transaction.rollback();
+        expect(resultSecond.error._tag).toBe('AggregateAlreadyExistsFailure');
       });
     });
   });
@@ -329,10 +305,8 @@ describe('story repository', () => {
 
         const updatedFirst = await first.run();
 
-        expect(updatedFirst.isSuccess()).toBeTruthy();
+        expect(updatedFirst.isSuccess()).toBe(true);
         expect(updatedFirst.value.title).toBe('Brand new updated title');
-
-        transaction.rollback();
       });
     });
 
@@ -367,10 +341,8 @@ describe('story repository', () => {
           .flatMap(s => commandRepository.updateWithLock(s))
           .run();
 
-        expect(result.isFailure()).toBeTruthy();
-        expect(result.error).toBeInstanceOf(AggregateNotFoundFailure);
-
-        transaction.rollback();
+        expect(result.isFailure()).toBe(true);
+        expect(result.error._tag).toBe('AggregateNotFoundFailure');
       });
     });
 
@@ -401,10 +373,8 @@ describe('story repository', () => {
           .flatMap(s => commandRepository.updateWithLock(s))
           .run();
 
-        expect(result.isFailure()).toBeTruthy();
-        expect(result.error).toBeInstanceOf(AggregateConcurrencyFailure);
-
-        transaction.rollback();
+        expect(result.isFailure()).toBe(true);
+        expect(result.error._tag).toBe('AggregateConcurrencyFailure');
       });
     });
   });

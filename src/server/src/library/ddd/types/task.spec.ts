@@ -2,10 +2,10 @@ import type { LawRuntime } from './laws/law-runtime';
 
 /* eslint-disable unicorn/consistent-function-scoping */
 import { naturalTransformationLaws } from './laws/natural-transformation-laws';
+import { applicativeLawsTask } from './laws/applicative-laws-task';
 import { monadMorphismLaws } from './laws/monad-morphism-laws';
 import { effectfulFoldLaws } from './laws/effectful-fold-laws';
 import { errorChannelLaws } from './laws/error-channel-laws';
-import { applicativeLaws } from './laws/applicative-laws';
 import { functorLaws } from './laws/functor-laws';
 import { monadLaws } from './laws/monad-laws';
 import { deepCompare } from '../primitives';
@@ -58,7 +58,7 @@ describe('category theory', () => {
   describe('applicative laws', () => {
     const runtime = createTaskRuntime<number, string>();
 
-    const laws = applicativeLaws<number, number, number, string, Task<unknown, string>>(
+    const laws = applicativeLawsTask<number, number, number, string>(
       runtime,
       n => Task.ok(n),
       (ff, fa) => ff.ap(fa),
@@ -216,7 +216,7 @@ describe('category theory', () => {
   });
 
   describe('effectful fold laws', () => {
-    it('should satisfy left consistency', () => {
+    it('should satisfy left consistency', async () => {
       const runtime = createTaskRuntime<string, string>();
 
       const fa = Task.fail<string>('err') as Task<string, string>;
@@ -224,7 +224,7 @@ describe('category theory', () => {
       const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) => t.match({ fail, ok }));
 
       expect(
-        laws.leftConsistency(
+        await laws.leftConsistency(
           'err',
           error => `error:${error}`,
           n => `ok:${String(n)}`,
@@ -232,23 +232,23 @@ describe('category theory', () => {
       ).toBe(true);
     });
 
-    it('should satisfy right consistency', () => {
+    it('should satisfy right consistency', async () => {
       const runtime = createTaskRuntime<number, string>();
       const fa = Task.ok<number>(5) as Task<number, string>;
 
       const laws = effectfulFoldLaws(runtime, fa, (r, fail, ok) => r.match({ fail, ok }));
 
-      expect(laws.rightConsistency(5, error => (error.length > 0 ? 5 : 6), Number)).toBe(true);
+      expect(await laws.rightConsistency(5, error => (error.length > 0 ? 5 : 6), Number)).toBe(true);
     });
 
-    it('should satisfy naturality', () => {
+    it('should satisfy naturality', async () => {
       const runtime = createTaskRuntime<number, string>();
       const fa = Task.ok<number>(3) as Task<number, string>;
 
       const laws = effectfulFoldLaws(runtime, fa, (t, fail, ok) => t.match({ fail, ok }));
 
       expect(
-        laws.naturality(
+        await laws.naturality(
           error => error.length,
           n => Number(n) + 1,
           x => x * 2,

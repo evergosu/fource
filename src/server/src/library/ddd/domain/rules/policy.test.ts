@@ -3,7 +3,8 @@ import { AggregateRoot } from '../aggregate-root';
 import { Result } from '../../types/result';
 import { Policy } from './policy';
 
-class TestEntity extends AggregateRoot<{ isFoo: boolean }> {
+// eslint-disable-next-line prettier/prettier
+class TestEntity extends AggregateRoot<{ isFoo: boolean; }> {
   constructor() {
     super({ isFoo: true });
   }
@@ -18,14 +19,14 @@ class TestEntity extends AggregateRoot<{ isFoo: boolean }> {
 }
 
 type PolicyViolated = {
-  readonly _tag: 'UnknownInfrastructureFailure';
+  readonly _tag: 'PolicyViolated';
   readonly cause: unknown;
 } & DomainFailure;
 
 // eslint-disable-next-line sonarjs/no-redeclare
 const PolicyViolated = (cause: unknown): PolicyViolated =>
   domainFailure({
-    _tag: 'UnknownInfrastructureFailure',
+    _tag: 'PolicyViolated',
     cause,
   });
 
@@ -65,7 +66,7 @@ describe('Policy', () => {
     const result = policy.apply(target);
 
     expect(result.isFailure()).toBe(true);
-    expect(result.error).toBeInstanceOf(PolicyViolated);
+    expect(result.error._tag).toBe('PolicyViolated');
     expect(target.isFoo).toBe(false);
   });
 });

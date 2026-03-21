@@ -1,6 +1,6 @@
 # fource
 
-Fullstack app showcase latest tools.
+Fullstack app, DDD without libraries.
 
 ### To use pretty printed messages please add variables to your shell:
 

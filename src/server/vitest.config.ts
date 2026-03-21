@@ -1,8 +1,4 @@
-import {
-  defineConfig as defineViteConfig,
-  searchForWorkspaceRoot,
-  mergeConfig,
-} from 'vite';
+import { defineConfig as defineViteConfig, searchForWorkspaceRoot, mergeConfig } from 'vite';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 

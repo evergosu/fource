@@ -61,7 +61,7 @@ export class Result<T, E = Failure> {
     }
 
     throw new DataTypeInvariantViolationException(
-      `Cannot get the error of a successful result with a value: ${String(this.value)}`,
+      `Cannot get the error of a successful result with a value: ${JSON.stringify(this.value, undefined, 2)}`,
     );
   }
 
@@ -80,7 +80,7 @@ export class Result<T, E = Failure> {
     }
 
     throw new DataTypeInvariantViolationException(
-      `Cannot get the value of a failed result with an error: ${String(this.error)}`,
+      `Cannot get the value of a failed result with an error: ${JSON.stringify(this.error, undefined, 2)}`,
     );
   }
 

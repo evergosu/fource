@@ -23,6 +23,6 @@ export class GetAllStoriesController extends ExpressController<Request> {
 
   /** @inheritdoc */
   protected override handleSuccess(value: unknown): [number, unknown] {
-    return [201, value];
+    return [200, value];
   }
 }

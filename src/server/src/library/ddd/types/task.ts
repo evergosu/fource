@@ -207,7 +207,10 @@ export class Task<A, E> {
    * ---
    * @param fa - container to apply.
    */
-  public ap<B, F>(this: Task<(value: A) => B, E>, fa: Task<A, F>): Task<B, E | F> {
+  public ap<A2, B, F>(
+    this: Task<(value: A2) => B, E>,
+    fa: Task<A2, F>
+  ): Task<B, E | F> {
     return new Task(async () => {
       const [rf, ra] = await Promise.all([this.run(), fa.run()]);
 

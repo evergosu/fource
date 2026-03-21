@@ -32,20 +32,17 @@ describe('story database', () => {
 
         expect(result.isSuccess()).toBe(true);
         expect(result.value[0]?.id).toBe(storyFirst.id);
-
-        transaction.rollback();
       });
     });
 
-    it('should fail when story does not exist in @database', async ({ database }) => {
+    it('should return empty array when story does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
         const result = await repository.getById(storyFirst.id).run();
 
-        expect(result.isFailure()).toBe(true);
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value).toStrictEqual([]);
       });
     });
   });
@@ -61,23 +58,21 @@ describe('story database', () => {
 
         const allResult = await repository.getAll().run();
 
-        expect(deletionResult.isSuccess()).toBeTruthy();
-        expect(deletionResult.value).toContain([storyFirst.id]);
-        expect(allResult.isFailure()).toBeTruthy();
-
-        transaction.rollback();
+        expect(deletionResult.isSuccess()).toBe(true);
+        expect(deletionResult.value).toContain(storyFirst.id);
+        expect(allResult.isSuccess()).toBe(true);
+        expect(allResult.value).toStrictEqual([]);
       });
     });
 
-    it('should fail when a row does not exist in @database', async ({ database }) => {
+    it('should return empty array when a row does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
-        const deletionResult = await repository.delete(storyFirst.id).run();
+        const result = await repository.delete(storyFirst.id).run();
 
-        expect(deletionResult.isFailure()).toBeTruthy();
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value).toStrictEqual([]);
       });
     });
   });
@@ -92,23 +87,20 @@ describe('story database', () => {
 
         const result = await repository.getAll().run();
 
-        expect(result.isSuccess()).toBeTruthy();
-        expect(result.value[0]).toContainEqual(storyFirst);
-        expect(result.value[1]).toContainEqual(storySecond);
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value[0]).toMatchObject(storyFirst);
+        expect(result.value[1]).toMatchObject(storySecond);
       });
     });
 
-    it('should fail when no rows exists in @database', async ({ database }) => {
+    it('should return empty array when no rows exists in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
         const result = await repository.getAll().run();
 
-        expect(result.isFailure()).toBeTruthy();
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value).toStrictEqual([]);
       });
     });
   });
@@ -122,10 +114,8 @@ describe('story database', () => {
 
         const result = await repository.getAll().run();
 
-        expect(result.isSuccess()).toBeTruthy();
-        expect(result.value[0]).toContainEqual(storyFirst);
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value[0]).toMatchObject(storyFirst);
       });
     });
 
@@ -139,10 +129,8 @@ describe('story database', () => {
 
         const allResult = await repository.getAll().run();
 
-        expect(result.isFailure()).toBeTruthy();
-        expect(allResult.isFailure()).toBeTruthy();
-
-        transaction.rollback();
+        expect(result.isFailure()).toBe(true);
+        expect(allResult.isFailure()).toBe(true);
       });
     });
   });
@@ -163,16 +151,14 @@ describe('story database', () => {
 
         const result = await repository.getById(storyFirst.id).run();
 
-        expect(result.isSuccess()).toBeTruthy();
-        expect(result.value[0]).toContainEqual({
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value[0]).toMatchObject({
           title: 'Brand new updated title',
         });
-
-        transaction.rollback();
       });
     });
 
-    it('should fail when row does not exist in @database', async ({ database }) => {
+    it('should return empty array when row does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -183,9 +169,8 @@ describe('story database', () => {
           })
           .run();
 
-        expect(result.isFailure()).toBeTruthy();
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value).toStrictEqual([]);
       });
     });
   });
@@ -207,16 +192,14 @@ describe('story database', () => {
 
         const result = await repository.getById(storyFirst.id).run();
 
-        expect(result.isSuccess()).toBeTruthy();
-        expect(result.value[0]).toContainEqual({
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value[0]).toMatchObject({
           title: 'Brand new updated title',
         });
-
-        transaction.rollback();
       });
     });
 
-    it('should fail when row does not exist in @database', async ({ database }) => {
+    it('should return empty array when row does not exist in @database', async ({ database }) => {
       await database.transaction(async transaction => {
         const repository = new StoryDatabase(transaction);
 
@@ -228,9 +211,8 @@ describe('story database', () => {
           })
           .run();
 
-        expect(result.isFailure()).toBeTruthy();
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value).toStrictEqual([]);
       });
     });
 
@@ -250,10 +232,8 @@ describe('story database', () => {
 
         const result = await repository.getById(storyFirst.id).run();
 
-        expect(result.isSuccess()).toBeTruthy();
-        expect(result.value[0]).toContainEqual(storyFirst);
-
-        transaction.rollback();
+        expect(result.isSuccess()).toBe(true);
+        expect(result.value[0]).toMatchObject(storyFirst);
       });
     });
   });

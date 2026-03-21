@@ -170,7 +170,7 @@ describe('result', () => {
     });
 
     it('should wrap nullable correctly on nullable', () => {
-      const result = Result.fromNullable(false, new Error('foo'));
+      const result = Result.fromNullable(undefined, new Error('foo'));
 
       expect(result.isFailure()).toBe(true);
       expect(result.error.message).toBe('foo');

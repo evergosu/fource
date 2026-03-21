@@ -2,7 +2,8 @@ import type { ErrorRequestHandler } from 'express';
 import type { Logger } from 'library/tools/logger';
 
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
-  return (error, _request, response) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return (error, _request, response, _next) => {
     logger.error('Express error.', error);
 
     if (!response.headersSent) {

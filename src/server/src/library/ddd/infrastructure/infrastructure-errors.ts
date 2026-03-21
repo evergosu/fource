@@ -9,6 +9,7 @@ import type { ConnectionExistFailure } from './errors/connection-exist-failure';
 import type { UniqueViolationFailure } from './errors/unique-violation-failure';
 import type { CheckViolationFailure } from './errors/check-violation-failure';
 import type { SerializationFailure } from './errors/serialization-failure';
+import type { TransactionFailure } from './errors/transaction-failure';
 import type { ConnectionFailure } from './errors/connection-failure';
 import type { DeadlockFailure } from './errors/deadlock-failure';
 
@@ -24,5 +25,6 @@ export type InfrastructureFailures =
   | UniqueViolationFailure
   | CheckViolationFailure
   | SerializationFailure
+  | TransactionFailure
   | ConnectionFailure
   | DeadlockFailure;

@@ -24,10 +24,7 @@ afterAll(async () => {
 beforeEach<TestContext>(async context => {
   const tag = '@database';
 
-  if (
-    context.task.suite?.name.includes(tag) ||
-    context.task.name.includes(tag)
-  ) {
+  if (context.task.suite?.name.includes(tag) || context.task.name.includes(tag)) {
     await database.truncateAll();
 
     context.database = database.getClient();

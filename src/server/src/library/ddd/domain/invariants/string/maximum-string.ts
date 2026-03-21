@@ -27,7 +27,7 @@ export const MaximumLengthStringFailure = (name: string, maximumLength: number):
  * @param maximumLength - The maximum allowed length.
  */
 function isLessThan(maximumLength: number) {
-  return (value: unknown): value is string => guardString('').predicate(value) && value.length < maximumLength;
+  return (value: unknown): value is string => guardString('').predicate(value) && value.length <= maximumLength;
 }
 
 /**
